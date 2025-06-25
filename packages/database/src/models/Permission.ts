@@ -1,29 +1,28 @@
 import { Model, DataTypes, Optional, BelongsToManyAddAssociationMixin, BelongsToManyGetAssociationsMixin, BelongsToManyHasAssociationMixin } from 'sequelize';
 import sequelize from '../db';
-import bcrypt from "bcryptjs";
 
 // Importação de tipo apenas (sem importação de módulo circular)
 import type Role from './Role';
 
-// Interface para os atributos do User
-interface UserAttributes {
+// Interface para os atributos do Permission
+interface PermissionAttributes {
     id: number;
-    name: string;
-    email: string;
-    password: string;
+    resource: string;
+    action: string;
+    description?: string;
     active: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-interface UserCreationAttributes
-    extends Optional<UserAttributes, 'id' | 'active' | 'createdAt' | 'updatedAt'> { }
+interface PermissionCreationAttributes
+    extends Optional<PermissionAttributes, 'id' | 'description' | 'active' | 'createdAt' | 'updatedAt'> { }
 
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class Permission extends Model<PermissionAttributes, PermissionCreationAttributes> implements PermissionAttributes {
     public id!: number;
-    public name!: string;
-    public email!: string;
-    public password!: string;
+    public resource!: string;
+    public action!: string;
+    public description!: string;
     public active!: boolean;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -32,33 +31,27 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public addRole!: BelongsToManyAddAssociationMixin<Role, number>;
     public getRoles!: BelongsToManyGetAssociationsMixin<Role>;
     public hasRole!: BelongsToManyHasAssociationMixin<Role, number>;
-
-    // Atributo virtual para roles associados
     public readonly roles?: Role[];
 }
 
-User.init(
+Permission.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        name: {
+        resource: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        email: {
+        action: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
-            validate: {
-                isEmail: true,
-            },
         },
-        password: {
+        description: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         active: {
             type: DataTypes.BOOLEAN,
@@ -67,17 +60,12 @@ User.init(
     },
     {
         sequelize,
-        tableName: 'User',
-        modelName: 'User',
+        tableName: 'Permission',
+        modelName: 'Permission',
         scopes: {
             actives: { where: { active: true } },
-        },
-        hooks: {
-            beforeCreate: (user: UserCreationAttributes) => {
-                user.password = bcrypt.hashSync(user.password, 10);
-            },
         },
     }
 );
 
-export default User;
+export default Permission;

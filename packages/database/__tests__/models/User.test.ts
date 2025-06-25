@@ -11,7 +11,7 @@ describe('User', () => {
         await sequelize.close();
     });
 
-    it('deve criar um usuário com sucesso', async () => {
+    it('should create a user', async () => {
         const userData = {
             name: 'Test User',
             email: 'test@example.com',
@@ -29,7 +29,7 @@ describe('User', () => {
         expect(user.updatedAt).toBeDefined();
     });
 
-    it('deve criptografar a senha antes de salvar', async () => {
+    it('should encrypt password before saving', async () => {
         const userData = {
             name: 'Password Test',
             email: 'password@example.com',
@@ -44,7 +44,7 @@ describe('User', () => {
         expect(isPasswordValid).toBe(true);
     });
 
-    it('deve rejeitar um e-mail inválido', async () => {
+    it('should reject an invalid email', async () => {
         const userData = {
             name: 'Invalid Email',
             email: 'invalid-email',
@@ -54,7 +54,7 @@ describe('User', () => {
         await expect(User.create(userData)).rejects.toThrow();
     });
 
-    it('deve buscar usuários ativos usando o escopo', async () => {
+    it('should find active users using scope', async () => {
         await User.create({
             name: 'Active User',
             email: 'active@example.com',
