@@ -1,0 +1,32 @@
+{
+  "name": "@test-pod/database",
+  "version": "1.0.0",
+  "description": "Modelos de dados usando Sequelize",
+  "main": "src/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate:generate": "sequelize-cli migration:generate --name",
+    "migrate:up": "sequelize-cli db:migrate",
+    "migrate:down": "sequelize-cli db:migrate:undo",
+    "migrate:down:all": "sequelize-cli db:migrate:undo:all",
+    "migrate:status": "sequelize-cli db:migrate:status"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.35.1"
+  },
+  "devDependencies": {
+    "@test-pod/ts-config": "workspace:*",
+    "@types/node": "^20.10.0",
+    "sequelize-cli": "^6.6.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2"
+  }
+}

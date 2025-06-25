@@ -1,0 +1,11 @@
+{
+  "name": "@test-pod/ts-config",
+  "version": "1.0.0",
+  "description": "Configuração de TypeScript",
+  "files": [
+    "tsconfig.json"
+  ],
+  "exports": {
+    "./tsconfig.json": "./tsconfig.json"
+  }
+}
