@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "export NODE_ENV=test && jest",
+    "test:watch": "export NODE_ENV=test && jest --watch",
     "migrate:generate": "sequelize-cli migration:generate --name",
     "migrate:up": "sequelize-cli db:migrate",
     "migrate:down": "sequelize-cli db:migrate:undo",
@@ -23,9 +24,16 @@
     "sequelize": "^6.35.1"
   },
   "devDependencies": {
+    "@test-pod/jest-config": "workspace:*",
     "@test-pod/ts-config": "workspace:*",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.10.0",
+    "better-sqlite3": "^12.1.1",
+    "jest": "^30.0.3",
+    "jest-environment-node": "^30.0.2",
     "sequelize-cli": "^6.6.2",
+    "sqlite3": "^5.1.7",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.2"
   }

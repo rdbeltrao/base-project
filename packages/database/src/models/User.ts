@@ -59,7 +59,7 @@ User.init(
         tableName: 'User',
         modelName: 'User',
         scopes: {
-            ativos: { where: { active: true } },
+            actives: { where: { active: true } },
         },
         hooks: {
             beforeCreate: (user: UserCreationAttributes) => {
