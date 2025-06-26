@@ -7,7 +7,10 @@
     "apps/*"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "pnpm test",
+    "lint": "pnpm --filter=@test-pod/backend --filter=@test-pod/database lint",
+    "lint:fix": "pnpm --filter=@test-pod/backend --filter=@test-pod/database lint:fix",
+    "format": "pnpm --filter=@test-pod/backend --filter=@test-pod/database format"
   },
   "packageManager": "pnpm@10.11.0"
 }

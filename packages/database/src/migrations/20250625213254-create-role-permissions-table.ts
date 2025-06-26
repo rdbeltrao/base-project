@@ -1,55 +1,54 @@
+import type { QueryInterface, DataTypes } from 'sequelize'
 
-import type {
-  QueryInterface,
-  DataTypes
-} from 'sequelize';
-
-export async function up(queryInterface: QueryInterface, Sequelize: typeof DataTypes): Promise<void> {
+export async function up(
+  queryInterface: QueryInterface,
+  Sequelize: typeof DataTypes
+): Promise<void> {
   await queryInterface.createTable('role_permissions', {
     id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     role_id: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'roles',
-        key: 'id'
+        key: 'id',
       },
       onUpdate: 'CASCADE',
-      onDelete: 'CASCADE'
+      onDelete: 'CASCADE',
     },
     permission_id: {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'permissions',
-        key: 'id'
+        key: 'id',
       },
       onUpdate: 'CASCADE',
-      onDelete: 'CASCADE'
+      onDelete: 'CASCADE',
     },
     created_at: {
       allowNull: false,
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     updated_at: {
       allowNull: false,
-      type: Sequelize.DATE
-    }
-  });
+      type: Sequelize.DATE,
+    },
+  })
 
   // Add a unique constraint to prevent duplicate role-permission assignments
   await queryInterface.addConstraint('role_permissions', {
     fields: ['role_id', 'permission_id'],
     type: 'unique',
-    name: 'unique_role_permission'
-  });
+    name: 'unique_role_permission',
+  })
 }
 
-export async function down(queryInterface: QueryInterface, Sequelize: typeof DataTypes): Promise<void> {
-  await queryInterface.dropTable('role_permissions');
+export async function down(queryInterface: QueryInterface): Promise<void> {
+  await queryInterface.dropTable('role_permissions')
 }

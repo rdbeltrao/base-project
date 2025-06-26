@@ -1,8 +1,8 @@
-import type { QueryInterface } from 'sequelize';
-import bcrypt from 'bcryptjs';
+import type { QueryInterface } from 'sequelize'
+import bcrypt from 'bcryptjs'
 
 export async function up(queryInterface: QueryInterface): Promise<void> {
-  const now = new Date();
+  const now = new Date()
 
   await queryInterface.bulkInsert('permissions', [
     {
@@ -23,7 +23,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       created_at: now,
       updated_at: now,
     },
-  ]);
+  ])
 
   // 2. Inserir roles
   await queryInterface.bulkInsert('roles', [
@@ -43,7 +43,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       created_at: now,
       updated_at: now,
     },
-  ]);
+  ])
 
   await queryInterface.bulkInsert('role_permissions', [
     {
@@ -64,7 +64,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       created_at: now,
       updated_at: now,
     },
-  ]);
+  ])
 
   await queryInterface.bulkInsert('users', [
     {
@@ -76,7 +76,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       created_at: now,
       updated_at: now,
     },
-  ]);
+  ])
 
   await queryInterface.bulkInsert('user_roles', [
     {
@@ -85,13 +85,13 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       created_at: now,
       updated_at: now,
     },
-  ]);
+  ])
 }
 
 export async function down(queryInterface: QueryInterface): Promise<void> {
-  await queryInterface.bulkDelete('user_roles', {}, {});
-  await queryInterface.bulkDelete('users', {}, {});
-  await queryInterface.bulkDelete('role_permissions', {}, {});
-  await queryInterface.bulkDelete('roles', {}, {});
-  await queryInterface.bulkDelete('permissions', {}, {});
+  await queryInterface.bulkDelete('user_roles', {}, {})
+  await queryInterface.bulkDelete('users', {}, {})
+  await queryInterface.bulkDelete('role_permissions', {}, {})
+  await queryInterface.bulkDelete('roles', {}, {})
+  await queryInterface.bulkDelete('permissions', {}, {})
 }

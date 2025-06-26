@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: test_pod_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: test_pod_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge

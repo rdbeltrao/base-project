@@ -1,45 +1,44 @@
+import type { QueryInterface, DataTypes } from 'sequelize'
 
-import type {
-  QueryInterface,
-  DataTypes
-} from 'sequelize';
-
-export async function up(queryInterface: QueryInterface, Sequelize: typeof DataTypes): Promise<void> {
+export async function up(
+  queryInterface: QueryInterface,
+  Sequelize: typeof DataTypes
+): Promise<void> {
   await queryInterface.createTable('users', {
     id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
     },
     name: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: false,
     },
     email: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     },
     password: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: false,
     },
     active: {
       type: Sequelize.BOOLEAN,
-      defaultValue: true
+      defaultValue: true,
     },
     created_at: {
       allowNull: false,
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     updated_at: {
       allowNull: false,
-      type: Sequelize.DATE
-    }
-  });
+      type: Sequelize.DATE,
+    },
+  })
 }
 
-export async function down(queryInterface: QueryInterface, Sequelize: typeof DataTypes): Promise<void> {
-  await queryInterface.dropTable('users');
+export async function down(queryInterface: QueryInterface): Promise<void> {
+  await queryInterface.dropTable('users')
 }
