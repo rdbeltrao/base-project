@@ -1,3 +1,5 @@
+'use client'
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { getCookie, removeCookie, setCookie } from './cookies'
 
@@ -13,7 +15,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
-  logout: () => Promise<void>
+  logout: (redirectUrl?: string) => Promise<void>
   getToken: () => string | undefined
   updateProfile: (updatedUser: { name: string }) => void
 }
@@ -103,6 +105,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           setUser(data.user)
         }
 
+        if (data?.user?.roles.includes('admin')) {
+          window.location.href = `${process.env.NEXT_PUBLIC_BACKOFFICE_URL}/dashboard`
+        }
+
         return { success: true }
       }
 
@@ -119,12 +125,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   }
 
   const logout = async (redirectUrl: string = '/login') => {
+    console.log({ redirectUrl })
     setIsLoading(true)
 
     if (token) {
       removeCookie({ cookieName, domain })
       setToken(undefined)
       setUser(null)
+      setIsLoading(false)
+      window.location.href = redirectUrl
+    } else {
       setIsLoading(false)
       window.location.href = redirectUrl
     }

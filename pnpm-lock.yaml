@@ -23,12 +23,9 @@ importers:
       '@test-pod/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@types/jsonwebtoken':
-        specifier: ^9.0.10
-        version: 9.0.10
-      jsonwebtoken:
-        specifier: ^9.0.2
-        version: 9.0.2
+      jose:
+        specifier: ^6.0.11
+        version: 6.0.11
       next:
         specifier: 14.2.0
         version: 14.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -196,6 +193,79 @@ importers:
       typescript-eslint:
         specifier: ^8.34.0
         version: 8.35.0(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
+
+  apps/backoffice:
+    dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.1.1
+        version: 5.1.1(react-hook-form@7.58.1(react@18.3.1))
+      '@test-pod/auth-shared':
+        specifier: workspace:*
+        version: link:../../packages/auth-shared
+      '@test-pod/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      jose:
+        specifier: ^6.0.11
+        version: 6.0.11
+      next:
+        specifier: 14.2.0
+        version: 14.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next-auth:
+        specifier: ^4.24.7
+        version: 4.24.11(next@14.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: ^7.58.1
+        version: 7.58.1(react@18.3.1)
+      zod:
+        specifier: ^3.25.67
+        version: 3.25.67
+    devDependencies:
+      '@test-pod/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@test-pod/prettier-config':
+        specifier: workspace:*
+        version: link:../../packages/prettier-config
+      '@test-pod/tailwind-config':
+        specifier: workspace:*
+        version: link:../../packages/tailwind-config
+      '@test-pod/ts-config':
+        specifier: workspace:*
+        version: link:../../packages/ts-config
+      '@types/node':
+        specifier: ^20.11.30
+        version: 20.19.1
+      '@types/react':
+        specifier: ^18.2.67
+        version: 18.3.23
+      '@types/react-dom':
+        specifier: ^18.2.22
+        version: 18.3.7(@types/react@18.3.23)
+      autoprefixer:
+        specifier: ^10.4.19
+        version: 10.4.21(postcss@8.5.6)
+      eslint:
+        specifier: ^9.29.0
+        version: 9.29.0(jiti@2.4.2)
+      postcss:
+        specifier: ^8.4.38
+        version: 8.5.6
+      prettier:
+        specifier: ^3.6.1
+        version: 3.6.1
+      tailwindcss:
+        specifier: ^3.4.1
+        version: 3.4.17(ts-node@10.9.2(@types/node@20.19.1)(typescript@5.8.3))
+      typescript:
+        specifier: ^5.4.5
+        version: 5.8.3
 
   packages/auth-shared:
     dependencies:
@@ -3865,6 +3935,9 @@ packages:
 
   jose@4.15.9:
     resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
+
+  jose@6.0.11:
+    resolution: {integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -9801,6 +9874,8 @@ snapshots:
   jiti@2.4.2: {}
 
   jose@4.15.9: {}
+
+  jose@6.0.11: {}
 
   joycon@3.1.1: {}
 

@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Button,
   Input,
@@ -9,7 +11,7 @@ import {
   FormMessage,
 } from '@test-pod/ui'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'

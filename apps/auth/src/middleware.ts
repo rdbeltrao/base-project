@@ -1,19 +1,29 @@
-// middleware.ts  – coloque na raiz do projeto ou em src/
+import { jwtVerify } from 'jose'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
 
-export function middleware(request: NextRequest) {
-  const cookieName = process.env.COOKIE_NAME || 'auth-token'
-  const hasSession = request.cookies.get(cookieName)?.value
+export async function middleware(req: NextRequest) {
+  const token = req.cookies.get(process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken')?.value
 
-  if (!hasSession) {
-    const loginUrl = new URL('/login', request.url)
-    return NextResponse.redirect(loginUrl)
+  if (req.nextUrl.pathname.startsWith('/login')) {
+    if (token) {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+    return NextResponse.next()
   }
 
-  return NextResponse.next()
-}
+  if (req.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', req.url))
+    }
+    try {
+      await jwtVerify(token, secret)
 
-export const config = {
-  matcher: '/dashboard/:path*',
+      return NextResponse.next()
+    } catch (error) {
+      console.error('Token verification failed:', error)
+      return NextResponse.redirect(new URL('/login', req.url))
+    }
+  }
 }

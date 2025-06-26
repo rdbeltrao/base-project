@@ -39,11 +39,9 @@ router.post(
         }
 
         try {
-          const token = jwt.sign(
-            { id: user.id, email: user.email },
-            process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: JWT_EXPIRES_IN } as SignOptions
-          )
+          const token = jwt.sign(user, process.env.JWT_SECRET || 'your-secret-key', {
+            expiresIn: JWT_EXPIRES_IN,
+          } as SignOptions)
 
           res.json({ user, token })
         } catch (error) {

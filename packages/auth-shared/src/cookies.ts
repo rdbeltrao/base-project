@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 
-export const COOKIE_NAME = process.env.COOKIE_NAME || 'auth-token'
+export const COOKIE_NAME = process.env.COOKIE_NAME || 'authToken'
 
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || 'localhost'
 
