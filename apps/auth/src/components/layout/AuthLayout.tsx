@@ -13,7 +13,7 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children, title }: AuthLayoutProps) {
   const { user, isLoading, isAuthenticated, logout } = useAuth()
 
-  if (!isLoading) {
+  if (isLoading) {
     return <LoadingPage />
   }
 
