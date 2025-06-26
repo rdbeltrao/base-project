@@ -2,13 +2,10 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import dotenv from 'dotenv'
 import { sequelize } from '@test-pod/database'
 import passport from './config/passport'
 
 import authRoutes from './routes/auth.routes'
-
-dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3000

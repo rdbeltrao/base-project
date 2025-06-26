@@ -3,11 +3,8 @@ import { body, validationResult } from 'express-validator'
 import { User, Role } from '@test-pod/database'
 import jwt, { SignOptions } from 'jsonwebtoken'
 import passport from '../config/passport'
-import dotenv from 'dotenv'
 import type { SessionUser } from '@test-pod/database'
 import { getUserForSession } from '../utils/user'
-
-dotenv.config()
 
 const router: express.Router = express.Router()
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'

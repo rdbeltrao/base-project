@@ -3,10 +3,7 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
 import bcrypt from 'bcryptjs'
 import { User } from '@test-pod/database'
-import dotenv from 'dotenv'
 import { getUserForSession } from '../utils/user'
-
-dotenv.config()
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
