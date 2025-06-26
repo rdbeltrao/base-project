@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
         "declaration": true,
-        "target": "ES2020",
-        "module": "CommonJS",
+        "target": "ESNext",
+        "module": "ESNext",
         "lib": [
             "DOM",
             "DOM.Iterable",
-            "ES2020"
+            "ESNext"
         ],
         "allowJs": true,
         "skipLibCheck": true,

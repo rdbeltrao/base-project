@@ -1,0 +1,9 @@
+{
+  "extends": "@test-pod/ts-config/tsconfig.json",
+  "include": ["src"],
+  "exclude": ["dist", "build", "node_modules"],
+  "compilerOptions": {
+    "outDir": "./dist",
+    "types": ["node"]
+  }
+}

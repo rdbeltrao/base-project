@@ -1,0 +1,37 @@
+{
+  "name": "@test-pod/auth-shared",
+  "version": "0.1.0",
+  "main": "./src/index.ts",
+  "sideEffects": false,
+  "type": "module",
+  "files": [
+    "src/**"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "devDependencies": {
+    "@test-pod/prettier-config": "workspace:*",
+    "@test-pod/eslint-config": "workspace:*",
+    "@test-pod/ts-config": "workspace:*",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^20.19.1",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.2.0",
+    "eslint": "^9.29.0",
+    "prettier": "^3.6.1",
+    "react": "^18.3.1",
+    "tsup": "^8.0.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "js-cookie": "^3.0.5"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

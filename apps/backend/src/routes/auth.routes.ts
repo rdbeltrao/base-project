@@ -1,7 +1,6 @@
 import express from 'express'
 import { body, validationResult } from 'express-validator'
 import { User, Role } from '@test-pod/database'
-import bcrypt from 'bcryptjs'
 import jwt, { SignOptions } from 'jsonwebtoken'
 import passport from '../config/passport'
 import dotenv from 'dotenv'
@@ -11,6 +10,7 @@ import { getUserForSession } from '../utils/user'
 dotenv.config()
 
 const router: express.Router = express.Router()
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d'
 
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -42,7 +42,6 @@ router.post(
         }
 
         try {
-          // Gerar token JWT com apenas os dados necessários
           const token = jwt.sign(
             { id: user.id, email: user.email },
             process.env.JWT_SECRET || 'your-secret-key',
@@ -65,8 +64,8 @@ router.post(
     body('name').notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Valid email is required'),
     body('password')
-      .isLength({ min: 6 })
-      .withMessage('Password must be at least 6 characters long'),
+      .isLength({ min: 8 })
+      .withMessage('Password must be at least 8 characters long'),
     validate,
   ],
   async (req: express.Request, res: express.Response) => {
@@ -77,13 +76,10 @@ router.post(
         return res.status(400).json({ message: 'Email already in use' })
       }
 
-      const salt = await bcrypt.genSalt(10)
-      const hashedPassword = await bcrypt.hash(req.body.password, salt)
-
       const user = await User.create({
         name: req.body.name,
         email: req.body.email,
-        password: hashedPassword,
+        password: req.body.password,
         active: true,
       })
 
@@ -146,6 +142,45 @@ router.get(
     } catch (error) {
       console.error('Error fetching profile:', error)
       res.status(500).json({ message: 'Error fetching profile' })
+    }
+  }
+)
+
+router.put(
+  '/profile',
+  passport.authenticate('jwt', { session: false }),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { id } = req.user as SessionUser
+      const { name } = req.body
+
+      if (!name || typeof name !== 'string' || name.trim().length < 2) {
+        return res.status(400).json({ message: 'Nome deve ter pelo menos 2 caracteres' })
+      }
+
+      const user = await User.findByPk(id)
+      if (!user) {
+        return res.status(404).json({ message: 'Usuário não encontrado' })
+      }
+
+      user.name = name.trim()
+      await user.save()
+
+      const updatedUser = await getUserForSession(user.id)
+
+      if (!updatedUser) {
+        return res.status(500).json({ message: 'Erro ao recuperar dados do usuário' })
+      }
+
+      // Gerar um novo token JWT com os dados atualizados
+      const token = jwt.sign({ id: updatedUser.id, email: updatedUser.email }, JWT_SECRET, {
+        expiresIn: JWT_EXPIRES_IN,
+      } as jwt.SignOptions)
+
+      res.json({ user: updatedUser, token })
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      res.status(500).json({ message: 'Erro ao atualizar perfil' })
     }
   }
 )

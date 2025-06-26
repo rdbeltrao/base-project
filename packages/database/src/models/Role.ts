@@ -28,24 +28,24 @@ type RoleCreationAttributes = Optional<
 >
 
 class Role extends Model<RoleAttributes, RoleCreationAttributes> implements RoleAttributes {
-  public id!: number
-  public name!: string
-  public description!: string
-  public active!: boolean
-  public readonly createdAt!: Date
-  public readonly updatedAt!: Date
+  declare id: number
+  declare name: string
+  declare description: string
+  declare active: boolean
+  declare readonly createdAt: Date
+  declare readonly updatedAt: Date
 
   // Associações com User
-  public addUser!: BelongsToManyAddAssociationMixin<User, number>
-  public getUsers!: BelongsToManyGetAssociationsMixin<User>
-  public hasUser!: BelongsToManyHasAssociationMixin<User, number>
-  public readonly users?: User[]
+  declare addUser: BelongsToManyAddAssociationMixin<User, number>
+  declare getUsers: BelongsToManyGetAssociationsMixin<User>
+  declare hasUser: BelongsToManyHasAssociationMixin<User, number>
+  declare readonly users?: User[]
 
   // Associações com Permission
-  public addPermission!: BelongsToManyAddAssociationMixin<Permission, number>
-  public getPermissions!: BelongsToManyGetAssociationsMixin<Permission>
-  public hasPermission!: BelongsToManyHasAssociationMixin<Permission, number>
-  public readonly permissions?: Permission[]
+  declare addPermission: BelongsToManyAddAssociationMixin<Permission, number>
+  declare getPermissions: BelongsToManyGetAssociationsMixin<Permission>
+  declare hasPermission: BelongsToManyHasAssociationMixin<Permission, number>
+  declare readonly permissions?: Permission[]
 }
 
 Role.init(

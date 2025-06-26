@@ -30,21 +30,21 @@ export interface SessionUser extends Omit<UserAttributes, 'password'> {
 }
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-  public id!: number
-  public name!: string
-  public email!: string
-  public password!: string
-  public active!: boolean
-  public readonly createdAt!: Date
-  public readonly updatedAt!: Date
+  declare id: number
+  declare name: string
+  declare email: string
+  declare password: string
+  declare active: boolean
+  declare readonly createdAt: Date
+  declare readonly updatedAt: Date
 
   // Associações com Role
-  public addRole!: BelongsToManyAddAssociationMixin<Role, number>
-  public getRoles!: BelongsToManyGetAssociationsMixin<Role>
-  public hasRole!: BelongsToManyHasAssociationMixin<Role, number>
+  declare addRole: BelongsToManyAddAssociationMixin<Role, number>
+  declare getRoles: BelongsToManyGetAssociationsMixin<Role>
+  declare hasRole: BelongsToManyHasAssociationMixin<Role, number>
 
   // Atributo virtual para roles associados
-  public readonly roles?: Role[]
+  declare readonly roles?: Role[]
 }
 
 User.init(

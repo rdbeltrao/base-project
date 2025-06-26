@@ -31,19 +31,19 @@ class Permission
   extends Model<PermissionAttributes, PermissionCreationAttributes>
   implements PermissionAttributes
 {
-  public id!: number
-  public resource!: string
-  public action!: string
-  public description!: string
-  public active!: boolean
-  public readonly createdAt!: Date
-  public readonly updatedAt!: Date
+  declare id: number
+  declare resource: string
+  declare action: string
+  declare description: string
+  declare active: boolean
+  declare readonly createdAt: Date
+  declare readonly updatedAt: Date
 
   // Associações com Role
-  public addRole!: BelongsToManyAddAssociationMixin<Role, number>
-  public getRoles!: BelongsToManyGetAssociationsMixin<Role>
-  public hasRole!: BelongsToManyHasAssociationMixin<Role, number>
-  public readonly roles?: Role[]
+  declare addRole: BelongsToManyAddAssociationMixin<Role, number>
+  declare getRoles: BelongsToManyGetAssociationsMixin<Role>
+  declare hasRole: BelongsToManyHasAssociationMixin<Role, number>
+  declare readonly roles?: Role[]
 }
 
 Permission.init(

@@ -6,7 +6,6 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
 
   await queryInterface.bulkInsert('permissions', [
     {
-      id: 1,
       resource: 'user',
       action: 'edit',
       description: 'Editar usuários',
@@ -15,7 +14,6 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       updated_at: now,
     },
     {
-      id: 2,
       resource: 'user',
       action: 'view',
       description: 'Visualizar usuários',
@@ -25,10 +23,8 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     },
   ])
 
-  // 2. Inserir roles
   await queryInterface.bulkInsert('roles', [
     {
-      id: 1,
       name: 'admin',
       description: 'Administrador do sistema',
       active: true,
@@ -36,7 +32,6 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       updated_at: now,
     },
     {
-      id: 2,
       name: 'user',
       description: 'Usuário padrão',
       active: true,
@@ -68,7 +63,6 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
 
   await queryInterface.bulkInsert('users', [
     {
-      id: 1,
       name: 'Admin User',
       email: 'admin@example.com',
       password: bcrypt.hashSync('admin123', 10),
