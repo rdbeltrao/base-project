@@ -1,22 +1,29 @@
-export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('Permission', {
+
+import type {
+  QueryInterface,
+  DataTypes
+} from 'sequelize';
+
+export async function up(queryInterface: QueryInterface, Sequelize: typeof DataTypes): Promise<void> {
+  await queryInterface.createTable('users', {
     id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
       type: Sequelize.INTEGER
     },
-    resource: {
+    name: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    email: {
       type: Sequelize.STRING,
       allowNull: false,
+      unique: true
     },
-    action: {
+    password: {
       type: Sequelize.STRING,
-      allowNull: false,
-    },
-    description: {
-      type: Sequelize.STRING,
-      allowNull: true
+      allowNull: false
     },
     active: {
       type: Sequelize.BOOLEAN,
@@ -30,16 +37,9 @@ export async function up(queryInterface, Sequelize) {
       allowNull: false,
       type: Sequelize.DATE
     }
-  },
-    {
-      uniqueKeys: {
-        permission_resource_action_unique: {
-          fields: ['resource', 'action'],
-        },
-      },
-    });
+  });
 }
 
-export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('Permission');
+export async function down(queryInterface: QueryInterface, Sequelize: typeof DataTypes): Promise<void> {
+  await queryInterface.dropTable('users');
 }

@@ -1,5 +1,5 @@
-import { Role, Permission } from '../../src/models';
-import sequelize from '../../src/db';
+import { Role, Permission } from '../../models';
+import sequelize from '../../db';
 
 describe('Permission Model', () => {
   beforeAll(async () => {

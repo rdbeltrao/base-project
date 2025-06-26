@@ -1,5 +1,11 @@
-export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('UserRole', {
+
+import type {
+  QueryInterface,
+  DataTypes
+} from 'sequelize';
+
+export async function up(queryInterface: QueryInterface, Sequelize: typeof DataTypes): Promise<void> {
+  await queryInterface.createTable('user_roles', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -10,7 +16,7 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
-        model: 'User',
+        model: 'users',
         key: 'id'
       },
       onUpdate: 'CASCADE',
@@ -20,7 +26,7 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
-        model: 'Role',
+        model: 'roles',
         key: 'id'
       },
       onUpdate: 'CASCADE',
@@ -37,13 +43,13 @@ export async function up(queryInterface, Sequelize) {
   });
 
   // Add a unique constraint to prevent duplicate user-role assignments
-  await queryInterface.addConstraint('UserRole', {
+  await queryInterface.addConstraint('user_roles', {
     fields: ['user_id', 'role_id'],
     type: 'unique',
     name: 'unique_user_role'
   });
 }
 
-export async function down(queryInterface, Sequelize) {
-  await queryInterface.dropTable('UserRole');
+export async function down(queryInterface: QueryInterface, Sequelize: typeof DataTypes): Promise<void> {
+  await queryInterface.dropTable('user_roles');
 }

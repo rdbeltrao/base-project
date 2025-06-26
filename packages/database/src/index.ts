@@ -1,7 +1,18 @@
-import * as models from './models';
+import {
+  User,
+  Role,
+  Permission
+} from './models';
+
+import type { SessionUser } from './models/User';
+
 import sequelize from './db';
 
 export {
   sequelize,
-  models
+  User,
+  Role,
+  Permission,
 };
+
+export type { SessionUser };

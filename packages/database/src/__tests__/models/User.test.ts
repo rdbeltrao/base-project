@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import User from '../../src/models/User';
-import sequelize from '../../src/db';
+import User from '../../models/User';
+import sequelize from '../../db';
 
 describe('User', () => {
     beforeAll(async () => {

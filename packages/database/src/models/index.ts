@@ -1,5 +1,5 @@
 // Importar os modelos primeiro
-import User from './User';
+import User, { SessionUser } from './User';
 import Role from './Role';
 import Permission from './Permission';
 
@@ -10,3 +10,6 @@ export {
     Role,
     Permission
 };
+
+// Re-exportar tipos explicitamente com 'export type'
+export type { SessionUser };

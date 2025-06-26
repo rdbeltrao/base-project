@@ -60,7 +60,7 @@ Permission.init(
     },
     {
         sequelize,
-        tableName: 'Permission',
+        tableName: 'permissions',
         modelName: 'Permission',
         scopes: {
             actives: { where: { active: true } },

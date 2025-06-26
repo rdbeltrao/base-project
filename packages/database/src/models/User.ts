@@ -2,8 +2,8 @@ import { Model, DataTypes, Optional, BelongsToManyAddAssociationMixin, BelongsTo
 import sequelize from '../db';
 import bcrypt from "bcryptjs";
 
-// Importação de tipo apenas (sem importação de módulo circular)
 import type Role from './Role';
+import type Permission from './Permission';
 
 // Interface para os atributos do User
 interface UserAttributes {
@@ -18,6 +18,11 @@ interface UserAttributes {
 
 interface UserCreationAttributes
     extends Optional<UserAttributes, 'id' | 'active' | 'createdAt' | 'updatedAt'> { }
+
+export interface SessionUser extends Omit<UserAttributes, 'password'> {
+    roles?: string[];
+    permissions?: string[];
+}
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
     public id!: number;
@@ -67,7 +72,7 @@ User.init(
     },
     {
         sequelize,
-        tableName: 'User',
+        tableName: 'users',
         modelName: 'User',
         scopes: {
             actives: { where: { active: true } },

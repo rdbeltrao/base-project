@@ -62,7 +62,7 @@ Role.init(
     },
     {
         sequelize,
-        tableName: 'Role',
+        tableName: 'roles',
         modelName: 'Role',
         scopes: {
             actives: { where: { active: true } },
