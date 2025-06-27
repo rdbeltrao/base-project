@@ -29,7 +29,6 @@
   },
   "devDependencies": {
     "@test-pod/eslint-config": "workspace:*",
-    "@test-pod/jest-config": "workspace:*",
     "@test-pod/prettier-config": "workspace:*",
     "@test-pod/tailwind-config": "workspace:*",
     "@test-pod/ts-config": "workspace:*",

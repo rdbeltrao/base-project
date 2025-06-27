@@ -28,7 +28,6 @@
   },
   "devDependencies": {
     "@test-pod/eslint-config": "workspace:*",
-    "@test-pod/jest-config": "workspace:*",
     "@test-pod/prettier-config": "workspace:*",
     "@test-pod/ts-config": "workspace:*",
     "@types/jest": "^30.0.0",

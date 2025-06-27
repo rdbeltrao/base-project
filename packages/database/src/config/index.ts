@@ -24,6 +24,7 @@ const config: Record<string, Options> = {
       timestamps: true,
       underscored: true,
     },
+    logging: false,
   },
   production: {
     dialect: 'postgres',

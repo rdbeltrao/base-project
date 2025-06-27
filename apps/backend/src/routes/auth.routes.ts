@@ -95,8 +95,7 @@ router.post(
       } as SignOptions)
 
       res.status(201).json({ user: sessionUser, token })
-    } catch (error) {
-      console.error('Error during registration:', error)
+    } catch (_error) {
       res.status(500).json({ message: 'Error during registration' })
     }
   }

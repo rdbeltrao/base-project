@@ -53,8 +53,7 @@ export async function redirectMiddleware(
         redirect: false,
         destination: undefined,
       }
-    } catch (error) {
-      console.error('Token verification failed:', error)
+    } catch (_error) {
       return {
         redirect: true,
         destination: new URL('/login', url),

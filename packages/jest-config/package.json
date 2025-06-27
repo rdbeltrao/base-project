@@ -1,9 +1,0 @@
-{
-    "name": "@test-pod/jest-config",
-    "version": "1.0.0",
-    "description": "Configuração do Jest",
-    "main": "index.ts",
-    "exports": {
-        ".": "./index.ts"
-    }
-}
