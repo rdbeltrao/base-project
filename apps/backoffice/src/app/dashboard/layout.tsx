@@ -7,6 +7,7 @@ import { ReactNode, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { LogOut, Briefcase, ChevronLeft, ChevronRight, User } from 'lucide-react'
 import { navItems } from './menu-items'
+import { IconRenderer } from '@test-pod/ui'
 
 interface AdminLayoutProps {
   children: ReactNode
@@ -67,7 +68,7 @@ export default function DashboardLayout({ children }: AdminLayoutProps) {
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   }`}
                 >
-                  {item.icon}
+                  <IconRenderer name={item.icon} />
                   {!isSidebarCollapsed && <span>{item.title}</span>}
                 </Link>
               )

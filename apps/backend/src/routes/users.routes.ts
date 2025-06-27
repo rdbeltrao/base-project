@@ -55,13 +55,11 @@ router.post('/', authenticate, hasPermission('user.manage'), async (req, res) =>
   try {
     const { name, email, password, roleIds } = req.body
 
-    // Check if user with email already exists
     const existingUser = await User.findOne({ where: { email: email } })
     if (existingUser) {
       return res.status(400).json({ message: 'Email already in use' })
     }
 
-    // Create user
     const user = await User.create({
       name,
       email,
@@ -69,7 +67,6 @@ router.post('/', authenticate, hasPermission('user.manage'), async (req, res) =>
       active: true,
     })
 
-    // Add roles if provided
     if (roleIds && roleIds.length > 0) {
       const roles = await Role.findAll({
         where: {
@@ -82,7 +79,6 @@ router.post('/', authenticate, hasPermission('user.manage'), async (req, res) =>
       }
     }
 
-    // Return user with roles
     const createdUser = await User.findByPk(user.id, {
       include: [
         {
@@ -106,13 +102,11 @@ router.put('/:id', authenticate, hasPermission('user.manage'), async (req, res) 
     const { name, email, password, active, roleIds } = req.body
     const userId = req.params.id
 
-    // Find user
     const user = await User.findByPk(userId)
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
     }
 
-    // Check if email is already in use by another user
     if (email && email !== user.email) {
       const existingUser = await User.findOne({
         where: {
@@ -178,7 +172,7 @@ router.put('/:id', authenticate, hasPermission('user.manage'), async (req, res) 
   }
 })
 
-router.delete('/:id', authenticate, hasPermission('user.manage'), async (req, res) => {
+router.delete('/:id', authenticate, hasPermission('user.delete'), async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id)
     if (!user) {

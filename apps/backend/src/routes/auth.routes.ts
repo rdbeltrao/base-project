@@ -166,7 +166,6 @@ router.put(
         return res.status(500).json({ message: 'Erro ao recuperar dados do usuário' })
       }
 
-      // Gerar um novo token JWT com os dados atualizados
       const token = jwt.sign({ id: updatedUser.id, email: updatedUser.email }, JWT_SECRET, {
         expiresIn: JWT_EXPIRES_IN,
       } as jwt.SignOptions)

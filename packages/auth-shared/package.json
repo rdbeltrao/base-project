@@ -7,6 +7,10 @@
   "files": [
     "src/**"
   ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./utils": "./src/utils.ts"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

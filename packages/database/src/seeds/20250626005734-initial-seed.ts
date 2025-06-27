@@ -6,17 +6,37 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
 
   await queryInterface.bulkInsert('permissions', [
     {
+      id: 1,
       resource: 'user',
-      action: 'edit',
-      description: 'Editar usuários',
+      action: 'manage',
+      description: 'Gerenciar usuários',
       active: true,
       created_at: now,
       updated_at: now,
     },
     {
+      id: 2,
       resource: 'user',
-      action: 'view',
-      description: 'Visualizar usuários',
+      action: 'delete',
+      description: 'Deletar usuários',
+      active: true,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      id: 3,
+      resource: 'role',
+      action: 'manage',
+      description: 'Gerenciar papéis',
+      active: true,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      id: 4,
+      resource: 'role',
+      action: 'delete',
+      description: 'Deletar papéis',
       active: true,
       created_at: now,
       updated_at: now,
@@ -25,6 +45,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
 
   await queryInterface.bulkInsert('roles', [
     {
+      id: 1,
       name: 'admin',
       description: 'Administrador do sistema',
       active: true,
@@ -32,6 +53,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       updated_at: now,
     },
     {
+      id: 2,
       name: 'user',
       description: 'Usuário padrão',
       active: true,
@@ -54,8 +76,14 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       updated_at: now,
     },
     {
-      role_id: 2,
-      permission_id: 2,
+      role_id: 1,
+      permission_id: 3,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      role_id: 1,
+      permission_id: 4,
       created_at: now,
       updated_at: now,
     },
@@ -63,6 +91,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
 
   await queryInterface.bulkInsert('users', [
     {
+      id: 1,
       name: 'Admin User',
       email: 'admin@example.com',
       password: bcrypt.hashSync('admin123', 10),

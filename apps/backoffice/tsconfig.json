@@ -2,6 +2,7 @@
   "extends": "@test-pod/ts-config/tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "moduleResolution": "bundler", // ou "nodenext"
     "paths": {
       "@/*": ["./src/*"]
     },
