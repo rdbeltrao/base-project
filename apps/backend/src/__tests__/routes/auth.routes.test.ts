@@ -261,6 +261,8 @@ describe('Auth Routes', () => {
         .post('/auth/register')
         .send({ name: 'Test User', email: 'test@example.com', password: 'password123' })
 
+      console.log(response.body)
+
       expect(response.status).toBe(201)
       expect(response.body.user).toBeDefined()
       expect(response.body.token).toBe('mocked-jwt-token')
