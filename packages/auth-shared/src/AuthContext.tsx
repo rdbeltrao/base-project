@@ -2,22 +2,37 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { getCookie, removeCookie, setCookie } from './cookies'
+import type { SessionUser } from '@test-pod/database'
+import * as jose from 'jose'
+import { userHasPermission } from './utils'
 
-export interface User {
-  id: string
-  name?: string
-  email: string
-  image?: string
+async function decodeJWT(token: string) {
+  try {
+    const { payload } = await jose
+      .jwtVerify(token, new TextEncoder().encode(''), {
+        requiredClaims: [],
+        clockTolerance: '1000y',
+      })
+      .catch(() => {
+        return { payload: jose.decodeJwt(token) }
+      })
+
+    return payload
+  } catch (error) {
+    console.error('Error decoding JWT token:', error)
+    return null
+  }
 }
 
 interface AuthContextType {
-  user: User | null
+  user: SessionUser | null
   isAuthenticated: boolean
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: (redirectUrl?: string) => Promise<void>
   getToken: () => string | undefined
   updateProfile: (updatedUser: { name: string }) => void
+  hasPermissions: (permissions: string[]) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -35,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   domain,
   apiUrl,
 }) => {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<SessionUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [token, setToken] = useState<string | undefined>()
   const isAuthenticated = !!user
@@ -47,25 +62,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       if (storedToken) {
         try {
           setIsLoading(true)
-          const response = await fetch(`${apiUrl}/api/auth/profile`, {
-            headers: {
-              Authorization: `Bearer ${storedToken}`,
-            },
-          })
 
-          if (!response.ok) {
-            throw new Error(`Erro ${response.status}: ${response.statusText}`)
-          }
+          const decodedToken = await decodeJWT(storedToken)
 
-          const data = await response.json()
-
-          if (data?.user) {
-            setUser(data.user)
+          if (decodedToken && decodedToken.user) {
+            setUser(decodedToken.user as SessionUser)
             setToken(storedToken)
           } else {
-            removeCookie({ cookieName, domain })
+            const response = await fetch(`${apiUrl}/api/auth/profile`, {
+              headers: {
+                Authorization: `Bearer ${storedToken}`,
+              },
+            })
+
+            if (!response.ok) {
+              throw new Error(`Erro ${response.status}: ${response.statusText}`)
+            }
+
+            const data = await response.json()
+
+            if (data?.user) {
+              setUser(data.user as SessionUser)
+              setToken(storedToken)
+            } else {
+              removeCookie({ cookieName, domain })
+            }
           }
         } catch (_error) {
+          console.error('Auth check error:', _error)
           removeCookie({ cookieName, domain })
         } finally {
           setIsLoading(false)
@@ -101,11 +125,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setCookie(authToken, { cookieName, domain })
         setToken(authToken)
 
-        if (data?.user) {
-          setUser(data.user)
+        const decodedToken = await decodeJWT(authToken)
+        if (decodedToken && decodedToken.user) {
+          setUser(decodedToken.user as SessionUser)
+        } else if (data?.user) {
+          setUser(data.user as SessionUser)
         }
 
-        if (data?.user?.roles.includes('admin')) {
+        const userData = decodedToken?.user || data?.user
+        if (userData?.roles?.some((role: { name: string }) => role.name === 'admin')) {
           window.location.href = `${process.env.NEXT_PUBLIC_BACKOFFICE_URL}/dashboard`
         }
 
@@ -171,6 +199,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   }
 
+  const hasPermissions = (requiredPermissions: string[]): boolean => {
+    return userHasPermission(user as SessionUser, requiredPermissions)
+  }
+
   const value = {
     user,
     isAuthenticated,
@@ -179,6 +211,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     logout,
     getToken,
     updateProfile,
+    hasPermissions,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

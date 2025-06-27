@@ -65,3 +65,7 @@ export async function redirectMiddleware(
     destination: undefined,
   }
 }
+
+export const config = {
+  exclude: ['/access-denied'],
+}

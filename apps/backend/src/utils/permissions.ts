@@ -3,7 +3,10 @@ import { User, Permission } from '@test-pod/database'
 export async function userHasPermission(userId: number, permission: string): Promise<boolean> {
   const user = await User.findByPk(userId)
   const [resource, action] = permission.split('.')
-  if (!user) return false
+
+  if (!user) {
+    return false
+  }
 
   const roles = await user.getRoles({
     include: [

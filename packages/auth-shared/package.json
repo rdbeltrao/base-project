@@ -14,8 +14,8 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "devDependencies": {
-    "@test-pod/prettier-config": "workspace:*",
     "@test-pod/eslint-config": "workspace:*",
+    "@test-pod/prettier-config": "workspace:*",
     "@test-pod/ts-config": "workspace:*",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.19.1",
@@ -28,6 +28,8 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@test-pod/database": "workspace:*",
+    "jose": "^6.0.11",
     "js-cookie": "^3.0.5"
   },
   "peerDependencies": {

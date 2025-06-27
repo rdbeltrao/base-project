@@ -1,4 +1,3 @@
-// Importar os modelos primeiro
 import User, { SessionUser } from './User'
 import Role from './Role'
 import Permission from './Permission'

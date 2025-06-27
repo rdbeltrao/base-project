@@ -20,7 +20,6 @@ import {
 import { useAuth } from '@test-pod/auth-shared'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import AuthLayout from '@/components/layout/AuthLayout'
 
 type ProfileFormValues = {
   name: string
@@ -77,14 +76,14 @@ export default function Dashboard() {
   }
 
   return (
-    <AuthLayout title='Dashboard'>
+    <>
       {saveSuccess && (
         <div className='mb-4 rounded-md bg-green-500/15 p-3 text-sm text-green-600'>
           Perfil atualizado com sucesso!
         </div>
       )}
 
-      <div className='grid gap-6 pb-6'>
+      <div className='grid gap-6 pb-6 md:grid-cols-2 sm:grid-cols-1'>
         <div className='rounded-lg border border-border bg-card p-6 shadow-sm'>
           <h2 className='mb-4 text-lg font-medium'>Informações do Perfil</h2>
           <div className='space-y-2'>
@@ -173,6 +172,6 @@ export default function Dashboard() {
           &copy; {new Date().getFullYear()} Auth App. All rights reserved.
         </div>
       </footer>
-    </AuthLayout>
+    </>
   )
 }

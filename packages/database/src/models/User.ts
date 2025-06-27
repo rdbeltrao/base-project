@@ -5,11 +5,14 @@ import {
   BelongsToManyAddAssociationMixin,
   BelongsToManyGetAssociationsMixin,
   BelongsToManyHasAssociationMixin,
+  BelongsToManyRemoveAssociationMixin,
+  BelongsToManyRemoveAssociationsMixin,
 } from 'sequelize'
 import sequelize from '../db'
 import bcrypt from 'bcryptjs'
 
 import type Role from './Role'
+import Permission from './Permission'
 
 interface UserAttributes {
   id: number
@@ -40,8 +43,18 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   declare addRole: BelongsToManyAddAssociationMixin<Role, number>
   declare getRoles: BelongsToManyGetAssociationsMixin<Role>
   declare hasRole: BelongsToManyHasAssociationMixin<Role, number>
+  declare removeRole: BelongsToManyRemoveAssociationMixin<Role, number>
+  declare removeRoles: BelongsToManyRemoveAssociationsMixin<Role, number>
 
   declare readonly roles?: Role[]
+
+  async hasPermission(permission: string): Promise<boolean> {
+    const [resource, action] = permission.split('.')
+    const roles = this.roles ?? (await this.getRoles({ include: [Permission] }))
+    return roles.some(role =>
+      role.permissions?.some(p => p.action === action && p.resource === resource)
+    )
+  }
 }
 
 User.init(
