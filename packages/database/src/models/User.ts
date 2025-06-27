@@ -11,7 +11,6 @@ import bcrypt from 'bcryptjs'
 
 import type Role from './Role'
 
-// Interface para os atributos do User
 interface UserAttributes {
   id: number
   name: string
@@ -38,12 +37,10 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   declare readonly createdAt: Date
   declare readonly updatedAt: Date
 
-  // Associações com Role
   declare addRole: BelongsToManyAddAssociationMixin<Role, number>
   declare getRoles: BelongsToManyGetAssociationsMixin<Role>
   declare hasRole: BelongsToManyHasAssociationMixin<Role, number>
 
-  // Atributo virtual para roles associados
   declare readonly roles?: Role[]
 }
 

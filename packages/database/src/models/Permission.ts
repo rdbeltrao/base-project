@@ -8,10 +8,8 @@ import {
 } from 'sequelize'
 import sequelize from '../db'
 
-// Importação de tipo apenas (sem importação de módulo circular)
 import type Role from './Role'
 
-// Interface para os atributos do Permission
 interface PermissionAttributes {
   id: number
   resource: string
@@ -39,7 +37,6 @@ class Permission
   declare readonly createdAt: Date
   declare readonly updatedAt: Date
 
-  // Associações com Role
   declare addRole: BelongsToManyAddAssociationMixin<Role, number>
   declare getRoles: BelongsToManyGetAssociationsMixin<Role>
   declare hasRole: BelongsToManyHasAssociationMixin<Role, number>

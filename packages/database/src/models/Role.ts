@@ -8,11 +8,9 @@ import {
 } from 'sequelize'
 import sequelize from '../db'
 
-// Importação de tipos apenas (sem importação de módulo circular)
 import type User from './User'
 import type Permission from './Permission'
 
-// Interface para os atributos do Role
 interface RoleAttributes {
   id: number
   name: string
@@ -35,13 +33,11 @@ class Role extends Model<RoleAttributes, RoleCreationAttributes> implements Role
   declare readonly createdAt: Date
   declare readonly updatedAt: Date
 
-  // Associações com User
   declare addUser: BelongsToManyAddAssociationMixin<User, number>
   declare getUsers: BelongsToManyGetAssociationsMixin<User>
   declare hasUser: BelongsToManyHasAssociationMixin<User, number>
   declare readonly users?: User[]
 
-  // Associações com Permission
   declare addPermission: BelongsToManyAddAssociationMixin<Permission, number>
   declare getPermissions: BelongsToManyGetAssociationsMixin<Permission>
   declare hasPermission: BelongsToManyHasAssociationMixin<Permission, number>

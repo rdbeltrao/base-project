@@ -33,13 +33,11 @@
     "@test-pod/ts-config": "workspace:*",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.10.0",
-    "better-sqlite3": "^12.1.1",
     "eslint": "^9.29.0",
     "prettier": "^3.6.1",
     "jest": "^30.0.3",
     "jest-environment-node": "^30.0.2",
     "sequelize-cli": "^6.6.2",
-    "sqlite3": "^5.1.7",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.2"

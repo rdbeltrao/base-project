@@ -7,5 +7,4 @@ import './relationships'
 
 export { User, Role, Permission }
 
-// Re-exportar tipos explicitamente com 'export type'
 export type { SessionUser }
