@@ -28,7 +28,10 @@ interface AuthContextType {
   user: SessionUser | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>
   logout: (redirectUrl?: string) => Promise<void>
   getToken: () => string | undefined
   updateProfile: (updatedUser: { name: string }) => void
@@ -133,11 +136,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         }
 
         const userData = decodedToken?.user || data?.user
-        if (userData?.roles?.some((role: { name: string }) => role.name === 'admin')) {
-          window.location.href = `${process.env.NEXT_PUBLIC_BACKOFFICE_URL}/dashboard`
-        }
 
-        return { success: true }
+        const redirectUrl = (() => {
+          if (userData?.roles?.some((role: string) => role === 'admin')) {
+            return `${process.env.NEXT_PUBLIC_BACKOFFICE_URL}/dashboard`
+          }
+          return `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+        })()
+
+        return { success: true, redirectUrl }
       }
 
       return { success: false, error: 'Credenciais inválidas' }

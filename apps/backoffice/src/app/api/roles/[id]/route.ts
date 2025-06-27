@@ -4,10 +4,7 @@ import { cookies } from 'next/headers'
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 const COOKIE_NAME = process.env.COOKIE_NAME || 'authToken'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = cookies().get(COOKIE_NAME)?.value
 
@@ -38,10 +35,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = cookies().get(COOKIE_NAME)?.value
 
@@ -76,10 +70,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const token = cookies().get(COOKIE_NAME)?.value
 

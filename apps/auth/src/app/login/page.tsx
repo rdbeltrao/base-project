@@ -53,7 +53,11 @@ export default function Login() {
         return
       }
 
-      router.push('/dashboard')
+      if (result.redirectUrl) {
+        window.location.href = result.redirectUrl
+      } else {
+        router.push('/dashboard')
+      }
     } catch (_error) {
       setError('Something went wrong. Please try again.')
       setIsLoading(false)
