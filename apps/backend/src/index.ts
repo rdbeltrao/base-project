@@ -8,6 +8,8 @@ import passport from './config/passport'
 import authRoutes from './routes/auth.routes'
 import usersRoutes from './routes/users.routes'
 import rolesRoutes from './routes/roles.routes'
+import eventsRoutes from './routes/events.routes'
+import reservationsRoutes from './routes/reservations.routes'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -23,6 +25,8 @@ app.use(passport.initialize())
 app.use('/api/auth', authRoutes)
 app.use('/api/users', usersRoutes)
 app.use('/api/roles', rolesRoutes)
+app.use('/api/events', eventsRoutes)
+app.use('/api/reservations', reservationsRoutes)
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Ping' })

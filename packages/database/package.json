@@ -19,7 +19,8 @@
     "migrate:status": "sequelize-cli db:migrate:status",
     "seed:all": "sequelize-cli db:seed:all",
     "seed:undo": "sequelize-cli db:seed:undo",
-    "seed:undo:all": "sequelize-cli db:seed:undo:all"
+    "seed:undo:all": "sequelize-cli db:seed:undo:all",
+    "seed:run": "sequelize-cli db:seed --seed"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

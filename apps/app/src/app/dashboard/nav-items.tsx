@@ -13,7 +13,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Minhas Reservas',
-    href: '/dashboard/spots',
+    href: '/dashboard/reservations',
     icon: 'Ticket',
   },
   {
