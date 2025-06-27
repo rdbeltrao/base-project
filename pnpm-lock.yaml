@@ -51,9 +51,6 @@ importers:
       '@test-pod/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@test-pod/jest-config':
-        specifier: workspace:*
-        version: link:../../packages/jest-config
       '@test-pod/prettier-config':
         specifier: workspace:*
         version: link:../../packages/prettier-config
@@ -248,9 +245,6 @@ importers:
       '@test-pod/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@test-pod/jest-config':
-        specifier: workspace:*
-        version: link:../../packages/jest-config
       '@test-pod/prettier-config':
         specifier: workspace:*
         version: link:../../packages/prettier-config
@@ -367,9 +361,6 @@ importers:
       '@test-pod/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@test-pod/jest-config':
-        specifier: workspace:*
-        version: link:../jest-config
       '@test-pod/prettier-config':
         specifier: workspace:*
         version: link:../prettier-config
@@ -445,8 +436,6 @@ importers:
       typescript-eslint:
         specifier: ^8.34.0
         version: 8.35.0(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
-
-  packages/jest-config: {}
 
   packages/prettier-config:
     dependencies:

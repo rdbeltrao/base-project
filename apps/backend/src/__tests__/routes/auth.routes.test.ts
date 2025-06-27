@@ -18,7 +18,7 @@ jest.mock('jsonwebtoken', () => ({
 
 jest.mock('../../config/passport', () => ({
   authenticate: jest.fn().mockImplementation((strategy, options, callback) => {
-    return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    return (req: express.Request, _res: express.Response, _next: express.NextFunction) => {
       if (req.body.email === 'error@example.com') {
         return callback(new Error('Authentication error'), null, null)
       }
@@ -40,7 +40,7 @@ jest.mock('../../config/passport', () => ({
   }),
   __esModule: true,
   default: {
-    authenticate: jest.fn().mockImplementation((strategy, options) => {
+    authenticate: jest.fn().mockImplementation((_strategy, _options) => {
       return (req: express.Request, res: express.Response, next: express.NextFunction) => {
         if (req.headers.authorization === 'Bearer invalid-token') {
           return res.status(401).json({ message: 'Unauthorized' })
@@ -77,7 +77,6 @@ jest.mock('../../utils/user', () => ({
 const app = express()
 app.use(express.json())
 
-const originalPassportAuthenticate = passport.authenticate
 passport.authenticate = jest.fn().mockImplementation((strategy, options, callback) => {
   return (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (strategy === 'local') {
@@ -114,7 +113,7 @@ passport.authenticate = jest.fn().mockImplementation((strategy, options, callbac
       next()
     }
   }
-}) as typeof originalPassportAuthenticate
+})
 
 app.use('/auth', authRoutes)
 
