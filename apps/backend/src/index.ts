@@ -32,7 +32,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Ping' })
 })
 
-app.use((err: any, req: express.Request, res: express.Response) => {
+app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err.stack)
   res.status(500).json({
     status: 'error',
