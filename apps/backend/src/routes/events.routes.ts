@@ -11,22 +11,21 @@ router.get('/', authenticate, async (req, res) => {
   try {
     const { name, fromDate, toDate, active } = req.query
 
-    console.log({ active })
-
     const whereConditions: any = {}
 
     if (name) {
       whereConditions.name = { [Op.iLike]: `%${name}%` }
     }
 
+    // Com DATEONLY, podemos usar as strings de data diretamente
     if (fromDate && toDate) {
       whereConditions.eventDate = {
-        [Op.between]: [new Date(fromDate as string), new Date(toDate as string)],
+        [Op.between]: [fromDate, toDate],
       }
     } else if (fromDate) {
-      whereConditions.eventDate = { [Op.gte]: new Date(fromDate as string) }
+      whereConditions.eventDate = { [Op.gte]: fromDate }
     } else if (toDate) {
-      whereConditions.eventDate = { [Op.lte]: new Date(toDate as string) }
+      whereConditions.eventDate = { [Op.lte]: toDate }
     }
     if (active !== undefined) {
       if (active) {
@@ -35,6 +34,7 @@ router.get('/', authenticate, async (req, res) => {
         whereConditions.active = active === 'false'
       }
     }
+    console.log({ whereConditions })
 
     const events = await Event.findAll({
       where: whereConditions,
@@ -144,14 +144,12 @@ router.put('/:id', authenticate, hasPermission('event.manage'), async (req, res)
       return res.status(404).json({ message: 'Event not found' })
     }
 
-    // Validate maxCapacity if provided
     if (maxCapacity !== undefined && maxCapacity <= 0) {
       return res.status(400).json({
         message: 'Maximum capacity must be greater than 0',
       })
     }
 
-    // Count confirmed reservations to ensure we don't reduce capacity below that
     if (maxCapacity !== undefined) {
       const confirmedReservations = await Reservation.count({
         where: {
@@ -167,7 +165,6 @@ router.put('/:id', authenticate, hasPermission('event.manage'), async (req, res)
       }
     }
 
-    // Update the event
     await event.update({
       name: name !== undefined ? name : event.name,
       description: description !== undefined ? description : event.description,

@@ -17,7 +17,7 @@ export default {
         allowNull: true,
       },
       event_date: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATEONLY,
         allowNull: false,
       },
       location: {

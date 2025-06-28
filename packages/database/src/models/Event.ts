@@ -83,7 +83,7 @@ Event.init(
       allowNull: true,
     },
     eventDate: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
     location: {
