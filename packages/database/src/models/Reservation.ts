@@ -91,6 +91,13 @@ Reservation.init(
     modelName: 'Reservation',
     tableName: 'reservations',
     timestamps: true,
+    indexes: [
+      {
+        name: 'reservations_event_id_user_id_unique',
+        unique: true,
+        fields: ['event_id', 'user_id'],
+      },
+    ],
   }
 )
 
