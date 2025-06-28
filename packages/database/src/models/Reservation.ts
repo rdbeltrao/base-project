@@ -79,11 +79,11 @@ Reservation.init(
     },
     createdAt: {
       type: DataTypes.DATE,
-      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
-      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
   },
   {
@@ -91,69 +91,6 @@ Reservation.init(
     modelName: 'Reservation',
     tableName: 'reservations',
     timestamps: true,
-    hooks: {
-      // Antes de criar uma reserva, verificamos se há vagas disponíveis e travamos uma vaga
-      beforeCreate: async (reservation: Reservation) => {
-        const t = await sequelize.transaction()
-
-        try {
-          // Lock the event row to prevent concurrent updates
-          const event = await Event.findByPk(reservation.eventId, {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          })
-
-          if (!event) {
-            await t.rollback()
-            throw new Error('Event not found')
-          }
-
-          // Verificar se há vagas disponíveis e travar uma vaga
-          const success = await event.lockSpot(t)
-
-          if (!success) {
-            await t.rollback()
-            throw new Error('No available spots for this event')
-          }
-
-          await t.commit()
-        } catch (err) {
-          await t.rollback()
-          throw err
-        }
-      },
-
-      // Após criar uma reserva com sucesso, liberamos a vaga travada
-      afterCreate: async (reservation: Reservation) => {
-        const t = await sequelize.transaction()
-
-        try {
-          const event = await Event.findByPk(reservation.eventId, {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          })
-
-          if (event) {
-            // Liberar a vaga travada
-            await event.unlockSpot(t)
-          }
-
-          await t.commit()
-        } catch (err) {
-          await t.rollback()
-          throw err
-        }
-      },
-
-      // Quando o status de uma reserva muda
-      afterUpdate: async (reservation: Reservation) => {
-        // Só prosseguir se o status mudou
-        if (!reservation.changed('status')) return
-
-        // Não precisamos fazer nada aqui, pois a contagem de reservas
-        // confirmadas será usada para calcular as vagas disponíveis
-      },
-    },
   }
 )
 

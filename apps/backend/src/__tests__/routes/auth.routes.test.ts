@@ -6,6 +6,25 @@ import { getUserForSession } from '../../utils/user'
 import jwt from 'jsonwebtoken'
 import passport from '../../config/passport'
 
+jest.mock('@test-pod/database', () => {
+  const mockUser = {
+    findOne: jest.fn(),
+    findByPk: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+    addRole: jest.fn(),
+  }
+
+  const mockRole = {
+    findOne: jest.fn(),
+  }
+
+  return {
+    User: mockUser,
+    Role: mockRole,
+  }
+})
+
 jest.mock('jsonwebtoken', () => ({
   sign: jest.fn().mockReturnValue('mocked-jwt-token'),
   verify: jest.fn().mockImplementation(token => {
@@ -260,8 +279,6 @@ describe('Auth Routes', () => {
       const response = await request(app)
         .post('/auth/register')
         .send({ name: 'Test User', email: 'test@example.com', password: 'password123' })
-
-      console.log(response.body)
 
       expect(response.status).toBe(201)
       expect(response.body.user).toBeDefined()

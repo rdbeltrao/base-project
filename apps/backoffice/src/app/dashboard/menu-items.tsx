@@ -23,4 +23,10 @@ export const navItems: NavItem[] = [
     permissions: ['role.manage'],
     icon: 'Shield',
   },
+  {
+    title: 'Events',
+    href: '/dashboard/events',
+    permissions: ['event.manage'],
+    icon: 'Calendar',
+  },
 ]

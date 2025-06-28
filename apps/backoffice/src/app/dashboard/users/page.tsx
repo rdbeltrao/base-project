@@ -114,8 +114,8 @@ export default function UsersPage() {
 
   return (
     <>
-      <h1 className='text-2xl font-bold tracking-tight mb-6'>Users</h1>
       <div className='flex justify-between items-center mb-6'>
+        <h1 className='text-2xl font-bold tracking-tight'>Users</h1>
         <Button onClick={handleCreateUser}>
           <Plus className='mr-2 h-4 w-4' />
           Add User

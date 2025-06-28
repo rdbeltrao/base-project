@@ -32,11 +32,7 @@ export default {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      available_spots: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      locked_spots: {
+      reserved_spots: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0,
@@ -58,16 +54,26 @@ export default {
       },
       created_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
       updated_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
     })
+
+    await queryInterface.sequelize.query(`
+      ALTER TABLE "events"
+      ADD CONSTRAINT chk_available_le_max
+      CHECK ("reserved_spots" <= "max_capacity");
+    `)
   },
 
   down: async (queryInterface: QueryInterface, _Sequelize: typeof DataTypes): Promise<void> => {
+    await queryInterface.sequelize.query(`
+      ALTER TABLE "events"
+      DROP CONSTRAINT IF EXISTS chk_available_le_max;
+    `)
     await queryInterface.dropTable('events')
   },
 }

@@ -42,16 +42,67 @@ export default {
       },
       created_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
       updated_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
     })
+
+    await queryInterface.sequelize.query(`
+      CREATE OR REPLACE FUNCTION trg_adjust_reserved_spots()
+      RETURNS TRIGGER AS $$
+      BEGIN
+        IF TG_OP = 'INSERT' THEN
+          IF NEW.status = 'confirmed' THEN
+            UPDATE events
+            SET reserved_spots = reserved_spots + 1
+            WHERE id = NEW.event_id;
+          END IF;
+          RETURN NEW;
+        END IF;
+  
+        IF TG_OP = 'UPDATE' THEN
+          IF NEW.status = 'confirmed' AND OLD.status <> 'confirmed' THEN
+            UPDATE events
+            SET reserved_spots = reserved_spots + 1
+            WHERE id = NEW.event_id;
+          ELSIF OLD.status = 'confirmed' AND NEW.status <> 'canceled' THEN
+            UPDATE events
+            SET reserved_spots = reserved_spots - 1
+            WHERE id = NEW.event_id;
+          END IF;
+          RETURN NEW;
+        END IF;
+  
+        IF TG_OP = 'DELETE' THEN
+          IF OLD.status = 'confirmed' THEN
+            UPDATE events
+            SET reserved_spots = reserved_spots - 1
+            WHERE id = OLD.event_id;
+          END IF;
+          RETURN OLD;
+        END IF;
+  
+        RETURN NULL;
+      END;
+      $$ LANGUAGE plpgsql;
+    `)
+
+    await queryInterface.sequelize.query(`
+      DROP TRIGGER IF EXISTS trg_reserved_spots ON reservations;
+      CREATE TRIGGER trg_reserved_spots
+      AFTER INSERT OR UPDATE OR DELETE ON reservations
+      FOR EACH ROW EXECUTE FUNCTION trg_adjust_reserved_spots();
+    `)
   },
 
   down: async (queryInterface: QueryInterface, _Sequelize: typeof DataTypes): Promise<void> => {
+    await queryInterface.sequelize.query(`
+      DROP TRIGGER IF EXISTS trg_reserved_spots ON reservations;
+      DROP FUNCTION IF EXISTS trg_adjust_reserved_spots();
+    `)
     await queryInterface.dropTable('reservations')
   },
 }

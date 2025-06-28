@@ -20,7 +20,9 @@
     "seed:all": "sequelize-cli db:seed:all",
     "seed:undo": "sequelize-cli db:seed:undo",
     "seed:undo:all": "sequelize-cli db:seed:undo:all",
-    "seed:run": "sequelize-cli db:seed --seed"
+    "seed:run": "sequelize-cli db:seed --seed",
+    "seed:reset": "sequelize-cli db:seed:undo:all && sequelize-cli db:seed:all",
+    "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

@@ -16,8 +16,8 @@ interface RoleAttributes {
   name: string
   description?: string
   active: boolean
-  createdAt?: Date
-  updatedAt?: Date
+  createdAt: Date
+  updatedAt: Date
 }
 
 type RoleCreationAttributes = Optional<
@@ -63,6 +63,14 @@ Role.init(
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
   },
   {

@@ -1,16 +1,18 @@
 import { Router } from 'express'
 import { Event, User, Reservation, SessionUser } from '@test-pod/database'
 import { authenticate, hasPermission } from '../middleware/auth.middleware'
-import { Op } from '@test-pod/database/node_modules/sequelize'
+import { Sequelize } from '@test-pod/database'
+
+const { Op } = Sequelize
 
 const router: Router = Router()
 
-// GET /events - List all events (filter by date, name, etc.)
 router.get('/', authenticate, async (req, res) => {
   try {
     const { name, fromDate, toDate, active } = req.query
 
-    // Build filter conditions
+    console.log({ active })
+
     const whereConditions: any = {}
 
     if (name) {
@@ -26,12 +28,12 @@ router.get('/', authenticate, async (req, res) => {
     } else if (toDate) {
       whereConditions.eventDate = { [Op.lte]: new Date(toDate as string) }
     }
-
-    // Only show active events by default, unless specifically requested
     if (active !== undefined) {
-      whereConditions.active = active === 'true'
-    } else {
-      whereConditions.active = true
+      if (active) {
+        whereConditions.active = active === 'true'
+      } else {
+        whereConditions.active = active === 'false'
+      }
     }
 
     const events = await Event.findAll({
@@ -43,10 +45,9 @@ router.get('/', authenticate, async (req, res) => {
           attributes: ['id', 'name', 'email'],
         },
       ],
-      order: [['eventDate', 'ASC']],
+      order: [['createdAt', 'ASC']],
     })
 
-    // For each event, calculate real available spots
     const eventsWithRealSpots = await Promise.all(
       events.map(async event => {
         const realAvailableSpots = await event.getRealAvailableSpots()
@@ -94,9 +95,9 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 })
 
-// POST /events - Create a new event (admin only)
-router.post('/', authenticate, hasPermission('event.create'), async (req, res) => {
+router.post('/', authenticate, hasPermission('event.manage'), async (req, res) => {
   try {
+    console.log(req.body)
     const { name, description, eventDate, location, onlineLink, maxCapacity } = req.body
 
     // Validate required fields
@@ -121,7 +122,6 @@ router.post('/', authenticate, hasPermission('event.create'), async (req, res) =
       location,
       onlineLink,
       maxCapacity,
-      availableSpots: maxCapacity, // Initially all spots are available
       userId: (req.user as SessionUser).id.toString(),
       active: true,
     })
@@ -134,7 +134,7 @@ router.post('/', authenticate, hasPermission('event.create'), async (req, res) =
 })
 
 // PUT /events/:id - Update an existing event (admin only)
-router.put('/:id', authenticate, hasPermission('event.update'), async (req, res) => {
+router.put('/:id', authenticate, hasPermission('event.manage'), async (req, res) => {
   try {
     const { name, description, eventDate, location, onlineLink, maxCapacity, active } = req.body
 
@@ -178,20 +178,6 @@ router.put('/:id', authenticate, hasPermission('event.update'), async (req, res)
       active: active !== undefined ? active : event.active,
     })
 
-    // Recalculate available spots if maxCapacity changed
-    if (maxCapacity !== undefined) {
-      const confirmedReservations = await Reservation.count({
-        where: {
-          eventId: event.id,
-          status: 'confirmed',
-        },
-      })
-
-      await event.update({
-        availableSpots: maxCapacity - confirmedReservations,
-      })
-    }
-
     res.json(event)
   } catch (error) {
     console.error('Error updating event:', error)
@@ -214,19 +200,18 @@ router.delete('/:id', authenticate, hasPermission('event.delete'), async (req, r
     })
 
     if (reservationsCount > 0) {
-      // Instead of deleting, just mark as inactive
-      await event.update({ active: false })
-      return res.json({
-        message: 'Event has reservations and was marked as inactive instead of deleted',
+      // Se houver reservas, retornar erro
+      return res.status(400).json({
+        message: 'Cannot delete event with active reservations. Cancel all reservations first.',
       })
     }
 
-    // If no reservations, we can safely delete
-    await event.destroy()
-    res.json({ message: 'Event deleted successfully' })
+    // Se não houver reservas, apenas desativar o evento
+    await event.update({ active: false })
+    res.json({ message: 'Event deactivated successfully' })
   } catch (error) {
-    console.error('Error deleting event:', error)
-    res.status(500).json({ message: 'Error deleting event' })
+    console.error('Error deactivating event:', error)
+    res.status(500).json({ message: 'Error deactivating event' })
   }
 })
 

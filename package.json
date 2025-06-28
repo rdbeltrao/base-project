@@ -9,7 +9,7 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo run dev --parallel",
-    "test": "turbo test",
+    "test": "export NODE_ENV=test && turbo test",
     "lint": "turbo lint",
     "lint:fix": "turbo lint:fix",
     "format": "turbo format",

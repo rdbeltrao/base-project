@@ -17,6 +17,7 @@
       "cache": false
     },
     "test": {
+      "env": ["NODE_ENV"],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
     }
   }
