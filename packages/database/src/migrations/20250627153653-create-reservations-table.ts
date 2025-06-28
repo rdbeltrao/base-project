@@ -50,6 +50,12 @@ export default {
       },
     })
 
+    await queryInterface.addIndex('reservations', {
+      name: 'reservations_event_id_user_id_unique',
+      unique: true,
+      fields: ['event_id', 'user_id'],
+    })
+
     await queryInterface.sequelize.query(`
       CREATE OR REPLACE FUNCTION trg_adjust_reserved_spots()
       RETURNS TRIGGER AS $$
@@ -99,6 +105,7 @@ export default {
   },
 
   down: async (queryInterface: QueryInterface, _Sequelize: typeof DataTypes): Promise<void> => {
+    await queryInterface.removeIndex('reservations', 'reservations_event_id_user_id_unique')
     await queryInterface.sequelize.query(`
       DROP TRIGGER IF EXISTS trg_reserved_spots ON reservations;
       DROP FUNCTION IF EXISTS trg_adjust_reserved_spots();
