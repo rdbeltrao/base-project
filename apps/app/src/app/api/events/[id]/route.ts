@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
-const API_URL =
-  process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
 
 export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
@@ -12,7 +11,6 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
 
     console.log(`Fetching event details from: ${API_URL}/api/events/${id}`)
 
-    // Buscar evento através da API do backend
     const response = await fetch(`${API_URL}/api/events/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Event, User, Reservation, SessionUser } from '@test-pod/database'
+import { Event, User, Reservation, SessionUser, ReservationStatus } from '@test-pod/database'
 import { authenticate, hasPermission } from '../middleware/auth.middleware'
 import { Sequelize } from '@test-pod/database'
 
@@ -22,7 +22,6 @@ router.get('/', authenticate, async (req, res) => {
       whereConditions.name = { [Op.iLike]: `%${name}%` }
     }
 
-    // Com DATEONLY, podemos usar as strings de data diretamente
     if (fromDate && toDate) {
       whereConditions.eventDate = {
         [Op.between]: [fromDate, toDate],
@@ -70,7 +69,6 @@ router.get('/', authenticate, async (req, res) => {
   }
 })
 
-// GET /events - List all events (public)
 router.get('/public', async (req, res) => {
   try {
     const { active, name, fromDate, toDate } = req.query
@@ -82,38 +80,29 @@ router.get('/public', async (req, res) => {
     } else if (active === 'false') {
       where.active = false
     }
-    
-    // Filtro por nome
+
     if (name && typeof name === 'string') {
       where.name = {
-        [Op.iLike]: `%${name}%`
+        [Op.iLike]: `%${name}%`,
       }
     }
-    
-    // Filtros por data
+
     if (fromDate && typeof fromDate === 'string') {
       where.eventDate = {
         ...where.eventDate,
-        [Op.gte]: new Date(fromDate)
+        [Op.gte]: new Date(fromDate),
       }
     }
-    
+
     if (toDate && typeof toDate === 'string') {
       where.eventDate = {
         ...where.eventDate,
-        [Op.lte]: new Date(`${toDate}T23:59:59.999Z`)
+        [Op.lte]: new Date(`${toDate}T23:59:59.999Z`),
       }
     }
 
     const events = await Event.findAll({
       where,
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'name', 'email'],
-        },
-      ],
       order: [['eventDate', 'ASC']],
     })
 
@@ -124,7 +113,6 @@ router.get('/public', async (req, res) => {
   }
 })
 
-// GET /events/:id - Get details of a specific event
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const event = await Event.findByPk(req.params.id, {
@@ -311,5 +299,45 @@ router.get(
     }
   }
 )
+
+router.post('/:id/reserve', authenticate, async (req, res) => {
+  try {
+    const eventId = req.params.id
+    const userId = (req.user as SessionUser).id
+
+    const event = await Event.findByPk(eventId)
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' })
+    }
+
+    if (!event.active) {
+      return res.status(400).json({ message: 'This event is not active' })
+    }
+
+    const existingReservation = await Reservation.findOne({
+      where: {
+        eventId,
+        userId,
+        status: ReservationStatus.CONFIRMED,
+      },
+    })
+
+    if (existingReservation) {
+      return res.status(400).json({ message: 'You already have a reservation for this event' })
+    }
+
+    const reservation = await Reservation.create({
+      eventId,
+      userId: userId.toString(),
+      status: ReservationStatus.CONFIRMED,
+    })
+
+    res.status(201).json(reservation)
+  } catch (error) {
+    console.error('Error creating reservation:', error)
+    res.status(500).json({ message: 'Error creating reservation' })
+  }
+})
 
 export default router
