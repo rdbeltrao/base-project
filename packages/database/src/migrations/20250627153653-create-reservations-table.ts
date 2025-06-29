@@ -74,7 +74,7 @@ export default {
             UPDATE events
             SET reserved_spots = reserved_spots + 1
             WHERE id = NEW.event_id;
-          ELSIF OLD.status = 'confirmed' AND NEW.status <> 'canceled' THEN
+          ELSIF OLD.status = 'confirmed' AND NEW.status <> 'confirmed' THEN
             UPDATE events
             SET reserved_spots = reserved_spots - 1
             WHERE id = NEW.event_id;
