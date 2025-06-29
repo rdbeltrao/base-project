@@ -89,6 +89,14 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       user_id: 1001,
       role_id: 1001,
     },
+    {
+      user_id: 1001,
+      role_id: 1002,
+    },
+    {
+      user_id: 1002,
+      role_id: 1002,
+    },
   ])
 }
 
