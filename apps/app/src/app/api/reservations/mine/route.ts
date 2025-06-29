@@ -8,9 +8,9 @@ export async function GET(request: NextRequest) {
   try {
     const token = cookies().get(COOKIE_NAME)?.value
     const { searchParams } = new URL(request.url)
-    
+
     const queryParams = new URLSearchParams()
-    
+
     const status = searchParams.get('status')
     if (status) {
       queryParams.append('status', status)

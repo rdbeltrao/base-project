@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,7 @@ import {
   Button,
   Input,
 } from '@test-pod/ui'
-import { MoreHorizontal, Plus, Pencil, Trash2, Search, X, Calendar } from 'lucide-react'
+import { MoreHorizontal, Plus, Pencil, Trash2, Search, X, Calendar, Ticket } from 'lucide-react'
 import EventForm from './components/event-form'
 import type { EventAttributes } from '@test-pod/database'
 import { formatDate } from '@test-pod/utils'
@@ -33,6 +34,7 @@ interface Event extends EventAttributes {
 }
 
 export default function EventsPage() {
+  const router = useRouter()
   const { hasPermissions } = useAuth()
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
@@ -109,7 +111,9 @@ export default function EventsPage() {
   }
 
   const confirmDeleteEvent = async () => {
-    if (!currentEvent) return
+    if (!currentEvent) {
+      return
+    }
 
     try {
       const response = await fetch(`/api/events/${currentEvent.id}`, {
@@ -322,6 +326,17 @@ export default function EventsPage() {
                           <Pencil className='mr-2 h-4 w-4' />
                           Edit
                         </DropdownMenuItem>
+
+                        {hasPermissions(['reservation.manage']) && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.push(`/dashboard/events/${event.id}/reservations`)
+                            }
+                          >
+                            <Ticket className='mr-2 h-4 w-4' />
+                            View Reservations
+                          </DropdownMenuItem>
+                        )}
                         {hasPermissions(['event.delete']) && event.active && (
                           <DropdownMenuItem onClick={() => handleDeleteEvent(event)}>
                             <Trash2 className='mr-2 h-4 w-4' />

@@ -29,8 +29,8 @@ interface DashboardStats {
 }
 
 interface DashboardChartProps {
-  startDate?: string;
-  endDate?: string;
+  startDate?: string
+  endDate?: string
 }
 
 export default function DashboardChart({ startDate, endDate }: DashboardChartProps = {}) {
@@ -39,10 +39,8 @@ export default function DashboardChart({ startDate, endDate }: DashboardChartPro
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log('DashboardChart useEffect - filtros alterados:', { startDate, endDate });
-    // Só buscar dados se ambos os filtros estiverem preenchidos ou ambos vazios
     if ((startDate && endDate) || (!startDate && !endDate)) {
-      fetchData(startDate, endDate);
+      fetchData(startDate, endDate)
     }
   }, [startDate, endDate])
 
@@ -51,19 +49,20 @@ export default function DashboardChart({ startDate, endDate }: DashboardChartPro
       setLoading(true)
       setError(null)
 
-      console.log('Filtros de data:', { startDate, endDate });
+      let url = '/api/stats/dashboard'
+      const params = new URLSearchParams()
 
-      // Construir a URL com os parâmetros de filtro, se fornecidos
-      let url = '/api/stats/dashboard';
-      const params = new URLSearchParams();
-      
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
-      
-      const queryString = params.toString();
-      if (queryString) url += `?${queryString}`;
-      
-      console.log('URL da requisição:', url);
+      if (startDate) {
+        params.append('startDate', startDate)
+      }
+      if (endDate) {
+        params.append('endDate', endDate)
+      }
+
+      const queryString = params.toString()
+      if (queryString) {
+        url += `?${queryString}`
+      }
 
       const response = await fetch(url)
       if (!response.ok) {

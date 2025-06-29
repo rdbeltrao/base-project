@@ -81,7 +81,9 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   }
 
   const handleReserve = async () => {
-    if (!event) return
+    if (!event) {
+      return
+    }
 
     try {
       setReservationLoading(true)
@@ -123,7 +125,9 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   }
 
   const handleCancelReservation = async () => {
-    if (!reservation) return
+    if (!reservation) {
+      return
+    }
 
     try {
       setReservationLoading(true)
@@ -167,7 +171,9 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   }
 
   const handleConfirmReservation = async () => {
-    if (!reservation || !event) return
+    if (!reservation || !event) {
+      return
+    }
 
     try {
       setReservationLoading(true)

@@ -25,11 +25,15 @@ interface SessionUser {
  * @returns boolean
  */
 export function hasPermission(user: SessionUser, permission: string): boolean {
-  if (!user || !user.roles) return false
+  if (!user || !user.roles) {
+    return false
+  }
 
   // Verifica se algum dos papéis do usuário tem a permissão solicitada
   return user.roles.some(role => {
-    if (typeof role === 'string') return false
+    if (typeof role === 'string') {
+      return false
+    }
     return role.permissions?.some((p: Permission) => p.name === permission)
   })
 }
@@ -41,7 +45,9 @@ export function hasPermission(user: SessionUser, permission: string): boolean {
  * @returns boolean
  */
 export function hasAnyPermission(user: SessionUser, permissions: string[]): boolean {
-  if (!user || !user.roles || permissions.length === 0) return false
+  if (!user || !user.roles || permissions.length === 0) {
+    return false
+  }
 
   return permissions.some(permission => hasPermission(user, permission))
 }

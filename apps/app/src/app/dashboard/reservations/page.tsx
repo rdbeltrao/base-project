@@ -70,7 +70,9 @@ export default function ReservationPage() {
   }
 
   const cancelReservation = async () => {
-    if (!reservationToCancel) return
+    if (!reservationToCancel) {
+      return
+    }
 
     try {
       setCancelLoading(true)

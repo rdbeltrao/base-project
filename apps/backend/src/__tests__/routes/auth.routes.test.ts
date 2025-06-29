@@ -81,7 +81,7 @@ jest.mock('../../config/passport', () => ({
 
 jest.mock('../../utils/user', () => ({
   getUserForSession: jest.fn().mockImplementation(id => {
-    if (id === -1) return null
+    if (id === -1) {return null}
 
     return {
       id: id || 1,

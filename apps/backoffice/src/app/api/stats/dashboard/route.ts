@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const COOKIE_NAME = process.env.COOKIE_NAME || 'authToken'
     const cookieStore = cookies()
     const token = cookieStore.get(COOKIE_NAME)?.value
-    
+
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
-    
+
     console.log('API recebeu parâmetros de filtro:', { startDate, endDate })
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     const response = await fetch(url, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
@@ -42,9 +42,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data)
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch dashboard statistics' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch dashboard statistics' }, { status: 500 })
   }
 }

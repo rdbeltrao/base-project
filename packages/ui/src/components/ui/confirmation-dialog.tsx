@@ -63,11 +63,7 @@ export function ConfirmationDialog({
           >
             {cancelText}
           </Button>
-          <Button
-            variant={variant}
-            onClick={handleConfirm}
-            disabled={loading}
-          >
+          <Button variant={variant} onClick={handleConfirm} disabled={loading}>
             {loading ? 'Processando...' : confirmText}
           </Button>
         </DialogFooter>

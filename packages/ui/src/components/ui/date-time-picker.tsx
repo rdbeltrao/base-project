@@ -34,7 +34,9 @@ export function DateTimePicker({ value, onChange, disabled = false, className }:
     const dateString = e.target.value
     if (!dateString) {
       setDate(undefined)
-      if (onChange) onChange(undefined)
+      if (onChange) {
+        onChange(undefined)
+      }
       return
     }
 
@@ -42,7 +44,9 @@ export function DateTimePicker({ value, onChange, disabled = false, className }:
       const [year, month, day] = dateString.split('-').map(Number)
       const newDate = new Date(year, month - 1, day, 12, 0, 0)
       setDate(newDate)
-      if (onChange) onChange(newDate)
+      if (onChange) {
+        onChange(newDate)
+      }
     } catch (error) {
       console.error('Erro ao converter data:', error)
     }

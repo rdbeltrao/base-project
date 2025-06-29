@@ -1,3 +1,3 @@
-import { formatDate, formatTime } from "./date";
+import { formatDate, formatTime } from './date'
 
-export { formatDate, formatTime };
+export { formatDate, formatTime }

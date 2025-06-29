@@ -21,10 +21,18 @@ export async function GET(request: NextRequest) {
 
     // Construir query string para o backend
     const backendParams = new URLSearchParams()
-    if (name) backendParams.append('name', name)
-    if (fromDate) backendParams.append('fromDate', fromDate)
-    if (toDate) backendParams.append('toDate', toDate)
-    if (active) backendParams.append('active', active)
+    if (name) {
+      backendParams.append('name', name)
+    }
+    if (fromDate) {
+      backendParams.append('fromDate', fromDate)
+    }
+    if (toDate) {
+      backendParams.append('toDate', toDate)
+    }
+    if (active) {
+      backendParams.append('active', active)
+    }
 
     const queryString = backendParams.toString()
     const url = `${API_URL}/api/events${queryString ? `?${queryString}` : ''}`

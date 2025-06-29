@@ -48,6 +48,13 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       description: 'Excluir reservas',
       active: true,
     },
+    {
+      id: 1009,
+      resource: 'reservation',
+      action: 'confirm',
+      description: 'Confirmar reservas',
+      active: true,
+    },
   ])
 
   await queryInterface.bulkInsert('role_permissions', [
@@ -66,6 +73,10 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     {
       role_id: 1001,
       permission_id: 1008,
+    },
+    {
+      role_id: 1001,
+      permission_id: 1009,
     },
   ])
 

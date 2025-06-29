@@ -10,9 +10,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     const reservationId = req.params.id
     const userId = (req.user as SessionUser).id
 
-    const reservation = await Reservation.findByPk(reservationId, {
-      include: [{ model: Event, as: 'event' }],
-    })
+    const reservation = await Reservation.findByPk(reservationId)
 
     if (!reservation) {
       return res.status(404).json({ message: 'Reservation not found' })
@@ -39,8 +37,6 @@ router.delete('/:id', authenticate, async (req, res) => {
 router.get('/mine', authenticate, async (req, res) => {
   try {
     const userId = (req.user as SessionUser).id
-
-    console.log({userId})
 
     const reservations = await Reservation.findAll({
       where: { userId },

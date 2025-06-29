@@ -81,7 +81,9 @@ export default function UsersPage() {
   }
 
   const confirmDeleteUser = async () => {
-    if (!currentUser) return
+    if (!currentUser) {
+      return
+    }
 
     try {
       const response = await fetch(`/api/users/${currentUser.id}`, {

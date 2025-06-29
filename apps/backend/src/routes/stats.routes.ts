@@ -17,34 +17,21 @@ router.get('/dashboard', authenticate, async (req, res) => {
       return res.status(403).json({ message: 'Access denied' })
     }
 
-    // Extrair parâmetros de filtro de data
-    const { startDate, endDate } = req.query;
-    
-    console.log('Filtros de data recebidos no backend:', { startDate, endDate });
-    
-    // Construir condição de filtro por data
+    const { startDate, endDate } = req.query
+
     const whereCondition: any = {
       active: true,
-    };
-    
-    // Adicionar filtro de data se ambos startDate e endDate estiverem presentes
-    if (startDate && endDate) {
-      // Criar datas com o horário ajustado para o início e fim do dia
-      const startDateObj = new Date(`${startDate as string}T00:00:00`);
-      // Definir o horário para 23:59:59 para incluir todo o dia final
-      const endDateObj = new Date(`${endDate as string}T23:59:59`);
-      
-      console.log('Filtrando eventos entre:', { 
-        startDate: startDateObj.toISOString(), 
-        endDate: endDateObj.toISOString() 
-      });
-      
-      whereCondition.eventDate = {
-        [Op.between]: [startDateObj, endDateObj]
-      };
     }
-    
-    // Buscar eventos com suas reservas
+
+    if (startDate && endDate) {
+      const startDateObj = new Date(`${startDate as string}T00:00:00`)
+      const endDateObj = new Date(`${endDate as string}T23:59:59`)
+
+      whereCondition.eventDate = {
+        [Op.between]: [startDateObj, endDateObj],
+      }
+    }
+
     const events = await Event.findAll({
       where: whereCondition,
       include: [
@@ -60,7 +47,6 @@ router.get('/dashboard', authenticate, async (req, res) => {
       order: [['eventDate', 'ASC']],
     })
 
-    // Agregar dados por data
     const dataMap = new Map<
       string,
       { totalSpots: number; reservedSpots: number; events: string[] }
@@ -84,7 +70,6 @@ router.get('/dashboard', authenticate, async (req, res) => {
       }
     })
 
-    // Converter para array e ordenar por data
     const chartData = Array.from(dataMap.entries())
       .map(([date, data]) => ({
         date,
@@ -94,7 +79,6 @@ router.get('/dashboard', authenticate, async (req, res) => {
       }))
       .sort((a, b) => a.date.localeCompare(b.date))
 
-    // Calcular totais
     const totalSpots = events.reduce((sum, event) => sum + event.maxCapacity, 0)
     const totalReserved = chartData.reduce((sum, data) => sum + data.reservedSpots, 0)
 
