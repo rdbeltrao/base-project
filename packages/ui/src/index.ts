@@ -3,6 +3,7 @@ import './styles/globals.css'
 export * from './lib/utils'
 
 export * from './components/ui/button'
+export * from './components/ui/confirmation-dialog'
 export * from './components/ui/date-time-picker'
 export * from './components/ui/dialog'
 export * from './components/ui/dropdown-menu'

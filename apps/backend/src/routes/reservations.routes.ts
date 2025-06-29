@@ -36,9 +36,11 @@ router.delete('/:id', authenticate, async (req, res) => {
   }
 })
 
-router.get('/my-reservations', authenticate, async (req, res) => {
+router.get('/mine', authenticate, async (req, res) => {
   try {
     const userId = (req.user as SessionUser).id
+
+    console.log({userId})
 
     const reservations = await Reservation.findAll({
       where: { userId },

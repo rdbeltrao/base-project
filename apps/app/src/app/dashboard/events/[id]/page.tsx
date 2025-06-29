@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@test-pod/ui'
+import { Button, ConfirmationDialog } from '@test-pod/ui'
 import { AlertCircle, Calendar, Check, MapPin, Users, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { formatEventDate } from '../../../../utils/date'
@@ -43,6 +43,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   const [reservation, setReservation] = useState<Reservation | null>(null)
   const [reservationLoading, setReservationLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const router = useRouter()
 
   const fetchEventDetails = async () => {
@@ -117,6 +118,10 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
     }
   }
 
+  const openCancelDialog = () => {
+    setConfirmDialogOpen(true)
+  }
+
   const handleCancelReservation = async () => {
     if (!reservation) return
 
@@ -145,6 +150,8 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
         type: 'success',
         text: 'Sua reserva foi cancelada com sucesso.',
       })
+      
+      setConfirmDialogOpen(false)
     } catch (err) {
       setMessage({
         type: 'error',
@@ -153,6 +160,10 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
     } finally {
       setReservationLoading(false)
     }
+  }
+
+  const handleCancelDialogClose = () => {
+    setConfirmDialogOpen(false)
   }
 
   const handleConfirmReservation = async () => {
@@ -322,10 +333,10 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     </p>
                     <Button
                       variant='destructive'
-                      onClick={handleCancelReservation}
+                      onClick={openCancelDialog}
                       disabled={reservationLoading}
                     >
-                      {reservationLoading ? 'Processando...' : 'Cancelar reserva'}
+                      Cancelar reserva
                     </Button>
                   </div>
                 ) : (
@@ -366,6 +377,19 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
           </div>
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        title='Cancelar Reserva'
+        description='Tem certeza que deseja cancelar sua reserva para este evento? Esta ação não pode ser desfeita.'
+        confirmText='Sim, cancelar'
+        cancelText='Não, manter'
+        onConfirm={handleCancelReservation}
+        onCancel={handleCancelDialogClose}
+        variant='destructive'
+        loading={reservationLoading}
+      />
     </div>
   )
 }
