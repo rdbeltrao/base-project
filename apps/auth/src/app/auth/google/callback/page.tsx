@@ -23,7 +23,7 @@ function GoogleCallbackContent() {
     setCookie(token, { cookieName: authToken, domain: cookieDomain })
 
     setTimeout(() => {
-      router.push('/')
+      window.location.href = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
     }, 1000)
   }, [router, searchParams])
 
