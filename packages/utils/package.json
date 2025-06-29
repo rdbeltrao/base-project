@@ -1,0 +1,19 @@
+{
+  "name": "@test-pod/utils",
+  "version": "1.0.0",
+  "description": "Utilidades para o projeto",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "@test-pod/ts-config": "workspace:*",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.7"
+  }
+}

@@ -1,100 +1,256 @@
 'use client'
 
-import { Button } from '@test-pod/ui'
-import { Calendar, MapPin, Clock, Users } from 'lucide-react'
+import { Button, Input } from '@test-pod/ui'
+import {
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  Link,
+  MapPin,
+  Search,
+  Users,
+  X,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { formatDate } from '@test-pod/utils'
 
-const eventosExemplo = [
-  {
-    id: 1,
-    titulo: 'Workshop de Inovação',
-    data: '15 Jul 2025',
-    horario: '14:00 - 17:00',
-    local: 'Auditório Principal',
-    vagas: 45,
-    vagasDisponiveis: 12,
-    descricao:
-      'Workshop focado em técnicas de inovação e design thinking para profissionais de todas as áreas.',
-    imagem:
-      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  },
-  {
-    id: 2,
-    titulo: 'Palestra: Tendências de Mercado',
-    data: '22 Jul 2025',
-    horario: '19:00 - 21:00',
-    local: 'Sala de Conferências',
-    vagas: 80,
-    vagasDisponiveis: 35,
-    descricao:
-      'Palestra com especialistas do setor discutindo as principais tendências de mercado para os próximos anos.',
-    imagem:
-      'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  },
-  {
-    id: 3,
-    titulo: 'Networking: Profissionais de TI',
-    data: '05 Ago 2025',
-    horario: '18:00 - 20:00',
-    local: 'Espaço Colaborativo',
-    vagas: 60,
-    vagasDisponiveis: 20,
-    descricao:
-      'Evento de networking exclusivo para profissionais da área de tecnologia da informação.',
-    imagem:
-      'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80',
-  },
-]
+interface Event {
+  id: number
+  name: string
+  description: string
+  eventDate: string
+  location: string
+  imageUrl: string
+  onlineLink?: string
+  maxCapacity: number
+  realAvailableSpots: number
+  active: boolean
+  userId: string
+  createdAt: string
+  updatedAt: string
+  user?: {
+    id: string
+    name: string
+    email: string
+  }
+}
 
-export default function EventosPage() {
-  const eventos = eventosExemplo
+export default function EventsPage() {
+  const [events, setEvents] = useState<Event[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [filtersVisible, setFiltersVisible] = useState(false)
+  const [filters, setFilters] = useState({
+    name: '',
+    fromDate: '',
+    toDate: '',
+  })
+  // Armazena os filtros que foram aplicados na última busca
+  const [_appliedFilters, setAppliedFilters] = useState({
+    name: '',
+    fromDate: '',
+    toDate: '',
+  })
+
+  const fetchEvents = async (
+    params: { name?: string; fromDate?: string; toDate?: string } = {}
+  ) => {
+    try {
+      setLoading(true)
+
+      const queryParams = new URLSearchParams()
+      queryParams.append('active', 'true')
+      if (params.name) {
+        queryParams.append('name', params.name)
+      }
+      if (params.fromDate) {
+        queryParams.append('fromDate', params.fromDate)
+      }
+      if (params.toDate) {
+        queryParams.append('toDate', params.toDate)
+      }
+
+      const response = await fetch(`/api/events?${queryParams.toString()}`)
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar eventos')
+      }
+
+      const data = await response.json()
+      setEvents(data)
+      setError(null)
+    } catch (_err) {
+      setError('Não foi possível carregar os eventos. Tente novamente mais tarde.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleApplyFilters = () => {
+    setAppliedFilters({ ...filters })
+    fetchEvents(filters)
+  }
+
+  const handleClearFilters = () => {
+    const clearedFilters = {
+      name: '',
+      fromDate: '',
+      toDate: '',
+    }
+    setFilters(clearedFilters)
+    setAppliedFilters(clearedFilters)
+    fetchEvents(clearedFilters)
+  }
+
+  useEffect(() => {
+    fetchEvents()
+  }, [])
 
   return (
     <div className='space-y-6'>
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <h1 className='text-2xl font-bold tracking-tight'>Eventos</h1>
+
+        <Button
+          variant='outline'
+          className='sm:hidden flex items-center gap-2'
+          onClick={() => setFiltersVisible(!filtersVisible)}
+        >
+          <Filter className='h-4 w-4' />
+          Filtros
+          {filtersVisible ? (
+            <ChevronUp className='h-4 w-4 ml-1' />
+          ) : (
+            <ChevronDown className='h-4 w-4 ml-1' />
+          )}
+        </Button>
       </div>
 
-      <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-        {eventos.map(evento => (
-          <div key={evento.id} className='rounded-lg border bg-card overflow-hidden flex flex-col'>
-            <div className='relative h-48'>
-              <img src={evento.imagem} alt={evento.titulo} className='w-full h-full object-cover' />
-            </div>
-            <div className='p-4 flex-1 flex flex-col'>
-              <h3 className='text-lg font-medium line-clamp-2'>{evento.titulo}</h3>
-
-              <div className='mt-2 space-y-2 text-sm text-muted-foreground flex-1'>
-                <div className='flex items-center gap-2'>
-                  <Calendar className='h-4 w-4' />
-                  <span>{evento.data}</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <Clock className='h-4 w-4' />
-                  <span>{evento.horario}</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <MapPin className='h-4 w-4' />
-                  <span>{evento.local}</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <Users className='h-4 w-4' />
-                  <span>{evento.vagasDisponiveis} vagas disponíveis</span>
-                </div>
-
-                <p className='line-clamp-2 mt-2'>{evento.descricao}</p>
-              </div>
-
-              <div className='mt-4 flex justify-end'>
-                <Button>Ver detalhes</Button>
-              </div>
+      <div
+        className={`bg-white p-4 rounded-lg shadow-sm ${!filtersVisible ? 'hidden sm:block' : 'block'}`}
+      >
+        <h2 className='text-lg font-medium mb-4'>Filtros</h2>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div>
+            <label htmlFor='name' className='block text-sm font-medium text-gray-700 mb-1'>
+              Nome do evento
+            </label>
+            <div className='relative'>
+              <Input
+                id='name'
+                type='text'
+                placeholder='Buscar por nome'
+                value={filters.name}
+                onChange={e => setFilters({ ...filters, name: e.target.value })}
+                className='pl-9'
+              />
+              <Search className='absolute left-3 top-2.5 h-4 w-4 text-gray-500' />
             </div>
           </div>
-        ))}
+
+          <div>
+            <label htmlFor='fromDate' className='block text-sm font-medium text-gray-700 mb-1'>
+              Data inicial
+            </label>
+            <Input
+              id='fromDate'
+              type='date'
+              value={filters.fromDate}
+              onChange={e => setFilters({ ...filters, fromDate: e.target.value })}
+              className='flex-col'
+            />
+          </div>
+
+          <div>
+            <label htmlFor='toDate' className='block text-sm font-medium text-gray-700 mb-1'>
+              Data final
+            </label>
+            <Input
+              id='toDate'
+              type='date'
+              value={filters.toDate}
+              onChange={e => setFilters({ ...filters, toDate: e.target.value })}
+              className='flex-col'
+            />
+          </div>
+        </div>
+
+        <div className='flex justify-end mt-4 gap-2'>
+          <Button variant='outline' onClick={handleClearFilters}>
+            <X className='mr-2 h-4 w-4' />
+            Limpar
+          </Button>
+          <Button onClick={handleApplyFilters}>
+            <Search className='mr-2 h-4 w-4' />
+            Aplicar filtros
+          </Button>
+        </div>
       </div>
 
-      {eventos.length === 0 && (
+      {loading && (
         <div className='text-center py-12'>
-          <p className='text-muted-foreground'>Nenhum evento encontrado.</p>
+          <p className='text-muted-foreground'>Carregando eventos...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className='text-center py-12'>
+          <p className='text-red-500'>{error}</p>
+        </div>
+      )}
+
+      {!loading && !error && (
+        <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+          {events.map(event => {
+            return (
+              <div
+                key={event.id}
+                className='rounded-lg border bg-card overflow-hidden flex flex-col'
+              >
+                <div className='relative h-48'>
+                  <img
+                    src={event.imageUrl}
+                    alt={event.name}
+                    className='w-full h-full object-cover'
+                  />
+                </div>
+                <div className='p-4 flex-1 flex flex-col'>
+                  <div className='flex flex-col gap-2'>
+                    <h3 className='text-lg font-semibold'>{event.name}</h3>
+                    <div className='flex items-center gap-2 text-gray-600'>
+                      <Calendar size={16} />
+                      <span>{formatDate(new Date(event.eventDate))}</span>
+                    </div>
+                    <div className='flex items-center gap-2 text-gray-600'>
+                      {event.location ? (
+                        <>
+                          <MapPin size={16} />
+                          <span>{event.location}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Link size={16} />
+                          <span>Online</span>
+                        </>
+                      )}
+                    </div>
+                    <div className='flex items-center gap-2 text-gray-600'>
+                      <Users size={16} />
+                      <span>{event.realAvailableSpots} vagas disponíveis</span>
+                    </div>
+                  </div>
+                  <div className='flex justify-end'>
+                    <Button
+                      onClick={() => (window.location.href = `/dashboard/events/${event.id}`)}
+                    >
+                      Ver detalhes
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

@@ -11,10 +11,10 @@ import {
   Button,
   Input,
 } from '@test-pod/ui'
-import { format } from 'date-fns'
 import { MoreHorizontal, Plus, Pencil, Trash2, Search, X, Calendar } from 'lucide-react'
 import EventForm from './components/event-form'
 import type { EventAttributes } from '@test-pod/database'
+import { formatDate } from '@test-pod/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,7 +56,6 @@ export default function EventsPage() {
     try {
       setLoading(true)
 
-      // Construir query string com os filtros
       const params = new URLSearchParams()
 
       if (nameFilter) {
@@ -156,7 +155,6 @@ export default function EventsPage() {
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg'>
-          {/* Filtro por nome */}
           <div className='flex flex-col gap-2'>
             <label className='text-sm font-medium'>Event Name</label>
             <div className='relative'>
@@ -177,7 +175,6 @@ export default function EventsPage() {
             </div>
           </div>
 
-          {/* Filtro por data inicial */}
           <div className='flex flex-col gap-2'>
             <label className='text-sm font-medium'>From Date</label>
             <div className='flex items-center'>
@@ -185,21 +182,23 @@ export default function EventsPage() {
               <DateTimePicker
                 value={fromDateFilter}
                 onChange={setFromDateFilter}
-                className='w-full'
+                className='w-full flex-col'
               />
             </div>
           </div>
 
-          {/* Filtro por data final */}
           <div className='flex flex-col gap-2'>
             <label className='text-sm font-medium'>To Date</label>
             <div className='flex items-center'>
               <Calendar className='mr-2 h-4 w-4 text-gray-400' />
-              <DateTimePicker value={toDateFilter} onChange={setToDateFilter} className='w-full' />
+              <DateTimePicker
+                value={toDateFilter}
+                onChange={setToDateFilter}
+                className='w-full flex-col'
+              />
             </div>
           </div>
 
-          {/* Filtro por status */}
           <div className='flex flex-col gap-2'>
             <label className='text-sm font-medium'>Status</label>
             <select
@@ -283,7 +282,7 @@ export default function EventsPage() {
                     {event.name}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                    {format(new Date(event.eventDate), 'PPP')}
+                    {formatDate(new Date(event.eventDate))}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                     {event.location || event.onlineLink ? (

@@ -12,6 +12,12 @@ export const navItems: NavItem[] = [
     icon: 'LayoutDashboard',
   },
   {
+    title: 'Events',
+    href: '/dashboard/events',
+    permissions: ['event.manage'],
+    icon: 'Calendar',
+  },
+  {
     title: 'Users',
     href: '/dashboard/users',
     permissions: ['user.manage'],
@@ -22,11 +28,5 @@ export const navItems: NavItem[] = [
     href: '/dashboard/roles',
     permissions: ['role.manage'],
     icon: 'Shield',
-  },
-  {
-    title: 'Events',
-    href: '/dashboard/events',
-    permissions: ['event.manage'],
-    icon: 'Calendar',
   },
 ]

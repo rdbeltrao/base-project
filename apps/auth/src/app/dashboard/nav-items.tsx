@@ -13,7 +13,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Minhas Reservas',
-    href: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/spots`,
+    href: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/reservations`,
     icon: 'Ticket',
   },
   {

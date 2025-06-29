@@ -1,11 +1,16 @@
 import { Router } from 'express'
-import { Event, User, Reservation, SessionUser } from '@test-pod/database'
+import { Event, User, Reservation, SessionUser, ReservationStatus } from '@test-pod/database'
 import { authenticate, hasPermission } from '../middleware/auth.middleware'
 import { Sequelize } from '@test-pod/database'
 
 const { Op } = Sequelize
 
 const router: Router = Router()
+
+const getImageUrl = async () => {
+  const imageUrl = await fetch('https://picsum.photos/800/500')
+  return imageUrl.url
+}
 
 router.get('/', authenticate, async (req, res) => {
   try {
@@ -17,7 +22,6 @@ router.get('/', authenticate, async (req, res) => {
       whereConditions.name = { [Op.iLike]: `%${name}%` }
     }
 
-    // Com DATEONLY, podemos usar as strings de data diretamente
     if (fromDate && toDate) {
       whereConditions.eventDate = {
         [Op.between]: [fromDate, toDate],
@@ -34,7 +38,6 @@ router.get('/', authenticate, async (req, res) => {
         whereConditions.active = active === 'false'
       }
     }
-    console.log({ whereConditions })
 
     const events = await Event.findAll({
       where: whereConditions,
@@ -65,7 +68,50 @@ router.get('/', authenticate, async (req, res) => {
   }
 })
 
-// GET /events/:id - Get details of a specific event
+router.get('/public', async (req, res) => {
+  try {
+    const { active, name, fromDate, toDate } = req.query
+
+    const where: any = {}
+
+    if (active === 'true') {
+      where.active = true
+    } else if (active === 'false') {
+      where.active = false
+    }
+
+    if (name && typeof name === 'string') {
+      where.name = {
+        [Op.iLike]: `%${name}%`,
+      }
+    }
+
+    if (fromDate && typeof fromDate === 'string') {
+      where.eventDate = {
+        ...where.eventDate,
+        [Op.gte]: new Date(fromDate),
+      }
+    }
+
+    if (toDate && typeof toDate === 'string') {
+      where.eventDate = {
+        ...where.eventDate,
+        [Op.lte]: new Date(`${toDate}T23:59:59.999Z`),
+      }
+    }
+
+    const events = await Event.findAll({
+      where,
+      order: [['eventDate', 'ASC']],
+    })
+
+    res.json(events)
+  } catch (error) {
+    console.error('Error fetching events:', error)
+    res.status(500).json({ message: 'Error fetching events' })
+  }
+})
+
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const event = await Event.findByPk(req.params.id, {
@@ -82,7 +128,6 @@ router.get('/:id', authenticate, async (req, res) => {
       return res.status(404).json({ message: 'Event not found' })
     }
 
-    // Calculate real available spots
     const realAvailableSpots = await event.getRealAvailableSpots()
 
     res.json({
@@ -97,30 +142,35 @@ router.get('/:id', authenticate, async (req, res) => {
 
 router.post('/', authenticate, hasPermission('event.manage'), async (req, res) => {
   try {
-    console.log(req.body)
     const { name, description, eventDate, location, onlineLink, maxCapacity } = req.body
 
-    // Validate required fields
+    const imageUrl = await getImageUrl()
+
     if (!name || !eventDate || !maxCapacity) {
       return res.status(400).json({
         message: 'Name, event date, and maximum capacity are required',
       })
     }
 
-    // Validate maxCapacity is positive
+    if (!location && !onlineLink) {
+      return res.status(400).json({
+        message: 'Pelo menos um entre location e onlineLink deve ser fornecido',
+      })
+    }
+
     if (maxCapacity <= 0) {
       return res.status(400).json({
         message: 'Maximum capacity must be greater than 0',
       })
     }
 
-    // Create the event
     const event = await Event.create({
       name,
       description,
       eventDate: new Date(eventDate),
       location,
       onlineLink,
+      imageUrl,
       maxCapacity,
       userId: (req.user as SessionUser).id.toString(),
       active: true,
@@ -133,7 +183,6 @@ router.post('/', authenticate, hasPermission('event.manage'), async (req, res) =
   }
 })
 
-// PUT /events/:id - Update an existing event (admin only)
 router.put('/:id', authenticate, hasPermission('event.manage'), async (req, res) => {
   try {
     const { name, description, eventDate, location, onlineLink, maxCapacity, active } = req.body
@@ -147,6 +196,16 @@ router.put('/:id', authenticate, hasPermission('event.manage'), async (req, res)
     if (maxCapacity !== undefined && maxCapacity <= 0) {
       return res.status(400).json({
         message: 'Maximum capacity must be greater than 0',
+      })
+    }
+
+    // Verificar se pelo menos um entre location e onlineLink está presente
+    const updatedLocation = location !== undefined ? location : event.location
+    const updatedOnlineLink = onlineLink !== undefined ? onlineLink : event.onlineLink
+
+    if (!updatedLocation && !updatedOnlineLink) {
+      return res.status(400).json({
+        message: 'Pelo menos um entre location e onlineLink deve ser fornecido',
       })
     }
 
@@ -182,7 +241,6 @@ router.put('/:id', authenticate, hasPermission('event.manage'), async (req, res)
   }
 })
 
-// DELETE /events/:id - Delete an event (admin only)
 router.delete('/:id', authenticate, hasPermission('event.delete'), async (req, res) => {
   try {
     const event = await Event.findByPk(req.params.id)
@@ -191,19 +249,16 @@ router.delete('/:id', authenticate, hasPermission('event.delete'), async (req, r
       return res.status(404).json({ message: 'Event not found' })
     }
 
-    // Check if there are any reservations for this event
     const reservationsCount = await Reservation.count({
       where: { eventId: event.id },
     })
 
     if (reservationsCount > 0) {
-      // Se houver reservas, retornar erro
       return res.status(400).json({
         message: 'Cannot delete event with active reservations. Cancel all reservations first.',
       })
     }
 
-    // Se não houver reservas, apenas desativar o evento
     await event.update({ active: false })
     res.json({ message: 'Event deactivated successfully' })
   } catch (error) {
@@ -212,7 +267,6 @@ router.delete('/:id', authenticate, hasPermission('event.delete'), async (req, r
   }
 })
 
-// GET /events/:id/reservations - List all reservations for a specific event (admin only)
 router.get(
   '/:id/reservations',
   authenticate,
@@ -244,5 +298,45 @@ router.get(
     }
   }
 )
+
+router.post('/:id/reserve', authenticate, async (req, res) => {
+  try {
+    const eventId = req.params.id
+    const userId = (req.user as SessionUser).id
+
+    const event = await Event.findByPk(eventId)
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' })
+    }
+
+    if (!event.active) {
+      return res.status(400).json({ message: 'This event is not active' })
+    }
+
+    const existingReservation = await Reservation.findOne({
+      where: {
+        eventId,
+        userId,
+        status: ReservationStatus.CONFIRMED,
+      },
+    })
+
+    if (existingReservation) {
+      return res.status(400).json({ message: 'You already have a reservation for this event' })
+    }
+
+    const reservation = await Reservation.create({
+      eventId,
+      userId: userId.toString(),
+      status: ReservationStatus.CONFIRMED,
+    })
+
+    res.status(201).json(reservation)
+  } catch (error) {
+    console.error('Error creating reservation:', error)
+    res.status(500).json({ message: 'Error creating reservation' })
+  }
+})
 
 export default router
