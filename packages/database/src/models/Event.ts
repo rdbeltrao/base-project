@@ -18,6 +18,7 @@ export interface EventAttributes {
   eventDate: Date
   location?: string
   onlineLink?: string
+  imageUrl?: string
   maxCapacity: number
   reservedSpots: number
   active: boolean
@@ -38,6 +39,7 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
   declare eventDate: Date
   declare location: string | undefined
   declare onlineLink: string | undefined
+  declare imageUrl: string | undefined
   declare maxCapacity: number
   declare reservedSpots: number
   declare active: boolean
@@ -94,6 +96,10 @@ Event.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    imageUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     maxCapacity: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -137,6 +143,11 @@ Event.init(
       availableNotGreaterThanMax() {
         if (col('reserved_spots') > col('max_capacity')) {
           throw new Error('reserved_spots não pode ser maior que max_capacity')
+        }
+      },
+      locationOrOnlineLink() {
+        if (!this.location && !this.onlineLink) {
+          throw new Error('Pelo menos um entre location e onlineLink deve ser fornecido')
         }
       },
     },

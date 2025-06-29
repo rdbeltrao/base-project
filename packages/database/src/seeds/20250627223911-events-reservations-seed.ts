@@ -1,5 +1,10 @@
 import type { QueryInterface } from 'sequelize'
 
+const getImageUrl = async () => {
+  const imageUrl = await fetch('https://picsum.photos/800/500')
+  return imageUrl.url
+}
+
 export async function up(queryInterface: QueryInterface): Promise<void> {
   const now = new Date()
 
@@ -75,6 +80,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       max_capacity: 30,
       active: true,
       user_id: adminUserId,
+      image_url: await getImageUrl(),
     },
     {
       id: 1002,
@@ -86,6 +92,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       max_capacity: 100,
       active: true,
       user_id: adminUserId,
+      image_url: await getImageUrl(),
     },
     {
       id: 1003,
@@ -97,6 +104,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       max_capacity: 50,
       active: true,
       user_id: adminUserId,
+      image_url: await getImageUrl(),
     },
   ])
 

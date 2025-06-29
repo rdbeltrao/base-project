@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@test-pod/ui'
-import { Calendar, MapPin, Users } from 'lucide-react'
+import { Calendar, Link, MapPin, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { formatEventDate } from '../../../utils/date'
 
@@ -11,6 +11,7 @@ interface Event {
   description: string
   eventDate: string
   location: string
+  imageUrl: string
   onlineLink?: string
   maxCapacity: number
   realAvailableSpots: number
@@ -25,17 +26,16 @@ interface Event {
   }
 }
 
-export default function EventosPage() {
-  const [eventos, setEventos] = useState<Event[]>([])
+export default function EventsPage() {
+  const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchEventos = async () => {
+    const fetchEvents = async () => {
       try {
         setLoading(true)
 
-        // Fetch events directly from the Next.js API route
         const response = await fetch('/api/events?active=true')
 
         if (!response.ok) {
@@ -43,23 +43,17 @@ export default function EventosPage() {
         }
 
         const data = await response.json()
-        setEventos(data)
+        setEvents(data)
         setError(null)
-      } catch (err) {
-        console.error('Erro ao buscar eventos:', err)
+      } catch (_err) {
         setError('Não foi possível carregar os eventos. Tente novamente mais tarde.')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchEventos()
+    fetchEvents()
   }, [])
-
-  const getEventImage = (id: number) => {
-    const images = ['/event1.jpg', '/event2.jpg', '/event3.jpg', '/event4.jpg']
-    return images[id % images.length]
-  }
 
   return (
     <div className='space-y-6'>
@@ -81,36 +75,47 @@ export default function EventosPage() {
 
       {!loading && !error && (
         <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-          {eventos.map(evento => {
-            const imagem = getEventImage(evento.id)
-
+          {events.map(event => {
             return (
               <div
-                key={evento.id}
+                key={event.id}
                 className='rounded-lg border bg-card overflow-hidden flex flex-col'
               >
                 <div className='relative h-48'>
-                  <img src={imagem} alt={evento.name} className='w-full h-full object-cover' />
+                  <img
+                    src={event.imageUrl}
+                    alt={event.name}
+                    className='w-full h-full object-cover'
+                  />
                 </div>
                 <div className='p-4 flex-1 flex flex-col'>
                   <div className='flex flex-col gap-2'>
-                    <h3 className='text-lg font-semibold'>{evento.name}</h3>
+                    <h3 className='text-lg font-semibold'>{event.name}</h3>
                     <div className='flex items-center gap-2 text-gray-600'>
                       <Calendar size={16} />
-                      <span>{formatEventDate(new Date(evento.eventDate))}</span>
+                      <span>{formatEventDate(new Date(event.eventDate))}</span>
                     </div>
                     <div className='flex items-center gap-2 text-gray-600'>
-                      <MapPin size={16} />
-                      <span>{evento.location}</span>
+                      {event.location ? (
+                        <>
+                          <MapPin size={16} />
+                          <span>{event.location}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Link size={16} />
+                          <span>Online</span>
+                        </>
+                      )}
                     </div>
                     <div className='flex items-center gap-2 text-gray-600'>
                       <Users size={16} />
-                      <span>{evento.realAvailableSpots} vagas disponíveis</span>
+                      <span>{event.realAvailableSpots} vagas disponíveis</span>
                     </div>
                   </div>
                   <div className='flex justify-end'>
                     <Button
-                      onClick={() => (window.location.href = `/dashboard/events/${evento.id}`)}
+                      onClick={() => (window.location.href = `/dashboard/events/${event.id}`)}
                     >
                       Ver detalhes
                     </Button>
