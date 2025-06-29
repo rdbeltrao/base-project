@@ -253,7 +253,7 @@ export default function ReservationPage() {
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}
         title='Cancelar Reserva'
-        description='Tem certeza que deseja cancelar esta reserva? Esta ação não pode ser desfeita.'
+        description='Tem certeza que deseja cancelar esta reserva?'
         confirmText='Sim, cancelar'
         cancelText='Não, manter'
         onConfirm={cancelReservation}

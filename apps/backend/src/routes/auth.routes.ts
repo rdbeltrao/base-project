@@ -39,7 +39,7 @@ router.post(
         }
 
         try {
-          const token = jwt.sign(user, process.env.JWT_SECRET || 'your-secret-key', {
+          const token = jwt.sign(user, JWT_SECRET, {
             expiresIn: JWT_EXPIRES_IN,
           } as SignOptions)
 
@@ -87,7 +87,7 @@ router.post(
         return res.status(500).json({ message: 'Error creating session user' })
       }
 
-      const token = jwt.sign(sessionUser, process.env.JWT_SECRET || 'your-secret-key', {
+      const token = jwt.sign(sessionUser, JWT_SECRET, {
         expiresIn: JWT_EXPIRES_IN,
       } as SignOptions)
 
@@ -103,7 +103,7 @@ router.post(
   [body('token').notEmpty().withMessage('Token is required'), validate],
   async (req: express.Request, res: express.Response) => {
     try {
-      const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET || 'your-secret-key') as {
+      const decoded = jwt.verify(req.body.token, JWT_SECRET) as {
         id: number
         email: string
       }
@@ -115,8 +115,7 @@ router.post(
       }
 
       res.json({ user: sessionUser })
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch (_error) {
       return res.status(401).json({ message: 'Invalid token' })
     }
   }
@@ -130,8 +129,8 @@ router.get(
       const user = req.user as SessionUser
 
       res.json({ user })
-    } catch (error) {
-      console.error('Error fetching profile:', error)
+    } catch (_error) {
+      console.error('Error fetching profile:', _error)
       res.status(500).json({ message: 'Error fetching profile' })
     }
   }
@@ -163,14 +162,72 @@ router.put(
         return res.status(500).json({ message: 'Erro ao recuperar dados do usuário' })
       }
 
-      const token = jwt.sign({ id: updatedUser.id, email: updatedUser.email }, JWT_SECRET, {
+      const sessionUser = await getUserForSession(user.id)
+
+      if (!sessionUser) {
+        return res.status(500).json({ message: 'Error creating session user' })
+      }
+
+      const token = jwt.sign(sessionUser, JWT_SECRET, {
         expiresIn: JWT_EXPIRES_IN,
-      } as jwt.SignOptions)
+      } as SignOptions)
 
       res.json({ user: updatedUser, token })
     } catch (error) {
       console.error('Error updating profile:', error)
       res.status(500).json({ message: 'Erro ao atualizar perfil' })
+    }
+  }
+)
+
+router.get('/google', passport.authenticate('google', { session: false }))
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false }),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const user = req.user as SessionUser
+
+      const sessionUser = await getUserForSession(user.id)
+
+      if (!sessionUser) {
+        return res.status(500).json({ message: 'Error creating session user' })
+      }
+
+      const token = jwt.sign(sessionUser, JWT_SECRET, {
+        expiresIn: JWT_EXPIRES_IN,
+      } as SignOptions)
+
+      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
+      const callbackUrl = `${authUrl}/auth/google/callback?token=${token}`
+      res.redirect(callbackUrl)
+    } catch (error) {
+      console.error('Error during Google authentication:', error)
+      res.status(500).json({ message: 'Error during Google authentication' })
+    }
+  }
+)
+
+// Check if user has Google account connected
+router.get(
+  '/google/status',
+  passport.authenticate('jwt', { session: false }),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const user = req.user as SessionUser
+      const googleUser = await User.findByPk(user.id)
+      if (!googleUser || !googleUser.googleId) {
+        return res.status(404).json({ message: 'User not found' })
+      }
+
+      res.json({
+        isConnected: !!googleUser.googleId,
+        hasValidToken: !!googleUser.googleAccessToken,
+      })
+    } catch (error) {
+      console.error('Error checking Google connection status:', error)
+      res.status(500).json({ message: 'Error checking Google connection status' })
     }
   }
 )

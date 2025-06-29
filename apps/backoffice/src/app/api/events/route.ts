@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
     const toDate = searchParams.get('toDate')
     const active = searchParams.get('active')
     const featured = searchParams.get('featured')
+    const limit = searchParams.get('limit')
+    const offset = searchParams.get('offset')
 
     // Construir query string para o backend
     const backendParams = new URLSearchParams()
@@ -36,6 +38,12 @@ export async function GET(request: NextRequest) {
     }
     if (featured) {
       backendParams.append('featured', featured)
+    }
+    if (limit) {
+      backendParams.append('limit', limit)
+    }
+    if (offset) {
+      backendParams.append('offset', offset)
     }
 
     const queryString = backendParams.toString()

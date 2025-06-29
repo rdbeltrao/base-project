@@ -80,10 +80,8 @@ export default function DashboardLayout({ children }: AppLayoutProps) {
       </header>
 
       <div className='flex flex-col flex-1'>
-        {/* Conteúdo principal com padding-bottom extra para mobile para evitar que o conteúdo fique atrás da navegação inferior */}
         <main className='container py-8 pb-24 md:pb-8'>{children}</main>
 
-        {/* Footer */}
         <footer className='border-t border-border py-6 bg-card mt-auto'>
           <div className='container'>
             <div className='flex flex-col md:flex-row items-center justify-center gap-4'>
@@ -92,7 +90,6 @@ export default function DashboardLayout({ children }: AppLayoutProps) {
           </div>
         </footer>
 
-        {/* Navegação inferior para dispositivos móveis */}
         <nav className='md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border'>
           <div className='flex items-center justify-around h-16'>
             {navItems.map(item => (

@@ -27,9 +27,6 @@ export async function GET(request: NextRequest) {
 
     if (startDate && endDate) {
       url += `?startDate=${startDate}&endDate=${endDate}`
-      console.log('URL do backend com filtros:', url)
-    } else {
-      console.log('Nenhum filtro aplicado, URL do backend:', url)
     }
 
     const response = await fetch(url, {

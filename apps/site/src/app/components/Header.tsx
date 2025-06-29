@@ -21,7 +21,7 @@ export default function Header() {
             </Link>
           </div>
 
-          <div className='hidden md:block'>
+          <div className='hidden md:block space-x-2'>
             <Link
               href={process.env.NEXT_PUBLIC_AUTH_URL || '#'}
               className='bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md transition-colors'
@@ -42,10 +42,10 @@ export default function Header() {
         </div>
 
         {isMenuOpen && (
-          <div className='md:hidden mt-4 pb-4 flex justify-center'>
+          <div className='md:hidden mt-4 pb-4 flex flex-col space-y-2 items-center'>
             <Link
               href={process.env.NEXT_PUBLIC_AUTH_URL || '#'}
-              className='bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md transition-colors inline-block'
+              className='bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md transition-colors w-full text-center'
               onClick={() => setIsMenuOpen(false)}
             >
               Entrar
