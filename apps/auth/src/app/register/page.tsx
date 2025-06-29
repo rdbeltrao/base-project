@@ -67,7 +67,7 @@ export default function Register() {
           name: values.name,
           email: values.email,
           password: values.password,
-          type: 'user' // Definindo o tipo como 'user' por padrão
+          type: 'user', // Definindo o tipo como 'user' por padrão
         }),
       })
 
@@ -79,11 +79,11 @@ export default function Register() {
 
       // Login automático após o registro bem-sucedido
       const loginResult = await login(values.email, values.password)
-      
+
       if (!loginResult.success) {
         throw new Error(loginResult.error || 'Automatic login failed')
       }
-      
+
       // Redirecionar de acordo com o resultado do login
       if (loginResult.redirectUrl) {
         window.location.href = loginResult.redirectUrl

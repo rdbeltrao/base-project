@@ -12,7 +12,17 @@ import {
   Button,
   Input,
 } from '@test-pod/ui'
-import { MoreHorizontal, Plus, Pencil, Trash2, Search, X, Calendar, Ticket, Star } from 'lucide-react'
+import {
+  MoreHorizontal,
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  X,
+  Calendar,
+  Ticket,
+  Star,
+} from 'lucide-react'
 import EventForm from './components/event-form'
 import type { EventAttributes } from '@test-pod/database'
 import { formatDate } from '@test-pod/utils'
@@ -77,7 +87,7 @@ export default function EventsPage() {
       if (statusFilter !== 'all') {
         params.append('active', statusFilter === 'active' ? 'true' : 'false')
       }
-      
+
       if (featuredFilter !== 'all') {
         params.append('featured', featuredFilter === 'featured' ? 'true' : 'false')
       }
@@ -138,11 +148,11 @@ export default function EventsPage() {
       setError('Failed to delete event. Please try again.')
     }
   }
-  
+
   const toggleEventFeature = async (event: Event) => {
     try {
       setIsToggleFeatureLoading(true)
-      
+
       const response = await fetch(`/api/events/${event.id}/feature`, {
         method: 'POST',
         headers: {
@@ -246,7 +256,7 @@ export default function EventsPage() {
               <option value='inactive'>Inactive</option>
             </select>
           </div>
-          
+
           <div className='flex flex-col gap-2'>
             <label className='text-sm font-medium'>Featured</label>
             <select
@@ -355,7 +365,9 @@ export default function EventsPage() {
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        event.featured ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                        event.featured
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-gray-100 text-gray-800'
                       }`}
                     >
                       {event.featured ? 'Featured' : 'Not Featured'}
@@ -394,7 +406,7 @@ export default function EventsPage() {
                             View Reservations
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => toggleEventFeature(event)}
                           disabled={isToggleFeatureLoading}
                         >

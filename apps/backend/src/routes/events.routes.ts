@@ -15,7 +15,10 @@ const getImageUrl = async () => {
 
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { name, fromDate, toDate, active, featured } = req.query
+    const { name, fromDate, toDate, active, featured, limit = '10', offset = '0' } = req.query
+
+    const parsedLimit = parseInt(limit as string, 10)
+    const parsedOffset = parseInt(offset as string, 10)
 
     const whereConditions: any = {}
 
@@ -43,7 +46,7 @@ router.get('/', authenticate, async (req, res) => {
       whereConditions.featured = featured === 'true'
     }
 
-    const events = await Event.findAll({
+    const { rows: events, count: total } = await Event.findAndCountAll({
       where: whereConditions,
       include: [
         {
@@ -52,7 +55,12 @@ router.get('/', authenticate, async (req, res) => {
           attributes: ['id', 'name', 'email'],
         },
       ],
-      order: [['createdAt', 'ASC']],
+      order: [
+        ['eventDate', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
+      limit: parsedLimit,
+      offset: parsedOffset,
     })
 
     const eventsWithRealSpots = await Promise.all(
@@ -65,7 +73,15 @@ router.get('/', authenticate, async (req, res) => {
       })
     )
 
-    res.json(eventsWithRealSpots)
+    res.json({
+      events: eventsWithRealSpots,
+      pagination: {
+        total,
+        limit: parsedLimit,
+        offset: parsedOffset,
+        hasMore: total > parsedOffset + parsedLimit,
+      },
+    })
   } catch (error) {
     console.error('Error fetching events:', error)
     res.status(500).json({ message: 'Error fetching events' })
@@ -80,7 +96,6 @@ router.get('/public', async (req, res) => {
     const cachedEvents = await redisClient.get(CACHE_KEY)
 
     if (cachedEvents) {
-      console.log('Returning featured events from cache')
       return res.json(JSON.parse(cachedEvents))
     }
 
@@ -96,7 +111,6 @@ router.get('/public', async (req, res) => {
       limit: 3,
     })
 
-    // Armazenar no cache
     await redisClient.setEx(CACHE_KEY, CACHE_TTL, JSON.stringify(events))
 
     res.json(events)

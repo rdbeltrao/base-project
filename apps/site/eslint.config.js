@@ -1,3 +1,3 @@
-import { baseConfig } from '@test-pod/eslint-config'
+import config from '@test-pod/eslint-config/base'
 
-export default baseConfig
+export default config

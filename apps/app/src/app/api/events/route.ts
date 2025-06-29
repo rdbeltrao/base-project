@@ -12,6 +12,8 @@ export async function GET(request: NextRequest) {
     const fromDate = searchParams.get('fromDate')
     const toDate = searchParams.get('toDate')
     const active = searchParams.get('active')
+    const limit = searchParams.get('limit')
+    const offset = searchParams.get('offset')
 
     const backendParams = new URLSearchParams()
     if (name) {
@@ -25,6 +27,12 @@ export async function GET(request: NextRequest) {
     }
     if (active) {
       backendParams.append('active', active)
+    }
+    if (limit) {
+      backendParams.append('limit', limit)
+    }
+    if (offset) {
+      backendParams.append('offset', offset)
     }
 
     const queryString = backendParams.toString()

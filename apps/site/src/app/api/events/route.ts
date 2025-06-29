@@ -18,9 +18,6 @@ export async function GET() {
     return NextResponse.json(events)
   } catch (error) {
     console.error('Erro ao buscar eventos em destaque:', error)
-    return NextResponse.json(
-      { error: 'Falha ao buscar eventos em destaque' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Falha ao buscar eventos em destaque' }, { status: 500 })
   }
 }

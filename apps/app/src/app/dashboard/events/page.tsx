@@ -12,7 +12,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { formatDate } from '@test-pod/utils'
 
 interface Event {
@@ -36,9 +36,23 @@ interface Event {
   }
 }
 
+interface PaginationData {
+  total: number
+  limit: number
+  offset: number
+  hasMore: boolean
+}
+
+interface EventsResponse {
+  events: Event[]
+  pagination: PaginationData
+}
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [filtersVisible, setFiltersVisible] = useState(false)
   const [filters, setFilters] = useState({
@@ -52,44 +66,77 @@ export default function EventsPage() {
     fromDate: '',
     toDate: '',
   })
+  const [pagination, setPagination] = useState<PaginationData>({
+    total: 0,
+    limit: 10,
+    offset: 0,
+    hasMore: false,
+  })
 
-  const fetchEvents = async (
-    params: { name?: string; fromDate?: string; toDate?: string } = {}
-  ) => {
-    try {
-      setLoading(true)
+  const observerTarget = useRef<HTMLDivElement | null>(null)
 
-      const queryParams = new URLSearchParams()
-      queryParams.append('active', 'true')
-      if (params.name) {
-        queryParams.append('name', params.name)
+  const fetchEvents = useCallback(
+    async (
+      params: { name?: string; fromDate?: string; toDate?: string } = {},
+      reset: boolean = true
+    ) => {
+      try {
+        if (reset) {
+          setInitialLoading(true)
+        } else {
+          setLoadingMore(true)
+        }
+
+        const offset = reset ? 0 : pagination.offset + pagination.limit
+
+        const queryParams = new URLSearchParams()
+        queryParams.append('active', 'true')
+        queryParams.append('limit', pagination.limit.toString())
+        queryParams.append('offset', offset.toString())
+
+        if (params.name) {
+          queryParams.append('name', params.name)
+        }
+        if (params.fromDate) {
+          queryParams.append('fromDate', params.fromDate)
+        }
+        if (params.toDate) {
+          queryParams.append('toDate', params.toDate)
+        }
+
+        const response = await fetch(`/api/events?${queryParams.toString()}`)
+
+        if (!response.ok) {
+          throw new Error('Falha ao buscar eventos')
+        }
+
+        const data: EventsResponse = await response.json()
+
+        if (reset) {
+          setEvents(data.events)
+        } else {
+          setEvents(prev => [...prev, ...data.events])
+        }
+
+        setPagination(data.pagination)
+        setError(null)
+      } catch (_err) {
+        setError('Não foi possível carregar os eventos. Tente novamente mais tarde.')
+      } finally {
+        if (reset) {
+          setInitialLoading(false)
+        } else {
+          setLoadingMore(false)
+        }
+        setLoading(false)
       }
-      if (params.fromDate) {
-        queryParams.append('fromDate', params.fromDate)
-      }
-      if (params.toDate) {
-        queryParams.append('toDate', params.toDate)
-      }
-
-      const response = await fetch(`/api/events?${queryParams.toString()}`)
-
-      if (!response.ok) {
-        throw new Error('Falha ao buscar eventos')
-      }
-
-      const data = await response.json()
-      setEvents(data)
-      setError(null)
-    } catch (_err) {
-      setError('Não foi possível carregar os eventos. Tente novamente mais tarde.')
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    [pagination.limit, pagination.offset]
+  )
 
   const handleApplyFilters = () => {
     setAppliedFilters({ ...filters })
-    fetchEvents(filters)
+    fetchEvents(filters, true)
   }
 
   const handleClearFilters = () => {
@@ -100,12 +147,34 @@ export default function EventsPage() {
     }
     setFilters(clearedFilters)
     setAppliedFilters(clearedFilters)
-    fetchEvents(clearedFilters)
+    fetchEvents(clearedFilters, true)
   }
 
   useEffect(() => {
     fetchEvents()
   }, [])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && pagination.hasMore && !loadingMore && !initialLoading) {
+          fetchEvents(_appliedFilters, false)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const currentTarget = observerTarget.current
+    if (currentTarget) {
+      observer.observe(currentTarget)
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget)
+      }
+    }
+  }, [pagination.hasMore, loadingMore, initialLoading, _appliedFilters, fetchEvents])
 
   return (
     <div className='space-y-6'>
@@ -200,58 +269,74 @@ export default function EventsPage() {
         </div>
       )}
 
-      {!loading && !error && (
-        <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-          {events.map(event => {
-            return (
-              <div
-                key={event.id}
-                className='rounded-lg border bg-card overflow-hidden flex flex-col'
-              >
-                <div className='relative h-48'>
-                  <img
-                    src={event.imageUrl}
-                    alt={event.name}
-                    className='w-full h-full object-cover'
-                  />
-                </div>
-                <div className='p-4 flex-1 flex flex-col'>
-                  <div className='flex flex-col gap-2'>
-                    <h3 className='text-lg font-semibold'>{event.name}</h3>
-                    <div className='flex items-center gap-2 text-gray-600'>
-                      <Calendar size={16} />
-                      <span>{formatDate(new Date(event.eventDate))}</span>
+      {!initialLoading && !error && (
+        <>
+          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            {events.map(event => {
+              return (
+                <div
+                  key={event.id}
+                  className='rounded-lg border bg-card overflow-hidden flex flex-col'
+                >
+                  <div className='relative h-48'>
+                    <img
+                      src={event.imageUrl}
+                      alt={event.name}
+                      className='w-full h-full object-cover'
+                    />
+                  </div>
+                  <div className='p-4 flex-1 flex flex-col'>
+                    <div className='flex flex-col gap-2'>
+                      <h3 className='text-lg font-semibold'>{event.name}</h3>
+                      <div className='flex items-center gap-2 text-gray-600'>
+                        <Calendar size={16} />
+                        <span>{formatDate(new Date(event.eventDate))}</span>
+                      </div>
+                      <div className='flex items-center gap-2 text-gray-600'>
+                        {event.location ? (
+                          <>
+                            <MapPin size={16} />
+                            <span>{event.location}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Link size={16} />
+                            <span>Online</span>
+                          </>
+                        )}
+                      </div>
+                      <div className='flex items-center gap-2 text-gray-600'>
+                        <Users size={16} />
+                        <span>{event.realAvailableSpots} vagas disponíveis</span>
+                      </div>
                     </div>
-                    <div className='flex items-center gap-2 text-gray-600'>
-                      {event.location ? (
-                        <>
-                          <MapPin size={16} />
-                          <span>{event.location}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Link size={16} />
-                          <span>Online</span>
-                        </>
-                      )}
-                    </div>
-                    <div className='flex items-center gap-2 text-gray-600'>
-                      <Users size={16} />
-                      <span>{event.realAvailableSpots} vagas disponíveis</span>
+                    <div className='flex justify-end'>
+                      <Button
+                        onClick={() => (window.location.href = `/dashboard/events/${event.id}`)}
+                      >
+                        Ver detalhes
+                      </Button>
                     </div>
                   </div>
-                  <div className='flex justify-end'>
-                    <Button
-                      onClick={() => (window.location.href = `/dashboard/events/${event.id}`)}
-                    >
-                      Ver detalhes
-                    </Button>
-                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+
+          <div ref={observerTarget} className='h-10 w-full flex items-center justify-center mt-6'>
+            {loadingMore && (
+              <div className='animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary'></div>
+            )}
+          </div>
+
+          {!loadingMore && !pagination.hasMore && events.length > 0 && (
+            <p className='text-center text-gray-500 mt-6'>Não há mais eventos para carregar</p>
+          )}
+
+          {!loadingMore && events.length === 0 && (
+            <p className='text-center text-gray-500 mt-6'>Nenhum evento encontrado</p>
+          )}
+        </>
       )}
     </div>
   )

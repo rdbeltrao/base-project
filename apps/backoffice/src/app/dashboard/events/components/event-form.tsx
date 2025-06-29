@@ -226,7 +226,7 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name='featured'

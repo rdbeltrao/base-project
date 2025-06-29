@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
+// Configurações para marcar esta rota como dinâmica e evitar erros de build
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const runtime = 'edge'
+
 export async function GET(request: NextRequest) {
   try {
     const COOKIE_NAME = process.env.COOKIE_NAME || 'authToken'
