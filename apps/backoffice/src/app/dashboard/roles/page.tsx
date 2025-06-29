@@ -10,7 +10,7 @@ import {
   DialogDescription,
   Button,
 } from '@test-pod/ui'
-import { format } from 'date-fns'
+import { formatDate } from '@test-pod/utils'
 import { MoreHorizontal, Plus, Pencil, Trash2 } from 'lucide-react'
 import RoleForm, { Role as RoleFormType } from './components/role-form'
 import {
@@ -164,7 +164,7 @@ export default function RolesPage() {
                     {role.description || '-'}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                    {format(new Date(role.createdAt), 'PPP')}
+                    {formatDate(new Date(role.createdAt))}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                     <span

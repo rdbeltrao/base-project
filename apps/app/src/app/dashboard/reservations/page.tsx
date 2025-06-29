@@ -3,7 +3,7 @@
 import { Button, ConfirmationDialog } from '@test-pod/ui'
 import { useState, useEffect } from 'react'
 import { Calendar, MapPin, CheckCircle, XCircle } from 'lucide-react'
-import { formatEventDate } from '../../../utils/date'
+import { formatDate } from '@test-pod/utils'
 
 interface Reservation {
   id: number
@@ -46,7 +46,9 @@ export default function ReservationPage() {
         queryParams.append('status', status)
       }
 
-      const response = await fetch(`/api/reservations/mine${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
+      const response = await fetch(
+        `/api/reservations/mine${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+      )
 
       if (!response.ok) {
         throw new Error('Falha ao buscar reservas')
@@ -152,7 +154,10 @@ export default function ReservationPage() {
               <div className='flex flex-col md:flex-row'>
                 <div className='relative w-full md:w-64 h-48 md:h-auto'>
                   <img
-                    src={reservation.event.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'}
+                    src={
+                      reservation.event.imageUrl ||
+                      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+                    }
                     alt={reservation.event.name}
                     className='w-full h-full object-cover'
                   />
@@ -161,10 +166,11 @@ export default function ReservationPage() {
                   <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2'>
                     <h3 className='text-lg font-medium'>{reservation.event.name}</h3>
                     <div
-                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${reservation.status === 'confirmed'
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                        }`}
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        reservation.status === 'confirmed'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                      }`}
                     >
                       {reservation.status === 'confirmed' ? (
                         <>
@@ -183,7 +189,7 @@ export default function ReservationPage() {
                   <div className='mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground'>
                     <div className='flex items-center gap-2'>
                       <Calendar className='h-4 w-4' />
-                      <span>{formatEventDate(new Date(reservation.event.eventDate))}</span>
+                      <span>{formatDate(new Date(reservation.event.eventDate))}</span>
                     </div>
                     <div className='flex items-center gap-2'>
                       <MapPin className='h-4 w-4' />
@@ -195,19 +201,24 @@ export default function ReservationPage() {
                     </div>
                     <div className='flex items-center gap-2'>
                       <span className='font-medium text-foreground'>Criada em:</span>
-                      <span>{formatEventDate(new Date(reservation.createdAt))}</span>
+                      <span>{formatDate(new Date(reservation.createdAt))}</span>
                     </div>
                   </div>
 
                   <div className='mt-4 flex flex-col sm:flex-row gap-2 sm:justify-end'>
                     <Button
                       variant='outline'
-                      onClick={() => (window.location.href = `/dashboard/events/${reservation.eventId}`)}
+                      onClick={() =>
+                        (window.location.href = `/dashboard/events/${reservation.eventId}`)
+                      }
                     >
                       Ver evento
                     </Button>
                     {reservation.status === 'confirmed' && (
-                      <Button variant='destructive' onClick={() => openCancelDialog(reservation.id)}>
+                      <Button
+                        variant='destructive'
+                        onClick={() => openCancelDialog(reservation.id)}
+                      >
                         Cancelar reserva
                       </Button>
                     )}
@@ -222,7 +233,11 @@ export default function ReservationPage() {
               <XCircle className='mx-auto h-12 w-12 text-muted-foreground' />
               <h3 className='mt-2 text-lg font-medium'>Nenhuma reserva encontrada</h3>
               <p className='text-muted-foreground'>
-                Você ainda não possui reservas {filter !== 'todas' ? `com status "${filter === 'confirmed' ? 'confirmada' : 'cancelada'}"` : ''}.
+                Você ainda não possui reservas{' '}
+                {filter !== 'todas'
+                  ? `com status "${filter === 'confirmed' ? 'confirmada' : 'cancelada'}"`
+                  : ''}
+                .
               </p>
               <Button className='mt-4' onClick={() => (window.location.href = '/dashboard/events')}>
                 Explorar eventos

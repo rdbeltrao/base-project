@@ -13,7 +13,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { formatEventDate } from '../../../utils/date'
+import { formatDate } from '@test-pod/utils'
 
 interface Event {
   id: number
@@ -220,7 +220,7 @@ export default function EventsPage() {
                     <h3 className='text-lg font-semibold'>{event.name}</h3>
                     <div className='flex items-center gap-2 text-gray-600'>
                       <Calendar size={16} />
-                      <span>{formatEventDate(new Date(event.eventDate))}</span>
+                      <span>{formatDate(new Date(event.eventDate))}</span>
                     </div>
                     <div className='flex items-center gap-2 text-gray-600'>
                       {event.location ? (

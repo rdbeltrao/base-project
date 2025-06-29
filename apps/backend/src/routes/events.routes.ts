@@ -38,7 +38,6 @@ router.get('/', authenticate, async (req, res) => {
         whereConditions.active = active === 'false'
       }
     }
-    console.log({ whereConditions })
 
     const events = await Event.findAll({
       where: whereConditions,

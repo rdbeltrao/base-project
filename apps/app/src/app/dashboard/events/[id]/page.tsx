@@ -3,7 +3,7 @@
 import { Button, ConfirmationDialog } from '@test-pod/ui'
 import { AlertCircle, Calendar, Check, MapPin, Users, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { formatEventDate } from '../../../../utils/date'
+import { formatDate } from '@test-pod/utils'
 import { useRouter } from 'next/navigation'
 
 interface Event {
@@ -150,7 +150,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
         type: 'success',
         text: 'Sua reserva foi cancelada com sucesso.',
       })
-      
+
       setConfirmDialogOpen(false)
     } catch (err) {
       setMessage({
@@ -278,7 +278,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
           <div className='flex flex-col gap-4 mb-6'>
             <div className='flex items-center text-gray-600 mb-4 text-sm sm:text-base'>
               <Calendar className='mr-2 h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0' />
-              <span>{formatEventDate(new Date(event.eventDate))}</span>
+              <span>{formatDate(new Date(event.eventDate))}</span>
             </div>
 
             {event.location && (

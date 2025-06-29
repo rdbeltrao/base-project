@@ -10,6 +10,7 @@ import usersRoutes from './routes/users.routes'
 import rolesRoutes from './routes/roles.routes'
 import eventsRoutes from './routes/events.routes'
 import reservationsRoutes from './routes/reservations.routes'
+import statsRoutes from './routes/stats.routes'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -27,6 +28,7 @@ app.use('/api/users', usersRoutes)
 app.use('/api/roles', rolesRoutes)
 app.use('/api/events', eventsRoutes)
 app.use('/api/reservations', reservationsRoutes)
+app.use('/api/stats', statsRoutes)
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Ping' })
