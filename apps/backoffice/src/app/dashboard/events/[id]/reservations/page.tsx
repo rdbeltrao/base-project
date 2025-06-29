@@ -109,7 +109,9 @@ export default function EventReservationsPage({ params }: { params: { id: string
   }
 
   const confirmReservation = async () => {
-    if (!currentReservation) return
+    if (!currentReservation) {
+      return
+    }
 
     try {
       setActionLoading(true)
@@ -133,7 +135,9 @@ export default function EventReservationsPage({ params }: { params: { id: string
   }
 
   const cancelReservation = async () => {
-    if (!currentReservation) return
+    if (!currentReservation) {
+      return
+    }
 
     try {
       setActionLoading(true)

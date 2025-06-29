@@ -11,8 +11,10 @@ import {
 import sequelize from '../db'
 import bcrypt from 'bcryptjs'
 
-import type Role from './Role'
+import Role from './Role'
 import Permission from './Permission'
+import Reservation from './Reservation'
+import Event from './Event'
 
 interface UserAttributes {
   id: number
@@ -47,6 +49,8 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   declare removeRoles: BelongsToManyRemoveAssociationsMixin<Role, number>
 
   declare readonly roles?: Role[]
+  declare readonly reservations?: Reservation[]
+  declare readonly events?: Event[]
 
   async hasPermission(permission: string): Promise<boolean> {
     const [resource, action] = permission.split('.')
@@ -54,6 +58,23 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     return roles.some(role =>
       role.permissions?.some(p => p.action === action && p.resource === resource)
     )
+  }
+
+  static associate() {
+    this.hasMany(Reservation, {
+      foreignKey: 'user_id',
+      as: 'reservations',
+    })
+    this.hasMany(Event, {
+      foreignKey: 'user_id',
+      as: 'events',
+    })
+    this.belongsToMany(Role, {
+      through: 'user_roles',
+      foreignKey: 'user_id',
+      otherKey: 'role_id',
+      as: 'roles',
+    })
   }
 }
 

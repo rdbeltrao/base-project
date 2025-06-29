@@ -8,8 +8,8 @@ import {
 } from 'sequelize'
 import sequelize from '../db'
 
-import type User from './User'
-import type Permission from './Permission'
+import User from './User'
+import Permission from './Permission'
 
 interface RoleAttributes {
   id: number
@@ -42,6 +42,22 @@ class Role extends Model<RoleAttributes, RoleCreationAttributes> implements Role
   declare getPermissions: BelongsToManyGetAssociationsMixin<Permission>
   declare hasPermission: BelongsToManyHasAssociationMixin<Permission, number>
   declare readonly permissions?: Permission[]
+
+  static associate() {
+    this.belongsToMany(User, {
+      through: 'user_roles',
+      foreignKey: 'role_id',
+      otherKey: 'user_id',
+      as: 'users',
+    })
+
+    this.belongsToMany(Permission, {
+      through: 'role_permissions',
+      foreignKey: 'role_id',
+      otherKey: 'permission_id',
+      as: 'permissions',
+    })
+  }
 }
 
 Role.init(

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { Event, User, Reservation, SessionUser, ReservationStatus } from '@test-pod/database'
 import { authenticate } from '../middleware/auth.middleware'
-import { userHasPermission } from '../utils/permissions'
+import { userHasAllPermissions } from '../utils/permissions'
 
 const router: Router = Router()
 
@@ -16,7 +16,10 @@ router.delete('/:id', authenticate, async (req, res) => {
       return res.status(404).json({ message: 'Reservation not found' })
     }
 
-    const isAdmin = await userHasPermission(userId, 'reservation.manage')
+    const isAdmin = await userHasAllPermissions(userId, [
+      'reservation.delete',
+      'reservation.manage',
+    ])
 
     if (reservation.userId !== userId.toString() && !isAdmin) {
       return res.status(403).json({ message: 'You are not authorized to cancel this reservation' })
@@ -99,7 +102,10 @@ router.put('/:id/confirm', authenticate, async (req, res) => {
       return res.status(404).json({ message: 'Reservation not found' })
     }
 
-    const isAdmin = await userHasPermission(userId, 'reservation.manage')
+    const isAdmin = await userHasAllPermissions(userId, [
+      'reservation.confirm',
+      'reservation.manage',
+    ])
 
     if (reservation.userId !== userId.toString() && !isAdmin) {
       return res.status(403).json({ message: 'You are not authorized to confirm this reservation' })
@@ -109,7 +115,7 @@ router.put('/:id/confirm', authenticate, async (req, res) => {
       return res.status(400).json({ message: 'Reservation is already confirmed' })
     }
 
-    const event = await Event.findByPk(reservation.eventId)
+    const { event } = reservation
 
     if (!event) {
       return res.status(404).json({ message: 'Event not found' })

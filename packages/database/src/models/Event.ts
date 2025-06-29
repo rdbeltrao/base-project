@@ -51,6 +51,14 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
   declare getUser: BelongsToGetAssociationMixin<User>
   declare getReservations: HasManyGetAssociationsMixin<Reservation>
 
+  declare readonly user?: User
+  declare readonly reservations?: Reservation[]
+
+  static associate() {
+    this.belongsTo(User, { as: 'user', foreignKey: 'user_id' })
+    this.hasMany(Reservation, { as: 'reservations', foreignKey: 'event_id' })
+  }
+
   async getRealAvailableSpots(): Promise<number> {
     if (!this.active) {
       return 0

@@ -1,4 +1,4 @@
-import { Model, DataTypes, Optional, BelongsToGetAssociationMixin } from 'sequelize'
+import { Model, DataTypes, Optional, BelongsToGetAssociationMixin, NonAttribute } from 'sequelize'
 import sequelize from '../db'
 import User from './User'
 import Event from './Event'
@@ -38,6 +38,14 @@ class Reservation
 
   declare getUser: BelongsToGetAssociationMixin<User>
   declare getEvent: BelongsToGetAssociationMixin<Event>
+
+  declare event?: NonAttribute<Event>
+  declare user?: NonAttribute<User>
+
+  static associate() {
+    this.belongsTo(Event, { as: 'event', foreignKey: 'event_id' })
+    this.belongsTo(User, { as: 'user', foreignKey: 'user_id' })
+  }
 }
 
 Reservation.init(
