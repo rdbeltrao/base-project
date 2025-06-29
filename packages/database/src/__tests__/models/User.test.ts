@@ -1,16 +1,7 @@
 import bcrypt from 'bcryptjs'
 import User from '../../models/User'
-import sequelize from '../../db'
 
 describe('User', () => {
-  beforeAll(async () => {
-    await sequelize.sync({ force: true })
-  })
-
-  afterAll(async () => {
-    await sequelize.close()
-  })
-
   it('should create a user', async () => {
     const userData = {
       name: 'Test User',

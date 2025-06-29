@@ -2,10 +2,10 @@
   "extends": "@test-pod/ts-config/tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "esModuleInterop": true
   },
-  "include": ["src/**/*"],
+  "include": ["./src/**/*", "jest.setup.ts"],
   "exclude": ["node_modules/**/*", "dist/**/*"],
   "types": ["node", "sequelize", "jest"]
 }

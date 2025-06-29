@@ -1,15 +1,6 @@
 import { User, Role, Permission } from '../../models'
-import sequelize from '../../db'
 
 describe('Role Model', () => {
-  beforeAll(async () => {
-    await sequelize.sync({ force: true })
-  })
-
-  afterAll(async () => {
-    await sequelize.close()
-  })
-
   it('should create a role', async () => {
     const role = await Role.create({
       name: 'admin',

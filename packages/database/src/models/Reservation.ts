@@ -106,6 +106,27 @@ Reservation.init(
         fields: ['event_id', 'user_id'],
       },
     ],
+    hooks: {
+      beforeCreate: async (reservation: Reservation) => {
+        // Buscar o evento associado à reserva
+        const event = await Event.findByPk(reservation.eventId)
+
+        if (!event) {
+          throw new Error('Evento não encontrado')
+        }
+
+        // Verificar se o evento está ativo
+        if (!event.active) {
+          throw new Error('Não é possível reservar um evento inativo')
+        }
+
+        // Verificar se há vagas disponíveis
+        const availableSpots = await event.getRealAvailableSpots()
+        if (availableSpots <= 0) {
+          throw new Error('Não há vagas disponíveis para este evento')
+        }
+      },
+    },
   }
 )
 

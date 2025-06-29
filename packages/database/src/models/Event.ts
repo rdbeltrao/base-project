@@ -66,13 +66,14 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
       return 0
     }
 
-    const confirmedReservations = await this.getReservations({
+    const confirmedCount = await Reservation.count({
       where: {
+        eventId: this.id,
         status: ReservationStatus.CONFIRMED,
       },
     })
 
-    return Math.max(0, this.maxCapacity - confirmedReservations.length)
+    return Math.max(0, this.maxCapacity - confirmedCount)
   }
 }
 
@@ -135,7 +136,7 @@ Event.init(
       defaultValue: false,
     },
     userId: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'users',

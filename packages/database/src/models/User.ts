@@ -49,16 +49,8 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   declare removeRoles: BelongsToManyRemoveAssociationsMixin<Role, number>
 
   declare readonly roles?: Role[]
-  declare readonly reservations?: Reservation[]
+  declare readonly user_reservations?: Reservation[]
   declare readonly events?: Event[]
-
-  async hasPermission(permission: string): Promise<boolean> {
-    const [resource, action] = permission.split('.')
-    const roles = this.roles ?? (await this.getRoles({ include: [Permission] }))
-    return roles.some(role =>
-      role.permissions?.some(p => p.action === action && p.resource === resource)
-    )
-  }
 
   static associate() {
     this.hasMany(Reservation, {
@@ -75,6 +67,14 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
       otherKey: 'role_id',
       as: 'roles',
     })
+  }
+
+  async hasPermission(permission: string): Promise<boolean> {
+    const [resource, action] = permission.split('.')
+    const roles = this.roles ?? (await this.getRoles({ include: [Permission] }))
+    return roles.some(role =>
+      role.permissions?.some(p => p.action === action && p.resource === resource)
+    )
   }
 }
 

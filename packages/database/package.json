@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "test": "jest",
+    "test": "jest -i",
     "test:watch": "jest --watch",
     "migrate:generate": "sequelize-cli migration:generate --name",
     "migrate:up": "sequelize-cli db:migrate",

@@ -7,9 +7,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@test-pod/ts-config": "workspace:*",
