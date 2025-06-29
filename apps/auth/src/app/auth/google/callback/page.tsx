@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { setCookie } from '@test-pod/auth-shared'
 
 const authToken = process.env.NEXT_PUBLIC_AUTH_TOKEN || 'authToken'
 const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || 'localhost'
 
-export default function GoogleCallback() {
+function GoogleCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'error'>('loading')
@@ -52,5 +52,24 @@ export default function GoogleCallback() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function GoogleCallback() {
+  return (
+    <Suspense
+      fallback={
+        <div className='flex min-h-screen flex-col items-center justify-center p-4'>
+          <div className='w-full max-w-md rounded-lg bg-white p-8 shadow-md'>
+            <div className='text-center'>
+              <h1 className='mb-4 text-2xl font-bold'>Carregando...</h1>
+              <div className='mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent'></div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <GoogleCallbackContent />
+    </Suspense>
   )
 }

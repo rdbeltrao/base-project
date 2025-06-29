@@ -207,13 +207,12 @@ export default function UsersPage() {
                           <Pencil className='mr-2 h-4 w-4' />
                           Edit
                         </DropdownMenuItem>
-                        {hasPermissions(['user.delete']) ||
-                          (user.active && (
-                            <DropdownMenuItem onClick={() => handleDeleteUser(user)}>
-                              <Trash2 className='mr-2 h-4 w-4' />
-                              Delete
-                            </DropdownMenuItem>
-                          ))}
+                        {hasPermissions(['user.delete']) && user.active && (
+                          <DropdownMenuItem onClick={() => handleDeleteUser(user)}>
+                            <Trash2 className='mr-2 h-4 w-4' />
+                            Delete
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>

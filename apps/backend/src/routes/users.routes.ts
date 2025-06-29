@@ -7,7 +7,7 @@ const router: Router = Router()
 
 router.get('/', authenticate, hasPermission('user.manage'), async (req, res) => {
   try {
-    const showInactive = await userHasPermission((req.user as SessionUser).id, 'user.view_inactive')
+    const showInactive = await userHasPermission((req.user as SessionUser).id, 'user.delete')
 
     const users = await User.findAll({
       include: [
