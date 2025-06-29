@@ -14,6 +14,7 @@ export interface ReservationAttributes {
   userId: string
   reservationDate: Date
   status: ReservationStatus
+  googleCalendarEventId?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -32,6 +33,7 @@ class Reservation
   declare userId: string
   declare reservationDate: Date
   declare status: ReservationStatus
+  declare googleCalendarEventId?: string
 
   declare readonly createdAt: Date
   declare readonly updatedAt: Date
@@ -84,6 +86,10 @@ Reservation.init(
       type: DataTypes.ENUM(...Object.values(ReservationStatus)),
       allowNull: false,
       defaultValue: ReservationStatus.CONFIRMED,
+    },
+    googleCalendarEventId: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,

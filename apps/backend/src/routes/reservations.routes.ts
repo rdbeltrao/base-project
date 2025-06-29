@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { Event, User, Reservation, SessionUser, ReservationStatus } from '@test-pod/database'
 import { authenticate } from '../middleware/auth.middleware'
 import { userHasAllPermissions } from '../utils/permissions'
+import { removeEventFromGoogleCalendar } from '../utils/googleCalendar'
 
 const router: Router = Router()
 
@@ -28,7 +29,20 @@ router.delete('/:id', authenticate, async (req, res) => {
     if (reservation.status === ReservationStatus.CANCELED) {
       return res.status(400).json({ message: 'Reservation is already canceled' })
     }
-    await reservation.update({ status: ReservationStatus.CANCELED })
+
+    if (reservation.googleCalendarEventId) {
+      try {
+        await removeEventFromGoogleCalendar(userId, reservation.googleCalendarEventId)
+      } catch (error) {
+        console.error('Error removing event from Google Calendar:', error)
+        // Continue with cancellation even if Google Calendar removal fails
+      }
+    }
+
+    await reservation.update({
+      status: ReservationStatus.CANCELED,
+      googleCalendarEventId: undefined, // Clear the Google Calendar event ID
+    })
 
     res.json({ message: 'Reservation canceled successfully' })
   } catch (error) {

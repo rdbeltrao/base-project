@@ -388,7 +388,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}
         title='Cancelar Reserva'
-        description='Tem certeza que deseja cancelar sua reserva para este evento? Esta ação não pode ser desfeita.'
+        description='Tem certeza que deseja cancelar sua reserva para este evento?'
         confirmText='Sim, cancelar'
         cancelText='Não, manter'
         onConfirm={handleCancelReservation}

@@ -14,6 +14,5 @@ export default {
   testMatch: ['**/__tests__/**/*.ts?(x)', '**/?(*.)+(spec|test).ts?(x)'],
   coverageDirectory: './coverage',
   collectCoverageFrom: ['src/**/*.{ts,tsx}'],
-  // Executar testes sequencialmente em vez de em paralelo
   maxWorkers: 1, // Força execução sequencial
 }

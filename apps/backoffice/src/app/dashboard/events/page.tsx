@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Dialog,
@@ -48,6 +48,14 @@ export default function EventsPage() {
   const { hasPermissions } = useAuth()
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [pagination, setPagination] = useState({
+    total: 0,
+    limit: 10,
+    offset: 0,
+    currentPage: 1,
+    totalPages: 1,
+    hasMore: false,
+  })
   const [error, setError] = useState<string | null>(null)
 
   const [nameFilter, setNameFilter] = useState('')
@@ -62,34 +70,51 @@ export default function EventsPage() {
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null)
   const [isToggleFeatureLoading, setIsToggleFeatureLoading] = useState(false)
 
+  // Fetch events when component mounts
   useEffect(() => {
-    fetchEvents()
+    fetchEvents(1)
   }, [])
 
-  const fetchEvents = async () => {
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    fetchEvents(1)
+  }, [nameFilter, fromDateFilter, toDateFilter, statusFilter, featuredFilter])
+
+  // React event handler wrapper for pagination buttons
+  const handlePageClick = (page: number) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    fetchEvents(page)
+  }
+
+  const fetchEvents = async (page = 1) => {
     try {
       setLoading(true)
 
+      const limit = 10
+      const offset = (page - 1) * limit
+
       const params = new URLSearchParams()
 
+      params.set('limit', limit.toString())
+      params.set('offset', offset.toString())
       if (nameFilter) {
-        params.append('name', nameFilter)
+        params.set('name', nameFilter)
       }
 
       if (fromDateFilter) {
-        params.append('fromDate', fromDateFilter.toISOString())
+        params.set('fromDate', fromDateFilter.toISOString())
       }
 
       if (toDateFilter) {
-        params.append('toDate', toDateFilter.toISOString())
+        params.set('toDate', toDateFilter.toISOString())
       }
 
       if (statusFilter !== 'all') {
-        params.append('active', statusFilter === 'active' ? 'true' : 'false')
+        params.set('active', statusFilter === 'active' ? 'true' : 'false')
       }
 
       if (featuredFilter !== 'all') {
-        params.append('featured', featuredFilter === 'featured' ? 'true' : 'false')
+        params.set('featured', featuredFilter === 'featured' ? 'true' : 'false')
       }
 
       const queryString = params.toString()
@@ -102,11 +127,25 @@ export default function EventsPage() {
       }
 
       const data = await response.json()
-      setEvents(data)
+
+      setEvents(data.events)
+
+      const returnedOffset = data.pagination.offset
+      const returnedLimit = data.pagination.limit
+      const calculatedPage = Math.floor(returnedOffset / returnedLimit) + 1
+
+      setPagination({
+        total: data.pagination.total,
+        limit: returnedLimit,
+        offset: returnedOffset,
+        currentPage: page,
+        totalPages: Math.ceil(data.pagination.total / returnedLimit),
+        hasMore: data.pagination.hasMore,
+      })
+
       setError(null)
-    } catch (err) {
+    } catch (_err) {
       setError('Error loading events. Please try again.')
-      console.error('Error fetching events:', err)
     } finally {
       setLoading(false)
     }
@@ -143,8 +182,7 @@ export default function EventsPage() {
       fetchEvents()
       setIsDeleteModalOpen(false)
       setCurrentEvent(null)
-    } catch (err) {
-      console.error('Error deleting event:', err)
+    } catch (_err) {
       setError('Failed to delete event. Please try again.')
     }
   }
@@ -166,8 +204,7 @@ export default function EventsPage() {
       }
 
       fetchEvents()
-    } catch (err) {
-      console.error('Error toggling event feature:', err)
+    } catch (_err) {
       setError('Failed to update feature status. Please try again.')
     } finally {
       setIsToggleFeatureLoading(false)
@@ -428,6 +465,105 @@ export default function EventsPage() {
           </tbody>
         </table>
       </div>
+
+      {pagination.totalPages > 1 && (
+        <div className='flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4'>
+          <div className='flex flex-1 justify-between sm:hidden'>
+            <Button
+              variant='outline'
+              onClick={handlePageClick(Math.max(1, pagination.currentPage - 1))}
+              disabled={pagination.currentPage === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant='outline'
+              onClick={handlePageClick(Math.min(pagination.totalPages, pagination.currentPage + 1))}
+              disabled={pagination.currentPage === pagination.totalPages}
+            >
+              Next
+            </Button>
+          </div>
+          <div className='hidden sm:flex sm:flex-1 sm:items-center sm:justify-between'>
+            <div>
+              <p className='text-sm text-gray-700'>
+                Showing <span className='font-medium'>{pagination.offset + 1}</span> to{' '}
+                <span className='font-medium'>
+                  {Math.min(pagination.offset + pagination.limit, pagination.total)}
+                </span>{' '}
+                of <span className='font-medium'>{pagination.total}</span> results
+              </p>
+            </div>
+            <div>
+              <nav
+                className='isolate inline-flex -space-x-px rounded-md shadow-sm'
+                aria-label='Pagination'
+              >
+                <Button
+                  variant='outline'
+                  className='rounded-l-md px-2'
+                  onClick={handlePageClick(Math.max(1, pagination.currentPage - 1))}
+                  disabled={pagination.currentPage === 1}
+                >
+                  Previous
+                </Button>
+
+                {/* Page Numbers */}
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    // Show first page, last page, current page, and pages around current page
+                    return (
+                      page === 1 ||
+                      page === pagination.totalPages ||
+                      Math.abs(page - pagination.currentPage) <= 1
+                    )
+                  })
+                  .map((page, index, array) => {
+                    // Add ellipsis where needed
+                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1
+                    const showEllipsisAfter =
+                      index < array.length - 1 && array[index + 1] !== page + 1
+
+                    return (
+                      <React.Fragment key={page}>
+                        {showEllipsisBefore && (
+                          <span className='relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300'>
+                            ...
+                          </span>
+                        )}
+
+                        <Button
+                          variant={pagination.currentPage === page ? 'default' : 'outline'}
+                          className='px-4'
+                          onClick={handlePageClick(page)}
+                        >
+                          {page}
+                        </Button>
+
+                        {showEllipsisAfter && (
+                          <span className='relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300'>
+                            ...
+                          </span>
+                        )}
+                      </React.Fragment>
+                    )
+                  })}
+
+                <Button
+                  variant='outline'
+                  className='rounded-r-md px-2'
+                  onClick={handlePageClick(
+                    Math.min(pagination.totalPages, pagination.currentPage + 1)
+                  )}
+                  disabled={pagination.currentPage === pagination.totalPages}
+                >
+                  Next
+                </Button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Event Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>

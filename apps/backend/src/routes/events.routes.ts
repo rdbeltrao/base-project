@@ -1,6 +1,7 @@
 import { Router } from 'express'
-import { Event, User, Reservation, SessionUser, ReservationStatus } from '@test-pod/database'
+import { Event, User, Reservation, ReservationStatus, SessionUser } from '@test-pod/database'
 import { authenticate, hasPermission } from '../middleware/auth.middleware'
+import { addEventToGoogleCalendar } from '../utils/googleCalendar'
 import { Sequelize } from '@test-pod/database'
 import redisClient from '../config/redis.js'
 
@@ -348,6 +349,24 @@ router.post('/:id/reserve', authenticate, async (req, res) => {
       userId: userId.toString(),
       status: ReservationStatus.CONFIRMED,
     })
+
+    // Check if user has Google account connected and add event to their calendar
+    try {
+      const user = await User.findByPk(userId)
+      if (user?.googleAccessToken) {
+        const googleCalendarEventId = await addEventToGoogleCalendar(
+          userId,
+          eventId,
+          reservation.id
+        )
+        if (googleCalendarEventId) {
+          await reservation.update({ googleCalendarEventId })
+        }
+      }
+    } catch (error) {
+      console.error('Error adding event to Google Calendar:', error)
+      // Continue with reservation creation even if Google Calendar fails
+    }
 
     res.status(201).json(reservation)
   } catch (error) {

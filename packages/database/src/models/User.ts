@@ -22,6 +22,10 @@ interface UserAttributes {
   email: string
   password: string
   active: boolean
+  googleId?: string
+  googleAccessToken?: string
+  googleRefreshToken?: string
+  googleTokenExpiry?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -39,6 +43,10 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   declare email: string
   declare password: string
   declare active: boolean
+  declare googleId?: string
+  declare googleAccessToken?: string
+  declare googleRefreshToken?: string
+  declare googleTokenExpiry?: Date
   declare readonly createdAt: Date
   declare readonly updatedAt: Date
 
@@ -99,11 +107,28 @@ User.init(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true, // Allow null for Google auth users
     },
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+    googleId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
+    },
+    googleAccessToken: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    googleRefreshToken: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    googleTokenExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -123,7 +148,10 @@ User.init(
     },
     hooks: {
       beforeCreate: (user: UserCreationAttributes) => {
-        user.password = bcrypt.hashSync(user.password, 10)
+        // Only hash password if it's provided (Google auth might not have a password)
+        if (user.password) {
+          user.password = bcrypt.hashSync(user.password, 10)
+        }
       },
     },
   }

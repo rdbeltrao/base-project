@@ -329,10 +329,6 @@ export default function EventsPage() {
             )}
           </div>
 
-          {!loadingMore && !pagination.hasMore && events.length > 0 && (
-            <p className='text-center text-gray-500 mt-6'>Não há mais eventos para carregar</p>
-          )}
-
           {!loadingMore && events.length === 0 && (
             <p className='text-center text-gray-500 mt-6'>Nenhum evento encontrado</p>
           )}

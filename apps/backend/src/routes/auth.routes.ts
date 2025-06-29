@@ -115,8 +115,7 @@ router.post(
       }
 
       res.json({ user: sessionUser })
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch (_error) {
       return res.status(401).json({ message: 'Invalid token' })
     }
   }
@@ -130,8 +129,8 @@ router.get(
       const user = req.user as SessionUser
 
       res.json({ user })
-    } catch (error) {
-      console.error('Error fetching profile:', error)
+    } catch (_error) {
+      console.error('Error fetching profile:', _error)
       res.status(500).json({ message: 'Error fetching profile' })
     }
   }
@@ -171,6 +170,52 @@ router.put(
     } catch (error) {
       console.error('Error updating profile:', error)
       res.status(500).json({ message: 'Erro ao atualizar perfil' })
+    }
+  }
+)
+
+router.get('/google', passport.authenticate('google', { session: false }))
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false }),
+  (req: express.Request, res: express.Response) => {
+    try {
+      const user = req.user as SessionUser
+      const token = jwt.sign(user, JWT_SECRET, {
+        expiresIn: JWT_EXPIRES_IN,
+      } as SignOptions)
+
+      // Redirect to frontend callback page with token
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
+      const callbackUrl = `${frontendUrl}/auth/google/callback?token=${token}`
+      res.redirect(callbackUrl)
+    } catch (error) {
+      console.error('Error during Google authentication:', error)
+      res.status(500).json({ message: 'Error during Google authentication' })
+    }
+  }
+)
+
+// Check if user has Google account connected
+router.get(
+  '/google/status',
+  passport.authenticate('jwt', { session: false }),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const user = req.user as SessionUser
+      const googleUser = await User.findByPk(user.id)
+      if (!googleUser || !googleUser.googleId) {
+        return res.status(404).json({ message: 'User not found' })
+      }
+
+      res.json({
+        isConnected: !!googleUser.googleId,
+        hasValidToken: !!googleUser.googleAccessToken,
+      })
+    } catch (error) {
+      console.error('Error checking Google connection status:', error)
+      res.status(500).json({ message: 'Error checking Google connection status' })
     }
   }
 )
