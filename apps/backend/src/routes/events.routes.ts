@@ -70,6 +70,60 @@ router.get('/', authenticate, async (req, res) => {
   }
 })
 
+// GET /events - List all events (public)
+router.get('/public', async (req, res) => {
+  try {
+    const { active, name, fromDate, toDate } = req.query
+
+    const where: any = {}
+
+    if (active === 'true') {
+      where.active = true
+    } else if (active === 'false') {
+      where.active = false
+    }
+    
+    // Filtro por nome
+    if (name && typeof name === 'string') {
+      where.name = {
+        [Op.iLike]: `%${name}%`
+      }
+    }
+    
+    // Filtros por data
+    if (fromDate && typeof fromDate === 'string') {
+      where.eventDate = {
+        ...where.eventDate,
+        [Op.gte]: new Date(fromDate)
+      }
+    }
+    
+    if (toDate && typeof toDate === 'string') {
+      where.eventDate = {
+        ...where.eventDate,
+        [Op.lte]: new Date(`${toDate}T23:59:59.999Z`)
+      }
+    }
+
+    const events = await Event.findAll({
+      where,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+      order: [['eventDate', 'ASC']],
+    })
+
+    res.json(events)
+  } catch (error) {
+    console.error('Error fetching events:', error)
+    res.status(500).json({ message: 'Error fetching events' })
+  }
+})
+
 // GET /events/:id - Get details of a specific event
 router.get('/:id', authenticate, async (req, res) => {
   try {

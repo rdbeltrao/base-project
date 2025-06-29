@@ -1,7 +1,17 @@
 'use client'
 
-import { Button } from '@test-pod/ui'
-import { Calendar, Link, MapPin, Users } from 'lucide-react'
+import { Button, Input } from '@test-pod/ui'
+import {
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  Link,
+  MapPin,
+  Search,
+  Users,
+  X,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { formatEventDate } from '../../../utils/date'
 
@@ -30,28 +40,70 @@ export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [filtersVisible, setFiltersVisible] = useState(false)
+  const [filters, setFilters] = useState({
+    name: '',
+    fromDate: '',
+    toDate: '',
+  })
+  // Armazena os filtros que foram aplicados na última busca
+  const [_appliedFilters, setAppliedFilters] = useState({
+    name: '',
+    fromDate: '',
+    toDate: '',
+  })
+
+  const fetchEvents = async (
+    params: { name?: string; fromDate?: string; toDate?: string } = {}
+  ) => {
+    try {
+      setLoading(true)
+
+      const queryParams = new URLSearchParams()
+      queryParams.append('active', 'true')
+      if (params.name) {
+        queryParams.append('name', params.name)
+      }
+      if (params.fromDate) {
+        queryParams.append('fromDate', params.fromDate)
+      }
+      if (params.toDate) {
+        queryParams.append('toDate', params.toDate)
+      }
+
+      const response = await fetch(`/api/events?${queryParams.toString()}`)
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar eventos')
+      }
+
+      const data = await response.json()
+      setEvents(data)
+      setError(null)
+    } catch (_err) {
+      setError('Não foi possível carregar os eventos. Tente novamente mais tarde.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleApplyFilters = () => {
+    setAppliedFilters({ ...filters })
+    fetchEvents(filters)
+  }
+
+  const handleClearFilters = () => {
+    const clearedFilters = {
+      name: '',
+      fromDate: '',
+      toDate: '',
+    }
+    setFilters(clearedFilters)
+    setAppliedFilters(clearedFilters)
+    fetchEvents(clearedFilters)
+  }
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true)
-
-        const response = await fetch('/api/events?active=true')
-
-        if (!response.ok) {
-          throw new Error('Falha ao buscar eventos')
-        }
-
-        const data = await response.json()
-        setEvents(data)
-        setError(null)
-      } catch (_err) {
-        setError('Não foi possível carregar os eventos. Tente novamente mais tarde.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchEvents()
   }, [])
 
@@ -59,6 +111,81 @@ export default function EventsPage() {
     <div className='space-y-6'>
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <h1 className='text-2xl font-bold tracking-tight'>Eventos</h1>
+
+        <Button
+          variant='outline'
+          className='sm:hidden flex items-center gap-2'
+          onClick={() => setFiltersVisible(!filtersVisible)}
+        >
+          <Filter className='h-4 w-4' />
+          Filtros
+          {filtersVisible ? (
+            <ChevronUp className='h-4 w-4 ml-1' />
+          ) : (
+            <ChevronDown className='h-4 w-4 ml-1' />
+          )}
+        </Button>
+      </div>
+
+      <div
+        className={`bg-white p-4 rounded-lg shadow-sm ${!filtersVisible ? 'hidden sm:block' : 'block'}`}
+      >
+        <h2 className='text-lg font-medium mb-4'>Filtros</h2>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div>
+            <label htmlFor='name' className='block text-sm font-medium text-gray-700 mb-1'>
+              Nome do evento
+            </label>
+            <div className='relative'>
+              <Input
+                id='name'
+                type='text'
+                placeholder='Buscar por nome'
+                value={filters.name}
+                onChange={e => setFilters({ ...filters, name: e.target.value })}
+                className='pl-9'
+              />
+              <Search className='absolute left-3 top-2.5 h-4 w-4 text-gray-500' />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor='fromDate' className='block text-sm font-medium text-gray-700 mb-1'>
+              Data inicial
+            </label>
+            <Input
+              id='fromDate'
+              type='date'
+              value={filters.fromDate}
+              onChange={e => setFilters({ ...filters, fromDate: e.target.value })}
+              className='flex-col'
+            />
+          </div>
+
+          <div>
+            <label htmlFor='toDate' className='block text-sm font-medium text-gray-700 mb-1'>
+              Data final
+            </label>
+            <Input
+              id='toDate'
+              type='date'
+              value={filters.toDate}
+              onChange={e => setFilters({ ...filters, toDate: e.target.value })}
+              className='flex-col'
+            />
+          </div>
+        </div>
+
+        <div className='flex justify-end mt-4 gap-2'>
+          <Button variant='outline' onClick={handleClearFilters}>
+            <X className='mr-2 h-4 w-4' />
+            Limpar
+          </Button>
+          <Button onClick={handleApplyFilters}>
+            <Search className='mr-2 h-4 w-4' />
+            Aplicar filtros
+          </Button>
+        </div>
       </div>
 
       {loading && (

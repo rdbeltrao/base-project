@@ -185,7 +185,7 @@ export default function EventsPage() {
               <DateTimePicker
                 value={fromDateFilter}
                 onChange={setFromDateFilter}
-                className='w-full'
+                className='w-full flex-col'
               />
             </div>
           </div>
@@ -195,7 +195,11 @@ export default function EventsPage() {
             <label className='text-sm font-medium'>To Date</label>
             <div className='flex items-center'>
               <Calendar className='mr-2 h-4 w-4 text-gray-400' />
-              <DateTimePicker value={toDateFilter} onChange={setToDateFilter} className='w-full' />
+              <DateTimePicker
+                value={toDateFilter}
+                onChange={setToDateFilter}
+                className='w-full flex-col'
+              />
             </div>
           </div>
 

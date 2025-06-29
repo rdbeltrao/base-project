@@ -139,7 +139,11 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
               <FormItem>
                 <FormLabel>Event Date</FormLabel>
                 <FormControl>
-                  <DateTimePicker value={field.value} onChange={field.onChange} />
+                  <DateTimePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    className='flex-col'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
