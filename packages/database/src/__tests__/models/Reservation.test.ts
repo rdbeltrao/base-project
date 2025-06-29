@@ -12,7 +12,7 @@ describe('Reservation', () => {
       name: 'Reservation Test User',
       email: `reservation.test${Date.now()}@example.com`,
       password: '123456',
-      active: true
+      active: true,
     })
 
     // Criar evento para os testes
@@ -22,7 +22,7 @@ describe('Reservation', () => {
       eventDate: new Date('2025-12-31'),
       location: 'Test Location',
       maxCapacity: 10,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     })
   })
 
@@ -31,7 +31,7 @@ describe('Reservation', () => {
   it('should create a reservation', async () => {
     const reservation = await Reservation.create({
       eventId: testEvent.id,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     })
 
     expect(reservation).toBeDefined()
@@ -55,7 +55,7 @@ describe('Reservation', () => {
           email: 'another.user@example.com',
           password: '123456',
         })
-      ).id.toString(),
+      ).id,
     })
 
     // Recarregar o evento para obter os dados atualizados
@@ -75,13 +75,13 @@ describe('Reservation', () => {
       eventDate: new Date('2025-12-31'),
       location: 'Small Venue',
       maxCapacity: 1,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     })
 
     // Fazer uma reserva para ocupar toda a capacidade
     await Reservation.create({
       eventId: smallEvent.id,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     })
 
     // Tentar fazer outra reserva
@@ -101,7 +101,7 @@ describe('Reservation', () => {
       await expect(async () => {
         await Reservation.create({
           eventId: smallEvent.id,
-          userId: anotherUser.id.toString(),
+          userId: anotherUser.id,
         })
       }).rejects.toThrow()
     }
@@ -117,7 +117,7 @@ describe('Reservation', () => {
           email: 'cancel.test@example.com',
           password: '123456',
         })
-      ).id.toString(),
+      ).id,
     })
 
     // Verificar spots disponíveis antes do cancelamento
@@ -148,20 +148,20 @@ describe('Reservation', () => {
       eventDate: new Date('2025-12-31'),
       location: 'Unique Location',
       maxCapacity: 5,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     })
 
     // Criar a primeira reserva
     await Reservation.create({
       eventId: uniqueEvent.id,
-      userId: uniqueUser.id.toString(),
+      userId: uniqueUser.id,
     })
 
     // Tentar criar uma segunda reserva para o mesmo usuário e evento
     await expect(
       Reservation.create({
         eventId: uniqueEvent.id,
-        userId: uniqueUser.id.toString(),
+        userId: uniqueUser.id,
       })
     ).rejects.toThrow()
   })
@@ -175,7 +175,7 @@ describe('Reservation', () => {
       location: 'Inactive Location',
       maxCapacity: 10,
       active: false,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     })
 
     // Verificar que não há vagas disponíveis
@@ -194,7 +194,7 @@ describe('Reservation', () => {
       await expect(async () => {
         await Reservation.create({
           eventId: inactiveEvent.id,
-          userId: user.id.toString(),
+          userId: user.id,
         })
       }).rejects.toThrow()
     }

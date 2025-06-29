@@ -23,7 +23,7 @@ export interface EventAttributes {
   reservedSpots: number
   active: boolean
   featured: boolean
-  userId: string
+  userId: number
   createdAt: Date
   updatedAt: Date
 }
@@ -45,7 +45,7 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
   declare reservedSpots: number
   declare active: boolean
   declare featured: boolean
-  declare userId: string
+  declare userId: number
 
   declare readonly createdAt: Date
   declare readonly updatedAt: Date

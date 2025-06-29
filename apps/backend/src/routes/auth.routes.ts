@@ -39,7 +39,7 @@ router.post(
         }
 
         try {
-          const token = jwt.sign(user, process.env.JWT_SECRET || 'your-secret-key', {
+          const token = jwt.sign(user, JWT_SECRET, {
             expiresIn: JWT_EXPIRES_IN,
           } as SignOptions)
 
@@ -87,7 +87,7 @@ router.post(
         return res.status(500).json({ message: 'Error creating session user' })
       }
 
-      const token = jwt.sign(sessionUser, process.env.JWT_SECRET || 'your-secret-key', {
+      const token = jwt.sign(sessionUser, JWT_SECRET, {
         expiresIn: JWT_EXPIRES_IN,
       } as SignOptions)
 
@@ -103,7 +103,7 @@ router.post(
   [body('token').notEmpty().withMessage('Token is required'), validate],
   async (req: express.Request, res: express.Response) => {
     try {
-      const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET || 'your-secret-key') as {
+      const decoded = jwt.verify(req.body.token, JWT_SECRET) as {
         id: number
         email: string
       }
@@ -162,9 +162,15 @@ router.put(
         return res.status(500).json({ message: 'Erro ao recuperar dados do usuário' })
       }
 
-      const token = jwt.sign({ id: updatedUser.id, email: updatedUser.email }, JWT_SECRET, {
+      const sessionUser = await getUserForSession(user.id)
+
+      if (!sessionUser) {
+        return res.status(500).json({ message: 'Error creating session user' })
+      }
+
+      const token = jwt.sign(sessionUser, JWT_SECRET, {
         expiresIn: JWT_EXPIRES_IN,
-      } as jwt.SignOptions)
+      } as SignOptions)
 
       res.json({ user: updatedUser, token })
     } catch (error) {
@@ -179,16 +185,22 @@ router.get('/google', passport.authenticate('google', { session: false }))
 router.get(
   '/google/callback',
   passport.authenticate('google', { session: false }),
-  (req: express.Request, res: express.Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const user = req.user as SessionUser
-      const token = jwt.sign(user, JWT_SECRET, {
+
+      const sessionUser = await getUserForSession(user.id)
+
+      if (!sessionUser) {
+        return res.status(500).json({ message: 'Error creating session user' })
+      }
+
+      const token = jwt.sign(sessionUser, JWT_SECRET, {
         expiresIn: JWT_EXPIRES_IN,
       } as SignOptions)
 
-      // Redirect to frontend callback page with token
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
-      const callbackUrl = `${frontendUrl}/auth/google/callback?token=${token}`
+      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
+      const callbackUrl = `${authUrl}/auth/google/callback?token=${token}`
       res.redirect(callbackUrl)
     } catch (error) {
       console.error('Error during Google authentication:', error)

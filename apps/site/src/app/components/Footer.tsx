@@ -1,11 +1,9 @@
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
-
   return (
-    <footer className='bg-gray-900 text-white py-12'>
-      <div className='container mx-auto px-4'>
-        <div className='border-t border-gray-800 mt-8 pt-8 text-center text-gray-400'>
-          <p>&copy; {currentYear}</p>
+    <footer className='border-t border-border py-6 bg-card mt-auto'>
+      <div className='container'>
+        <div className='flex flex-col md:flex-row items-center justify-center gap-4'>
+          <p className='text-sm text-muted-foreground'>&copy; {new Date().getFullYear()}</p>
         </div>
       </div>
     </footer>

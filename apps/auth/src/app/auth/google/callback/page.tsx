@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { setCookie } from '@test-pod/auth-shared'
+
+const authToken = process.env.NEXT_PUBLIC_AUTH_TOKEN || 'authToken'
+const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || 'localhost'
 
 export default function GoogleCallback() {
   const router = useRouter()
@@ -16,10 +20,8 @@ export default function GoogleCallback() {
       return
     }
 
-    // Store the token in localStorage
-    localStorage.setItem('auth_token', token)
+    setCookie(token, { cookieName: authToken, domain: cookieDomain })
 
-    // Redirect to home page or dashboard
     setTimeout(() => {
       router.push('/')
     }, 1000)

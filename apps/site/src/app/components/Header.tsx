@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import GoogleLoginButton from './GoogleLoginButton'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -29,7 +28,6 @@ export default function Header() {
             >
               Entrar
             </Link>
-            <GoogleLoginButton className="inline-block" />
           </div>
 
           <div className='md:hidden'>
@@ -52,7 +50,6 @@ export default function Header() {
             >
               Entrar
             </Link>
-            <GoogleLoginButton className="w-full" />
           </div>
         )}
       </div>

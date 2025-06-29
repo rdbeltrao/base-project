@@ -11,7 +11,7 @@ export enum ReservationStatus {
 export interface ReservationAttributes {
   id: string
   eventId: string
-  userId: string
+  userId: number
   reservationDate: Date
   status: ReservationStatus
   googleCalendarEventId?: string
@@ -30,7 +30,7 @@ class Reservation
 {
   declare id: string
   declare eventId: string
-  declare userId: string
+  declare userId: number
   declare reservationDate: Date
   declare status: ReservationStatus
   declare googleCalendarEventId?: string

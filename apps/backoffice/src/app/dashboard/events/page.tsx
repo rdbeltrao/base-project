@@ -132,7 +132,6 @@ export default function EventsPage() {
 
       const returnedOffset = data.pagination.offset
       const returnedLimit = data.pagination.limit
-      const calculatedPage = Math.floor(returnedOffset / returnedLimit) + 1
 
       setPagination({
         total: data.pagination.total,
@@ -321,7 +320,7 @@ export default function EventsPage() {
           >
             Clear Filters
           </Button>
-          <Button onClick={fetchEvents}>
+          <Button onClick={() => fetchEvents()}>
             <Search className='mr-2 h-4 w-4' />
             Apply Filters
           </Button>

@@ -10,7 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 const GOOGLE_CALLBACK_URL =
-  process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3001/api/auth/google/callback'
+  process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/api/auth/google/callback'
 
 // Log Google OAuth configuration status
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
@@ -122,18 +122,15 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
         done: any
       ) => {
         try {
-          // Check if user already exists
           let user = await User.findOne({
             where: { googleId: profile.id },
           })
 
-          // If user doesn't exist, check if email is already registered
           if (!user && profile.emails && profile.emails[0]) {
             user = await User.findOne({
               where: { email: profile.emails[0].value },
             })
 
-            // If user exists with this email but no googleId, update the user with Google info
             if (user) {
               await user.update({
                 googleId: profile.id,
@@ -144,20 +141,18 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
             }
           }
 
-          // If user still doesn't exist, create a new one
           if (!user && profile.emails && profile.emails[0]) {
             user = await User.create({
               name: profile.displayName || profile.emails[0].value.split('@')[0],
               email: profile.emails[0].value,
-              password: '', // Empty password for Google users
+              password: '',
               googleId: profile.id,
               googleAccessToken: accessToken,
               googleRefreshToken: refreshToken,
-              googleTokenExpiry: refreshToken ? new Date(Date.now() + 3600000) : undefined, // 1 hour from now
+              googleTokenExpiry: refreshToken ? new Date(Date.now() + 3600000) : undefined,
               active: true,
             })
 
-            // Add default role
             const defaultRole = await Role.findOne({ where: { name: 'user' } })
             if (defaultRole) {
               await user.addRole(defaultRole.id)
@@ -168,12 +163,11 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
             return done(null, false, { message: 'Could not create user from Google profile' })
           }
 
-          // Update tokens if they've changed
           if (user.googleAccessToken !== accessToken) {
             await user.update({
               googleAccessToken: accessToken,
               googleRefreshToken: refreshToken || user.googleRefreshToken,
-              googleTokenExpiry: new Date(Date.now() + 3600000), // 1 hour from now
+              googleTokenExpiry: new Date(Date.now() + 3600000),
             })
           }
 

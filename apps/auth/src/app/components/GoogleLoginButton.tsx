@@ -6,14 +6,13 @@ interface GoogleLoginButtonProps {
 
 const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ className }) => {
   const handleGoogleLogin = () => {
-    // Redirect to the backend Google auth endpoint
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`
   }
 
   return (
     <button
       onClick={handleGoogleLogin}
-      className={`flex items-center gap-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 px-4 py-2 rounded-md transition-colors ${className || ''}`}
+      className={`flex items-center justify-center gap-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 px-4 py-2 rounded-md transition-colors ${className || ''}`}
       type='button'
     >
       <svg

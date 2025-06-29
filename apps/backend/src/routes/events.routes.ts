@@ -181,7 +181,7 @@ router.post('/', authenticate, hasPermission('event.manage'), async (req, res) =
       onlineLink,
       imageUrl,
       maxCapacity,
-      userId: (req.user as SessionUser).id.toString(),
+      userId: (req.user as SessionUser).id,
       active: true,
     })
 
@@ -346,11 +346,10 @@ router.post('/:id/reserve', authenticate, async (req, res) => {
 
     const reservation = await Reservation.create({
       eventId,
-      userId: userId.toString(),
+      userId,
       status: ReservationStatus.CONFIRMED,
     })
 
-    // Check if user has Google account connected and add event to their calendar
     try {
       const user = await User.findByPk(userId)
       if (user?.googleAccessToken) {
@@ -365,7 +364,6 @@ router.post('/:id/reserve', authenticate, async (req, res) => {
       }
     } catch (error) {
       console.error('Error adding event to Google Calendar:', error)
-      // Continue with reservation creation even if Google Calendar fails
     }
 
     res.status(201).json(reservation)

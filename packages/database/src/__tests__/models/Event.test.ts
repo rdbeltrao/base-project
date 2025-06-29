@@ -21,7 +21,7 @@ describe('Event', () => {
       eventDate: new Date('2025-12-30'),
       location: 'Test Location',
       maxCapacity: 100,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     }
 
     const event = await Event.create(eventData)
@@ -45,7 +45,7 @@ describe('Event', () => {
       description: 'This event has no location or online link',
       eventDate: new Date('2025-12-31'),
       maxCapacity: 100,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     }
 
     await expect(Event.create(eventData)).rejects.toThrow(
@@ -60,7 +60,7 @@ describe('Event', () => {
       eventDate: new Date('2025-12-31'),
       location: 'Test Location',
       maxCapacity: 0,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     }
 
     await expect(Event.create(eventData)).rejects.toThrow()
@@ -73,7 +73,7 @@ describe('Event', () => {
       eventDate: new Date('2025-12-31'),
       location: 'Test Location',
       maxCapacity: 50,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     })
 
     const availableSpots = await event.getRealAvailableSpots()
@@ -88,7 +88,7 @@ describe('Event', () => {
       location: 'Test Location',
       maxCapacity: 50,
       active: false,
-      userId: testUser.id.toString(),
+      userId: testUser.id,
     })
 
     const availableSpots = await event.getRealAvailableSpots()
