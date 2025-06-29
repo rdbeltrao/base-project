@@ -12,7 +12,7 @@ import {
   Button,
   Input,
 } from '@test-pod/ui'
-import { MoreHorizontal, Plus, Pencil, Trash2, Search, X, Calendar, Ticket } from 'lucide-react'
+import { MoreHorizontal, Plus, Pencil, Trash2, Search, X, Calendar, Ticket, Star } from 'lucide-react'
 import EventForm from './components/event-form'
 import type { EventAttributes } from '@test-pod/database'
 import { formatDate } from '@test-pod/utils'
@@ -44,11 +44,13 @@ export default function EventsPage() {
   const [fromDateFilter, setFromDateFilter] = useState<Date | undefined>(undefined)
   const [toDateFilter, setToDateFilter] = useState<Date | undefined>(undefined)
   const [statusFilter, setStatusFilter] = useState<string>('active')
+  const [featuredFilter, setFeaturedFilter] = useState<string>('all')
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null)
+  const [isToggleFeatureLoading, setIsToggleFeatureLoading] = useState(false)
 
   useEffect(() => {
     fetchEvents()
@@ -74,6 +76,10 @@ export default function EventsPage() {
 
       if (statusFilter !== 'all') {
         params.append('active', statusFilter === 'active' ? 'true' : 'false')
+      }
+      
+      if (featuredFilter !== 'all') {
+        params.append('featured', featuredFilter === 'featured' ? 'true' : 'false')
       }
 
       const queryString = params.toString()
@@ -132,6 +138,31 @@ export default function EventsPage() {
       setError('Failed to delete event. Please try again.')
     }
   }
+  
+  const toggleEventFeature = async (event: Event) => {
+    try {
+      setIsToggleFeatureLoading(true)
+      
+      const response = await fetch(`/api/events/${event.id}/feature`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ featured: !event.featured }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update event feature status')
+      }
+
+      fetchEvents()
+    } catch (err) {
+      console.error('Error toggling event feature:', err)
+      setError('Failed to update feature status. Please try again.')
+    } finally {
+      setIsToggleFeatureLoading(false)
+    }
+  }
 
   const handleFormSubmit = () => {
     setIsCreateModalOpen(false)
@@ -158,7 +189,7 @@ export default function EventsPage() {
           <h2 className='text-lg font-medium'>Filters</h2>
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg'>
+        <div className='grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-gray-50 rounded-lg'>
           <div className='flex flex-col gap-2'>
             <label className='text-sm font-medium'>Event Name</label>
             <div className='relative'>
@@ -215,6 +246,19 @@ export default function EventsPage() {
               <option value='inactive'>Inactive</option>
             </select>
           </div>
+          
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm font-medium'>Featured</label>
+            <select
+              className='w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              value={featuredFilter}
+              onChange={e => setFeaturedFilter(e.target.value)}
+            >
+              <option value='all'>All</option>
+              <option value='featured'>Featured</option>
+              <option value='not-featured'>Not Featured</option>
+            </select>
+          </div>
         </div>
 
         <div className='flex justify-end gap-2'>
@@ -225,6 +269,7 @@ export default function EventsPage() {
               setFromDateFilter(undefined)
               setToDateFilter(undefined)
               setStatusFilter('active')
+              setFeaturedFilter('all')
             }}
           >
             Clear Filters
@@ -263,6 +308,9 @@ export default function EventsPage() {
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 Creator
+              </th>
+              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                Featured
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 Status
@@ -307,6 +355,15 @@ export default function EventsPage() {
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        event.featured ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {event.featured ? 'Featured' : 'Not Featured'}
+                    </span>
+                  </td>
+                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         event.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}
                     >
@@ -337,6 +394,13 @@ export default function EventsPage() {
                             View Reservations
                           </DropdownMenuItem>
                         )}
+                        <DropdownMenuItem 
+                          onClick={() => toggleEventFeature(event)}
+                          disabled={isToggleFeatureLoading}
+                        >
+                          <Star className='mr-2 h-4 w-4' />
+                          {event.featured ? 'Remove from Featured' : 'Mark as Featured'}
+                        </DropdownMenuItem>
                         {hasPermissions(['event.delete']) && event.active && (
                           <DropdownMenuItem onClick={() => handleDeleteEvent(event)}>
                             <Trash2 className='mr-2 h-4 w-4' />

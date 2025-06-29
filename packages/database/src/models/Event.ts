@@ -22,6 +22,7 @@ export interface EventAttributes {
   maxCapacity: number
   reservedSpots: number
   active: boolean
+  featured: boolean
   userId: string
   createdAt: Date
   updatedAt: Date
@@ -29,7 +30,7 @@ export interface EventAttributes {
 
 export type EventCreationAttributes = Optional<
   EventAttributes,
-  'id' | 'reservedSpots' | 'active' | 'createdAt' | 'updatedAt'
+  'id' | 'reservedSpots' | 'active' | 'featured' | 'createdAt' | 'updatedAt'
 >
 
 class Event extends Model<EventAttributes, EventCreationAttributes> implements EventAttributes {
@@ -43,6 +44,7 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
   declare maxCapacity: number
   declare reservedSpots: number
   declare active: boolean
+  declare featured: boolean
   declare userId: string
 
   declare readonly createdAt: Date
@@ -127,6 +129,10 @@ Event.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
+    },
+    featured: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
     userId: {
       type: DataTypes.UUID,

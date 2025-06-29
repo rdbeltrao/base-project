@@ -78,11 +78,8 @@ router.post(
         active: true,
       })
 
-      const defaultRole = await Role.findOne({ where: { name: 'User' } })
-
-      if (defaultRole) {
-        await user.addRole(defaultRole)
-      }
+      const defaultRole = await Role.findOne({ where: { name: 'user' } })
+      await user.addRole(defaultRole?.id)
 
       const sessionUser = await getUserForSession(user.id)
 

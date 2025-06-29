@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     const fromDate = searchParams.get('fromDate')
     const toDate = searchParams.get('toDate')
     const active = searchParams.get('active')
+    const featured = searchParams.get('featured')
 
     // Construir query string para o backend
     const backendParams = new URLSearchParams()
@@ -32,6 +33,9 @@ export async function GET(request: NextRequest) {
     }
     if (active) {
       backendParams.append('active', active)
+    }
+    if (featured) {
+      backendParams.append('featured', featured)
     }
 
     const queryString = backendParams.toString()

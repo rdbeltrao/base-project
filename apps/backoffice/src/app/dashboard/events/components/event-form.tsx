@@ -30,6 +30,7 @@ const formSchema = z.object({
   onlineLink: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   maxCapacity: z.number().min(1, 'Capacity must be at least 1'),
   active: z.boolean().default(true),
+  featured: z.boolean().default(false),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -54,6 +55,7 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
       onlineLink: event?.onlineLink || '',
       maxCapacity: event?.maxCapacity || 10,
       active: event ? event.active : true,
+      featured: event ? event.featured : false,
     },
   })
 
@@ -216,6 +218,26 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
                   {field.value
                     ? 'Event is active and visible to users'
                     : 'Event is inactive and hidden from users'}
+                </div>
+              </div>
+              <FormControl>
+                <Switch checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name='featured'
+          render={({ field }) => (
+            <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+              <div className='space-y-0.5'>
+                <FormLabel className='text-base'>Featured Event</FormLabel>
+                <div className='text-sm text-muted-foreground'>
+                  {field.value
+                    ? 'Event will be highlighted on the homepage'
+                    : 'Event will not be featured on the homepage'}
                 </div>
               </div>
               <FormControl>

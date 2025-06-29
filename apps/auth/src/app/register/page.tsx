@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { useAuth } from '@test-pod/auth-shared'
 
 const registerSchema = z
   .object({
@@ -49,11 +50,14 @@ export default function Register() {
     },
   })
 
+  const { login } = useAuth()
+
   const handleSubmit = async (values: FormValues) => {
     setIsLoading(true)
     setError('')
 
     try {
+      // Registrar o usuário com tipo 'user' por padrão
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
@@ -63,6 +67,7 @@ export default function Register() {
           name: values.name,
           email: values.email,
           password: values.password,
+          type: 'user' // Definindo o tipo como 'user' por padrão
         }),
       })
 
@@ -72,7 +77,19 @@ export default function Register() {
         throw new Error(data.message || 'Something went wrong')
       }
 
-      router.push('/login?registered=true')
+      // Login automático após o registro bem-sucedido
+      const loginResult = await login(values.email, values.password)
+      
+      if (!loginResult.success) {
+        throw new Error(loginResult.error || 'Automatic login failed')
+      }
+      
+      // Redirecionar de acordo com o resultado do login
+      if (loginResult.redirectUrl) {
+        window.location.href = loginResult.redirectUrl
+      } else {
+        router.push('/dashboard')
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Registration failed')
       setIsLoading(false)

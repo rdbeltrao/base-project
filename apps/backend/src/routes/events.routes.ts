@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { Event, User, Reservation, SessionUser, ReservationStatus } from '@test-pod/database'
 import { authenticate, hasPermission } from '../middleware/auth.middleware'
 import { Sequelize } from '@test-pod/database'
+import redisClient from '../config/redis.js'
 
 const { Op } = Sequelize
 
@@ -14,7 +15,7 @@ const getImageUrl = async () => {
 
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { name, fromDate, toDate, active } = req.query
+    const { name, fromDate, toDate, active, featured } = req.query
 
     const whereConditions: any = {}
 
@@ -37,6 +38,9 @@ router.get('/', authenticate, async (req, res) => {
       } else {
         whereConditions.active = active === 'false'
       }
+    }
+    if (featured !== undefined) {
+      whereConditions.featured = featured === 'true'
     }
 
     const events = await Event.findAll({
@@ -70,45 +74,35 @@ router.get('/', authenticate, async (req, res) => {
 
 router.get('/public', async (req, res) => {
   try {
-    const { active, name, fromDate, toDate } = req.query
+    const CACHE_KEY = 'featured_events'
+    const CACHE_TTL = 60 * 60 * 24
 
-    const where: any = {}
+    const cachedEvents = await redisClient.get(CACHE_KEY)
 
-    if (active === 'true') {
-      where.active = true
-    } else if (active === 'false') {
-      where.active = false
-    }
-
-    if (name && typeof name === 'string') {
-      where.name = {
-        [Op.iLike]: `%${name}%`,
-      }
-    }
-
-    if (fromDate && typeof fromDate === 'string') {
-      where.eventDate = {
-        ...where.eventDate,
-        [Op.gte]: new Date(fromDate),
-      }
-    }
-
-    if (toDate && typeof toDate === 'string') {
-      where.eventDate = {
-        ...where.eventDate,
-        [Op.lte]: new Date(`${toDate}T23:59:59.999Z`),
-      }
+    if (cachedEvents) {
+      console.log('Returning featured events from cache')
+      return res.json(JSON.parse(cachedEvents))
     }
 
     const events = await Event.findAll({
-      where,
+      where: {
+        featured: true,
+        active: true,
+        eventDate: {
+          [Op.gte]: new Date(),
+        },
+      },
       order: [['eventDate', 'ASC']],
+      limit: 3,
     })
+
+    // Armazenar no cache
+    await redisClient.setEx(CACHE_KEY, CACHE_TTL, JSON.stringify(events))
 
     res.json(events)
   } catch (error) {
-    console.error('Error fetching events:', error)
-    res.status(500).json({ message: 'Error fetching events' })
+    console.error('Error fetching featured events:', error)
+    res.status(500).json({ message: 'Error fetching featured events' })
   }
 })
 
@@ -176,6 +170,10 @@ router.post('/', authenticate, hasPermission('event.manage'), async (req, res) =
       active: true,
     })
 
+    if (req.body.featured) {
+      await redisClient.del('featured_events')
+    }
+
     res.status(201).json(event)
   } catch (error) {
     console.error('Error creating event:', error)
@@ -199,7 +197,6 @@ router.put('/:id', authenticate, hasPermission('event.manage'), async (req, res)
       })
     }
 
-    // Verificar se pelo menos um entre location e onlineLink está presente
     const updatedLocation = location !== undefined ? location : event.location
     const updatedOnlineLink = onlineLink !== undefined ? onlineLink : event.onlineLink
 
@@ -232,6 +229,7 @@ router.put('/:id', authenticate, hasPermission('event.manage'), async (req, res)
       onlineLink: onlineLink !== undefined ? onlineLink : event.onlineLink,
       maxCapacity: maxCapacity !== undefined ? maxCapacity : event.maxCapacity,
       active: active !== undefined ? active : event.active,
+      featured: req.body.featured !== undefined ? req.body.featured : event.featured,
     })
 
     res.json(event)
@@ -260,6 +258,11 @@ router.delete('/:id', authenticate, hasPermission('event.delete'), async (req, r
     }
 
     await event.update({ active: false })
+
+    if (event.featured) {
+      await redisClient.del('featured_events')
+    }
+
     res.json({ message: 'Event deactivated successfully' })
   } catch (error) {
     console.error('Error deactivating event:', error)
@@ -336,6 +339,36 @@ router.post('/:id/reserve', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Error creating reservation:', error)
     res.status(500).json({ message: 'Error creating reservation' })
+  }
+})
+
+router.post('/:id/feature', authenticate, hasPermission('event.manage'), async (req, res) => {
+  try {
+    const eventId = req.params.id
+
+    const event = await Event.findByPk(eventId)
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' })
+    }
+
+    const { featured = !event.featured } = req.body
+
+    await event.update({ featured })
+
+    await redisClient.del('featured_events')
+
+    res.json({
+      message: `Event ${featured ? 'marked as featured' : 'removed from featured'}`,
+      event: {
+        id: event.id,
+        name: event.name,
+        featured: event.featured,
+      },
+    })
+  } catch (error) {
+    console.error('Error updating event feature status:', error)
+    res.status(500).json({ message: 'Error updating event feature status' })
   }
 })
 
