@@ -44,13 +44,12 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Initialize form with default values or event data if editing
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       name: event?.name || '',
       description: event?.description || '',
-      eventDate: event ? new Date(event.eventDate) : new Date(),
+      eventDate: event?.eventDate ? new Date(`${event.eventDate} GMT-0300`) : new Date(),
       location: event?.location || '',
       onlineLink: event?.onlineLink || '',
       maxCapacity: event?.maxCapacity || 10,
@@ -64,10 +63,9 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
       setLoading(true)
       setError(null)
 
-      // Garantir que maxCapacity tenha um valor válido
       const formData = {
         ...values,
-        maxCapacity: values.maxCapacity || 10, // Valor padrão se não estiver definido
+        maxCapacity: values.maxCapacity || 10,
       }
 
       const url = event ? `/api/events/${event.id}` : '/api/events'
@@ -86,7 +84,6 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
         throw new Error(errorData.message || 'Failed to save event')
       }
 
-      // Call the onSubmit callback to refresh the event list
       onSubmit()
     } catch (err: any) {
       console.error('Error saving event:', err)
@@ -143,7 +140,14 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
                 <FormControl>
                   <DateTimePicker
                     value={field.value}
-                    onChange={field.onChange}
+                    onChange={date => {
+                      if (date) {
+                        const dateWithoutTime = new Date(date.toDateString())
+                        field.onChange(dateWithoutTime)
+                      } else {
+                        field.onChange(date)
+                      }
+                    }}
                     className='flex-col'
                   />
                 </FormControl>

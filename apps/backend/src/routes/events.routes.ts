@@ -57,7 +57,7 @@ router.get('/', authenticate, async (req, res) => {
         },
       ],
       order: [
-        ['eventDate', 'DESC'],
+        ['eventDate', 'ASC'],
         ['createdAt', 'DESC'],
       ],
       limit: parsedLimit,

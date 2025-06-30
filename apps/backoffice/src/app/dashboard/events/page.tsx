@@ -70,17 +70,10 @@ export default function EventsPage() {
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null)
   const [isToggleFeatureLoading, setIsToggleFeatureLoading] = useState(false)
 
-  // Fetch events when component mounts
   useEffect(() => {
     fetchEvents(1)
   }, [])
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    fetchEvents(1)
-  }, [nameFilter, fromDateFilter, toDateFilter, statusFilter, featuredFilter])
-
-  // React event handler wrapper for pagination buttons
   const handlePageClick = (page: number) => (e: React.MouseEvent) => {
     e.preventDefault()
     fetchEvents(page)
@@ -507,10 +500,8 @@ export default function EventsPage() {
                   Previous
                 </Button>
 
-                {/* Page Numbers */}
                 {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
                   .filter(page => {
-                    // Show first page, last page, current page, and pages around current page
                     return (
                       page === 1 ||
                       page === pagination.totalPages ||
@@ -518,7 +509,6 @@ export default function EventsPage() {
                     )
                   })
                   .map((page, index, array) => {
-                    // Add ellipsis where needed
                     const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1
                     const showEllipsisAfter =
                       index < array.length - 1 && array[index + 1] !== page + 1
@@ -564,7 +554,6 @@ export default function EventsPage() {
         </div>
       )}
 
-      {/* Create Event Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className='sm:max-w-[600px]'>
           <DialogHeader>
