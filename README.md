@@ -5,17 +5,18 @@
 Este é um projeto monorepo gerenciado com PNPM e Turborepo, contendo os seguintes componentes principais:
 
 - **Backend**: API principal (Node.js/Express)
-- **Auth**: Serviço de autenticação
-- **App**: Aplicação principal
-- **Backoffice**: Interface administrativa
-- **Site**: Site institucional
-- **Frontend**: Frontend da aplicação
+- **Auth**: Serviço de autenticação (funciona como um SSO, todas as aplicações usam um cookie compartilhado no dominio)
+- **App**: Aplicação principal (é o portal do usuário)
+- **Backoffice**: Interface administrativa (é o painel de administração)
+- **Site**: Site institucional (landing page com os eventos em destaque e login)
 
 ## Pré-requisitos
 
-- [Node.js](https://nodejs.org/) (versão recomendada: >=18)
-- [PNPM](https://pnpm.io/) (versão 10.11.0 ou superior)
+- [Node.js](https://nodejs.org/)
+- [PNPM](https://pnpm.io/)
 - [PostgreSQL](https://www.postgresql.org/)
+- [Redis](https://redis.io/)
+- Conta Google Cloud Platform
 
 ## Configuração do Ambiente de Desenvolvimento
 
@@ -69,7 +70,67 @@ Este comando iniciará um contêiner PostgreSQL com as seguintes configurações
 - **Senha**: postgres
 - **Database**: test_pod_db
 
-### 5. Executando Migrações e Seeds
+### 5. Configurando o Redis
+
+O Redis é utilizado para cache no backend. Existem duas opções para configurá-lo:
+
+#### Opção 1: Usando Docker Compose (Recomendado)
+
+Execute:
+
+```bash
+docker-compose up -d
+```
+
+#### Opção 2: Instalação Local
+
+Alternativamente, você pode instalar o Redis localmente
+
+#### Configuração no .env
+
+Note que existe uma variável de ambiente `REDIS_URL` no arquivo `.env.example` do backend:
+
+```
+REDIS_URL=redis://localhost:6379
+```
+
+Você pode ajustar a URL conforme necessário.
+
+### 6. Configurando a Integração com Google
+
+A integração com o Google é necessária para adicionar eventos ao calendário dos usuários e também para login. Siga os passos abaixo para configurar:
+
+1. Acesse o [Google Cloud Console](https://console.cloud.google.com/)
+2. Crie um novo projeto ou selecione um existente
+3. No menu lateral, vá para "APIs e Serviços" > "Biblioteca"
+4. Busque e ative as seguintes APIs:
+   - Google Calendar API
+   - Google OAuth 2.0
+5. No menu lateral, vá para "APIs e Serviços" > "Credenciais"
+6. Clique em "Criar Credenciais" > "ID do Cliente OAuth"
+7. Configure a tela de consentimento OAuth:
+   - Escolha o tipo de usuário (Externo ou Interno)
+   - Adicione seu email como usuário de teste
+8. Crie um ID de cliente OAuth:
+   - Selecione "Aplicativo da Web" como tipo
+   - Dê um nome à sua aplicação
+   - Adicione URIs de redirecionamento autorizados:
+     - `http://localhost:3000/api/auth/google/callback` (para desenvolvimento)
+9. Anote o "ID do Cliente" e a "Chave Secreta do Cliente"
+
+#### Configuração no .env
+
+Adicione as seguintes variáveis ao arquivo `.env` do backend:
+
+```
+GOOGLE_CLIENT_ID=seu_client_id_aqui
+GOOGLE_CLIENT_SECRET=sua_client_secret_aqui
+GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
+```
+
+**IMPORTANTE**: A integração com o Google Calendar não funcionará sem estas credenciais configuradas corretamente, porém o sistema irá funcionar sem elas.
+
+### 7. Executando Migrações e Seeds
 
 ```bash
 # Executa todas as migrações pendentes
@@ -80,7 +141,7 @@ pnpm migrate:up
 pnpm seed:all
 ```
 
-### 6. Iniciando o Ambiente de Desenvolvimento
+### 8. Iniciando o Ambiente de Desenvolvimento
 
 ```bash
 # Na raiz do projeto
@@ -104,7 +165,6 @@ Este comando iniciará todos os serviços em modo de desenvolvimento:
 │   ├── auth/             # Serviço de autenticação
 │   ├── backend/          # API principal
 │   ├── backoffice/       # Interface administrativa
-│   ├── frontend/         # Frontend da aplicação
 │   └── site/             # Site institucional
 └── packages/             # Bibliotecas compartilhadas
     ├── database/         # Configuração do banco de dados, modelos e migrações
@@ -140,3 +200,13 @@ turbo format
 # Limpar caches e node_modules
 turbo clean
 ```
+
+## Sobre o funcionamento do sistema
+
+O cadastro do usuário na tela de registro adiciona o usuário no grupo `user` (Criado nas migrations, caso não exista não funcionará)
+O sistema de permissão macro funciona da seguinte forma:
+
+- um usuário com a role `user` pode acessar o app
+- um usuário com a role `admin` pode acessar o backoffice
+
+Isto significa que para acessar o portal do usuário (app) é necessario estar no grupo `user`
