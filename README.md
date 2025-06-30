@@ -169,7 +169,7 @@ Este comando iniciará todos os serviços em modo de desenvolvimento:
 └── packages/             # Bibliotecas compartilhadas
     ├── database/         # Configuração do banco de dados, modelos e migrações
     └── ...               # Outras bibliotecas compartilhadas
-```
+````
 
 ## Testes
 
