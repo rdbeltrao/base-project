@@ -11,7 +11,7 @@ export default defineConfig([
     dts: true,
     sourcemap: false,
     clean: true,
-    noExternal: ['@test-pod/database'],
+    external: ['pg', 'pg-hstore', '@test-pod/database'],
     esbuildOptions(options) {
       options.resolveExtensions = ['.ts', '.js', '.json']
     },
@@ -31,7 +31,7 @@ export default defineConfig([
     dts: false,
     sourcemap: false,
     clean: false,
-    noExternal: ['@test-pod/database'],
+    external: ['pg', 'pg-hstore', '@test-pod/database'],
     esbuildOptions(options) {
       options.resolveExtensions = ['.ts', '.js', '.json']
       options.platform = 'node'
