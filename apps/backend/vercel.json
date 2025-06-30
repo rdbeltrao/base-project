@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "rootDirectory": "apps/backend",
-  "buildCommand": "pnpm --filter=@test-pod/backend run build",
-  "outputDirectory": "dist",
   "routes": [
     { "src": "/(.*)", "dest": "dist/app.js" }
   ]
