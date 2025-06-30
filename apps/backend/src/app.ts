@@ -74,5 +74,4 @@ export const initDatabase = async () => {
     return false
   }
 }
-
 export default app
