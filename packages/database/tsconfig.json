@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "noEmit": false
   },
   "include": ["./src/**/*", "jest.setup.ts"],
   "exclude": ["node_modules/**/*", "dist/**/*"],

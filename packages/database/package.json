@@ -2,9 +2,10 @@
   "name": "@test-pod/database",
   "version": "1.0.0",
   "description": "Modelos de dados usando Sequelize",
-  "main": "src/index.ts",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
+    "build": "tsup src/index.ts",
     "dev": "tsc --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
