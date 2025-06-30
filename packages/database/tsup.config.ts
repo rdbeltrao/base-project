@@ -2,15 +2,14 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig([
   {
-    entry: ['src/app.ts'],
+    entry: ['src/index.ts'],
     outDir: 'dist',
     target: 'node20',
     format: ['cjs'],
+    dts: true,
     bundle: true,
     splitting: false,
-    dts: true,
     sourcemap: false,
     clean: true,
-    noExternal: ['@test-pod/database'],
   },
 ])

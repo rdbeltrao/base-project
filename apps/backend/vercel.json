@@ -1,18 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
+  "rootDirectory": "apps/backend",
+  "buildCommand": "pnpm --filter=@test-pod/backend run build",
+  "outputDirectory": "dist",
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.ts"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+    { "src": "/(.*)", "dest": "dist/app.js" }
+  ]
 }
