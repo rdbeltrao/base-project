@@ -1,11 +1,15 @@
 {
   "extends": "@test-pod/ts-config/tsconfig.json",
   "compilerOptions": {
+    "paths": {
+      "@test-pod/database/*": ["packages/database/src/*"],
+    },
+    "baseUrl": ".",
     "esModuleInterop": true,
     "outDir": "./dist",
     "rootDir": "."
   },
-  "include": ["src/**/*", "jest.setup.ts"],
+  "include": ["./src/**/*", "./jest.setup.ts"],
   "types": ["node", "jest"],
   "exclude": ["node_modules/**/*", "dist/**/*"]
 }

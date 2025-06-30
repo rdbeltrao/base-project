@@ -1,0 +1,17 @@
+import { defineConfig } from 'tsup'
+
+export default defineConfig({
+  entry: ['src/index.ts'],
+  outDir: 'dist',
+  target: 'node20',
+  format: ['cjs', 'esm'], // Gerar ambos formatos
+  bundle: true,
+  splitting: false,
+  dts: true,
+  sourcemap: false,
+  clean: true,
+  noExternal: ['@test-pod/database'], // Incluir o pacote database no bundle
+  esbuildOptions(options) {
+    options.resolveExtensions = ['.ts', '.js', '.json']
+  },
+})
