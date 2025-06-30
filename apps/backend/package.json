@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Backend API server with Express",
   "main": "dist/index.js",
-  "type": "module",
+
   "scripts": {
     "dev": "tsx --require dotenv/config --watch src/index.ts",
     "build": "tsup",

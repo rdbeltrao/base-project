@@ -1,17 +1,42 @@
 import { defineConfig } from 'tsup'
 
-export default defineConfig({
-  entry: ['src/index.ts', 'src/app.ts'],
-  outDir: 'dist',
-  target: 'node20',
-  format: ['esm'], // Usar apenas ESM para compatibilidade com type:module
-  bundle: true,
-  splitting: false,
-  dts: true,
-  sourcemap: false,
-  clean: true,
-  noExternal: ['@test-pod/database'], // Incluir o pacote database no bundle
-  esbuildOptions(options) {
-    options.resolveExtensions = ['.ts', '.js', '.json']
+export default defineConfig([
+  {
+    entry: ['src/index.ts', 'src/app.ts'],
+    outDir: 'dist',
+    target: 'node20',
+    format: ['cjs'],
+    bundle: true,
+    splitting: false,
+    dts: true,
+    sourcemap: false,
+    clean: true,
+    noExternal: ['@test-pod/database'],
+    esbuildOptions(options) {
+      options.resolveExtensions = ['.ts', '.js', '.json']
+    },
   },
-})
+  {
+    entry: ['api/index.ts'],
+    outDir: 'api',
+    outExtension() {
+      return {
+        js: '.js',
+      }
+    },
+    target: 'node20',
+    format: ['cjs'],
+    bundle: true,
+    splitting: false,
+    dts: false,
+    sourcemap: false,
+    clean: false,
+    noExternal: ['@test-pod/database'],
+    esbuildOptions(options) {
+      options.resolveExtensions = ['.ts', '.js', '.json']
+      options.platform = 'node'
+      options.mainFields = ['module', 'main']
+    },
+    shims: false,
+  },
+])
