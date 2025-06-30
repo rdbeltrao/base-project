@@ -167,11 +167,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <footer className='border-t border-border py-6 text-center text-sm text-muted-foreground'>
-        <div className='container mx-auto px-4'>
-          &copy; {new Date().getFullYear()} Auth App. All rights reserved.
-        </div>
-      </footer>
     </>
   )
 }
