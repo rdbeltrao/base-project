@@ -6,6 +6,7 @@ const config: Config = {
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@test-pod/database$': '<rootDir>/../../packages/database/src/index.ts',
   },
   setupFilesAfterEnv: ['./jest.setup.ts'],
   testTimeout: 10000,

@@ -232,4 +232,9 @@ router.get(
   }
 )
 
+router.get('/google/config', (req: express.Request, res: express.Response) => {
+  const isGoogleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
+  res.json({ enabled: isGoogleConfigured })
+})
+
 export default router
