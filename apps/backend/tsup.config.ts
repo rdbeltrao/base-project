@@ -2,8 +2,10 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig([
   {
-    entry: ['src/app.ts'],
-    outDir: 'dist',
+    entry: {
+      index: 'src/app.ts',
+    },
+    outDir: 'api',
     target: 'node20',
     format: ['cjs'],
     bundle: true,
