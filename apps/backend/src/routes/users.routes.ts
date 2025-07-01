@@ -1,7 +1,9 @@
 import { Router } from 'express'
-import { User, Role, SessionUser } from '@test-pod/database'
+import { User, Role, SessionUser, Sequelize } from '@test-pod/database'
 import { authenticate, hasPermission } from '../middleware/auth.middleware'
 import { userHasPermission } from '../utils/permissions'
+
+const { Op } = Sequelize
 
 const router: Router = Router()
 
@@ -111,7 +113,7 @@ router.put('/:id', authenticate, hasPermission('user.manage'), async (req, res) 
       const existingUser = await User.findOne({
         where: {
           email: email,
-          id: { $ne: userId },
+          id: { [Op.ne]: userId },
         },
       })
       if (existingUser) {
