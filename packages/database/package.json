@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "build": "tsup src/index.ts",
+    "build": "tsup",
     "dev": "tsc --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
