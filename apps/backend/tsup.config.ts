@@ -14,6 +14,4 @@ export default defineConfig({
   dts: false,
   sourcemap: false,
   clean: false,
-  minify: false,
-  platform: 'node',
 })
