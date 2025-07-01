@@ -10,7 +10,7 @@ export default defineConfig([
     format: ['cjs'],
     bundle: true,
     splitting: false,
-    dts: true,
+    dts: false,
     sourcemap: false,
     clean: true,
     noExternal: ['@test-pod/database'],
