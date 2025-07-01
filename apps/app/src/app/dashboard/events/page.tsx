@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { formatDate } from '@test-pod/utils'
+import { isFeatureEnabled } from '../../../lib/feature-toggles'
 
 interface Event {
   id: number
@@ -74,6 +75,12 @@ export default function EventsPage() {
   })
 
   const observerTarget = useRef<HTMLDivElement | null>(null)
+
+  const [eventFiltersEnabled, setEventFiltersEnabled] = useState(false)
+
+  useEffect(() => {
+    setEventFiltersEnabled(isFeatureEnabled('eventFilters'))
+  }, [])
 
   const fetchEvents = useCallback(
     async (
@@ -181,81 +188,85 @@ export default function EventsPage() {
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <h1 className='text-2xl font-bold tracking-tight'>Eventos</h1>
 
-        <Button
-          variant='outline'
-          className='sm:hidden flex items-center gap-2'
-          onClick={() => setFiltersVisible(!filtersVisible)}
-        >
-          <Filter className='h-4 w-4' />
-          Filtros
-          {filtersVisible ? (
-            <ChevronUp className='h-4 w-4 ml-1' />
-          ) : (
-            <ChevronDown className='h-4 w-4 ml-1' />
-          )}
-        </Button>
+        {eventFiltersEnabled && (
+          <Button
+            variant='outline'
+            className='sm:hidden flex items-center gap-2'
+            onClick={() => setFiltersVisible(!filtersVisible)}
+          >
+            <Filter className='h-4 w-4' />
+            Filtros
+            {filtersVisible ? (
+              <ChevronUp className='h-4 w-4 ml-1' />
+            ) : (
+              <ChevronDown className='h-4 w-4 ml-1' />
+            )}
+          </Button>
+        )}
       </div>
 
-      <div
-        className={`bg-white p-4 rounded-lg shadow-sm ${!filtersVisible ? 'hidden sm:block' : 'block'}`}
-      >
-        <h2 className='text-lg font-medium mb-4'>Filtros</h2>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          <div>
-            <label htmlFor='name' className='block text-sm font-medium text-gray-700 mb-1'>
-              Nome do evento
-            </label>
-            <div className='relative'>
+      {eventFiltersEnabled && (
+        <div
+          className={`bg-white p-4 rounded-lg shadow-sm ${!filtersVisible ? 'hidden sm:block' : 'block'}`}
+        >
+          <h2 className='text-lg font-medium mb-4'>Filtros</h2>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <div>
+              <label htmlFor='name' className='block text-sm font-medium text-gray-700 mb-1'>
+                Nome do evento
+              </label>
+              <div className='relative'>
+                <Input
+                  id='name'
+                  type='text'
+                  placeholder='Buscar por nome'
+                  value={filters.name}
+                  onChange={e => setFilters({ ...filters, name: e.target.value })}
+                  className='pl-9'
+                />
+                <Search className='absolute left-3 top-2.5 h-4 w-4 text-gray-500' />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor='fromDate' className='block text-sm font-medium text-gray-700 mb-1'>
+                Data inicial
+              </label>
               <Input
-                id='name'
-                type='text'
-                placeholder='Buscar por nome'
-                value={filters.name}
-                onChange={e => setFilters({ ...filters, name: e.target.value })}
-                className='pl-9'
+                id='fromDate'
+                type='date'
+                value={filters.fromDate}
+                onChange={e => setFilters({ ...filters, fromDate: e.target.value })}
+                className='flex-col'
               />
-              <Search className='absolute left-3 top-2.5 h-4 w-4 text-gray-500' />
+            </div>
+
+            <div>
+              <label htmlFor='toDate' className='block text-sm font-medium text-gray-700 mb-1'>
+                Data final
+              </label>
+              <Input
+                id='toDate'
+                type='date'
+                value={filters.toDate}
+                onChange={e => setFilters({ ...filters, toDate: e.target.value })}
+                className='flex-col'
+              />
             </div>
           </div>
 
-          <div>
-            <label htmlFor='fromDate' className='block text-sm font-medium text-gray-700 mb-1'>
-              Data inicial
-            </label>
-            <Input
-              id='fromDate'
-              type='date'
-              value={filters.fromDate}
-              onChange={e => setFilters({ ...filters, fromDate: e.target.value })}
-              className='flex-col'
-            />
-          </div>
-
-          <div>
-            <label htmlFor='toDate' className='block text-sm font-medium text-gray-700 mb-1'>
-              Data final
-            </label>
-            <Input
-              id='toDate'
-              type='date'
-              value={filters.toDate}
-              onChange={e => setFilters({ ...filters, toDate: e.target.value })}
-              className='flex-col'
-            />
+          <div className='flex justify-end mt-4 gap-2'>
+            <Button variant='outline' onClick={handleClearFilters}>
+              <X className='mr-2 h-4 w-4' />
+              Limpar
+            </Button>
+            <Button onClick={handleApplyFilters}>
+              <Search className='mr-2 h-4 w-4' />
+              Aplicar filtros
+            </Button>
           </div>
         </div>
-
-        <div className='flex justify-end mt-4 gap-2'>
-          <Button variant='outline' onClick={handleClearFilters}>
-            <X className='mr-2 h-4 w-4' />
-            Limpar
-          </Button>
-          <Button onClick={handleApplyFilters}>
-            <Search className='mr-2 h-4 w-4' />
-            Aplicar filtros
-          </Button>
-        </div>
-      </div>
+      )}
 
       {loading && (
         <div className='text-center py-12'>
