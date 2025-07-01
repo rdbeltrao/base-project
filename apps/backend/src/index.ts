@@ -2,7 +2,7 @@ import app, { initDatabase } from './app'
 
 const PORT = process.env.PORT || 3000
 
-async function startServer() {
+export async function startServer() {
   try {
     const dbConnected = await initDatabase()
     if (!dbConnected) {
