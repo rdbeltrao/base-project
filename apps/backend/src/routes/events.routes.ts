@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Event, User, Reservation, ReservationStatus, SessionUser } from '@test-pod/database'
+import { Event, User, Reservation, ReservationStatus, SessionUser, sequelize } from '@test-pod/database'
 import { authenticate, hasPermission } from '../middleware/auth.middleware'
 import { addEventToGoogleCalendar } from '../utils/googleCalendar'
 import { Sequelize } from '@test-pod/database'
@@ -318,17 +318,21 @@ router.get(
 )
 
 router.post('/:id/reserve', authenticate, async (req, res) => {
+  const transaction = await sequelize.transaction()
+  
   try {
     const eventId = req.params.id
     const userId = (req.user as SessionUser).id
 
-    const event = await Event.findByPk(eventId)
+    const event = await Event.findByPk(eventId, { transaction })
 
     if (!event) {
+      await transaction.rollback()
       return res.status(404).json({ message: 'Event not found' })
     }
 
     if (!event.active) {
+      await transaction.rollback()
       return res.status(400).json({ message: 'This event is not active' })
     }
 
@@ -338,18 +342,31 @@ router.post('/:id/reserve', authenticate, async (req, res) => {
         userId,
         status: ReservationStatus.CONFIRMED,
       },
+      transaction,
     })
 
     if (existingReservation) {
+      await transaction.rollback()
       return res.status(400).json({ message: 'You already have a reservation for this event' })
+    }
+
+    // Check real-time availability within transaction
+    const realAvailableSpots = await event.getRealAvailableSpots()
+    
+    if (realAvailableSpots <= 0) {
+      await transaction.rollback()
+      return res.status(400).json({ message: 'No available spots for this event' })
     }
 
     const reservation = await Reservation.create({
       eventId,
       userId,
       status: ReservationStatus.CONFIRMED,
-    })
+    }, { transaction })
 
+    await transaction.commit()
+
+    // Google Calendar integration (after successful DB transaction)
     try {
       const user = await User.findByPk(userId)
       if (user?.googleAccessToken) {
@@ -368,6 +385,7 @@ router.post('/:id/reserve', authenticate, async (req, res) => {
 
     res.status(201).json(reservation)
   } catch (error) {
+    await transaction.rollback()
     console.error('Error creating reservation:', error)
     res.status(500).json({ message: 'Error creating reservation' })
   }
