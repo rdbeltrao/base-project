@@ -5,7 +5,7 @@ export default defineConfig([
     entry: {
       'api/index': 'src/vercel.ts',
     },
-    outDir: 'dist',
+    outDir: '.',
     target: 'node20',
     format: ['cjs'],
     bundle: true,
