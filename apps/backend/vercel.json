@@ -1,6 +1,7 @@
 {
   "version": 2,
   "buildCommand": "pnpm build",
+  "installCommand": "pnpm install",
   "routes": [
     {
       "src": "/(.*)",
@@ -9,10 +10,5 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "api/index.js": {
-      "maxDuration": 30
-    }
   }
 }

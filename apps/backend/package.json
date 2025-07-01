@@ -13,6 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
+  "packageManager": "yarn@1.22.22",
   "dependencies": {
     "@test-pod/database": "workspace:*",
     "@types/passport": "^1.0.17",
