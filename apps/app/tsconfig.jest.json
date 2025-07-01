@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx", // or "preserve" if you are not transforming JSX with Babel for tests
+    "module": "commonjs" // Jest typically runs in a Node environment
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "jest.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next"
+  ]
+}
