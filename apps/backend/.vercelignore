@@ -14,10 +14,7 @@ test/
 tests/
 
 # Configuration files
-.env
-.env.local
-.env.development
-.env.test
+.env*
 tsconfig.json
 tsup.config.ts
 jest.config.ts
@@ -25,6 +22,11 @@ jest.setup.ts
 eslint.config.js
 prettier.config.mjs
 .prettierignore
+.npmrc
+
+# All TypeScript source files
+**/*.ts
+!api/**/*.js
 
 # Build artifacts (except dist)
 build/

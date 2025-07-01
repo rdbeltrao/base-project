@@ -1,4 +1,5 @@
-import express from 'express'
+import 'pg'
+import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
@@ -19,7 +20,10 @@ const allowedOrigins = corsOrigins.split(',').map(origin => origin.trim())
 
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void
+    ) => {
       if (!origin) {
         return callback(null, true)
       }
@@ -50,11 +54,11 @@ app.use('/api/events', eventsRoutes)
 app.use('/api/reservations', reservationsRoutes)
 app.use('/api/stats', statsRoutes)
 
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'ok', message: 'Ping' })
 })
 
-app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack)
   res.status(500).json({
     status: 'error',

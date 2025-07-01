@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "apps/backend/api/**/*.js": {
+      "includeFiles": "packages/database/dist/**"
+    }
+  }
+}
