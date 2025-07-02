@@ -7,7 +7,6 @@ const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || 'localhost'
 const getCookieOptions = ({ domain = COOKIE_DOMAIN }: { domain?: string }) => {
   const options: Cookies.CookieAttributes = {
     path: '/',
-    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
   }
 
