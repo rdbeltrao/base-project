@@ -1,4 +1,4 @@
-const app = require('../dist/app.js')
+const app = require('../dist/index.js')
 
 module.exports = (req, res) => {
   return app.default(req, res)

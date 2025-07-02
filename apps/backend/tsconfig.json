@@ -2,7 +2,7 @@
   "extends": "@test-pod/ts-config/tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@test-pod/database/*": ["packages/database/src/*"],
+      "@test-pod/database/*": ["packages/database/src/*"]
     },
     "baseUrl": ".",
     "esModuleInterop": true,

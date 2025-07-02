@@ -1,80 +1,80 @@
-# Test Pod - Guia de Desenvolvimento
+# Test Pod - Development Guide
 
-## Visão Geral
+## Overview
 
-Este é um projeto monorepo gerenciado com PNPM e Turborepo, contendo os seguintes componentes principais:
+This is a monorepo project managed with PNPM and Turborepo, containing the following main components:
 
-- **Backend**: API principal (Node.js/Express)
-- **Auth**: Serviço de autenticação (funciona como um SSO, todas as aplicações usam um cookie compartilhado no dominio)
-- **App**: Aplicação principal (é o portal do usuário)
-- **Backoffice**: Interface administrativa (é o painel de administração)
-- **Site**: Site institucional (landing page com os eventos em destaque e login)
+- **Backend**: Main API (Node.js/Express)
+- **Auth**: Authentication service (functions as an SSO, all applications use a shared cookie on the domain)
+- **App**: Main application (user portal)
+- **Backoffice**: Administrative interface (administration panel)
+- **Site**: Institutional website (landing page with featured events and login)
 
-## Pré-requisitos
+## Prerequisites
 
 - [Node.js](https://nodejs.org/)
 - [PNPM](https://pnpm.io/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Redis](https://redis.io/)
-- Conta Google Cloud Platform
+- Google Cloud Platform account
 
-## Configuração do Ambiente de Desenvolvimento
+## Development Environment Setup
 
-### 1. Clonando o Repositório
+### 1. Cloning the Repository
 
 ```bash
-git clone https://github.com/seu-usuario/test-pod.git
+git clone https://github.com/your-user/test-pod.git
 cd test-pod
 ```
 
-### 2. Instalando as Dependências
+### 2. Installing Dependencies
 
 ```bash
 pnpm install
 ```
 
-### 3. Configurando as Variáveis de Ambiente
+### 3. Configuring Environment Variables
 
-Copie os arquivos de exemplo de variáveis de ambiente para cada aplicação:
+Copy the example environment variable files for each application:
 
 ```bash
-# Para o backend
+# For the backend
 cp apps/backend/.env.example apps/backend/.env
 
-# Para o app
+# For the app
 cp apps/app/.env.example apps/app/.env
 
-# Para o auth
+# For the auth
 cp apps/auth/.env.example apps/auth/.env
 
-# Para o backoffice
+# For the backoffice
 cp apps/backoffice/.env.example apps/backoffice/.env
 
-# Para o site
+# For the site
 cp apps/site/.env.example apps/site/.env
 ```
 
-Ajuste as variáveis de ambiente conforme necessário.
+Adjust the environment variables as needed.
 
-### 4. Garanta que exista um banco de dados ou inicie usando o docker-compose
+### 4. Ensure a database exists or start one using docker-compose
 
 ```bash
 docker-compose up -d
 ```
 
-Este comando iniciará um contêiner PostgreSQL com as seguintes configurações:
+This command will start a PostgreSQL container with the following settings:
 
 - **Host**: localhost
-- **Porta**: 5432
-- **Usuário**: postgres
-- **Senha**: postgres
+- **Port**: 5432
+- **User**: postgres
+- **Password**: postgres
 - **Database**: test_pod_db
 
-### 5. Configurando o Redis
+### 5. Configuring Redis
 
-O Redis é utilizado para cache no backend. Existem duas opções para configurá-lo:
+Redis is used for caching in the backend. There are two options to configure it:
 
-#### Opção 1: Usando Docker Compose (Recomendado)
+#### Option 1: Using Docker Compose (Recommended)
 
 Execute:
 
@@ -82,73 +82,73 @@ Execute:
 docker-compose up -d
 ```
 
-#### Opção 2: Instalação Local
+#### Option 2: Local Installation
 
-Alternativamente, você pode instalar o Redis localmente
+Alternatively, you can install Redis locally.
 
-#### Configuração no .env
+#### Configuration in .env
 
-Note que existe uma variável de ambiente `REDIS_URL` no arquivo `.env.example` do backend:
+Note that there is a `REDIS_URL` environment variable in the backend's `.env.example` file:
 
 ```
 REDIS_URL=redis://localhost:6379
 ```
 
-Você pode ajustar a URL conforme necessário.
+You can adjust the URL as needed.
 
-### 6. Configurando a Integração com Google
+### 6. Configuring Google Integration
 
-A integração com o Google é necessária para adicionar eventos ao calendário dos usuários e também para login. Siga os passos abaixo para configurar:
+Google integration is necessary to add events to users' calendars and also for login. Follow the steps below to configure:
 
-1. Acesse o [Google Cloud Console](https://console.cloud.google.com/)
-2. Crie um novo projeto ou selecione um existente
-3. No menu lateral, vá para "APIs e Serviços" > "Biblioteca"
-4. Busque e ative as seguintes APIs:
+1. Access the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. In the side menu, go to "APIs & Services" > "Library"
+4. Search for and enable the following APIs:
    - Google Calendar API
    - Google OAuth 2.0
-5. No menu lateral, vá para "APIs e Serviços" > "Credenciais"
-6. Clique em "Criar Credenciais" > "ID do Cliente OAuth"
-7. Configure a tela de consentimento OAuth:
-   - Escolha o tipo de usuário (Externo ou Interno)
-   - Adicione seu email como usuário de teste
-8. Crie um ID de cliente OAuth:
-   - Selecione "Aplicativo da Web" como tipo
-   - Dê um nome à sua aplicação
-   - Adicione URIs de redirecionamento autorizados:
-     - `http://localhost:3000/api/auth/google/callback` (para desenvolvimento)
-9. Anote o "ID do Cliente" e a "Chave Secreta do Cliente"
+5. In the side menu, go to "APIs & Services" > "Credentials"
+6. Click "Create Credentials" > "OAuth client ID"
+7. Configure the OAuth consent screen:
+   - Choose the user type (External or Internal)
+   - Add your email as a test user
+8. Create an OAuth client ID:
+   - Select "Web application" as the type
+   - Give your application a name
+   - Add authorized redirect URIs:
+     - `http://localhost:3000/api/auth/google/callback` (for development)
+9. Note the "Client ID" and "Client Secret"
 
-#### Configuração no .env
+#### Configuration in .env
 
-Adicione as seguintes variáveis ao arquivo `.env` do backend:
+Add the following variables to the backend's `.env` file:
 
 ```
-GOOGLE_CLIENT_ID=seu_client_id_aqui
-GOOGLE_CLIENT_SECRET=sua_client_secret_aqui
+GOOGLE_CLIENT_ID=your_client_id_here
+GOOGLE_CLIENT_SECRET=your_client_secret_here
 GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
 ```
 
-**IMPORTANTE**: A integração com o Google Calendar não funcionará sem estas credenciais configuradas corretamente, porém o sistema irá funcionar sem elas.
+**IMPORTANT**: Google Calendar integration will not work without these credentials configured correctly, however the system will function without them.
 
-### 7. Executando Migrações e Seeds
+### 7. Running Migrations and Seeds
 
 ```bash
-# Executa todas as migrações pendentes
+# Run all pending migrations
 cd packages/database
 pnpm migrate:up
 
-# Popula o banco de dados com dados iniciais
+# Populate the database with initial data
 pnpm seed:all
 ```
 
-### 8. Iniciando o Ambiente de Desenvolvimento
+### 8. Starting the Development Environment
 
 ```bash
-# Na raiz do projeto
+# In the project root
 turbo dev
 ```
 
-Este comando iniciará todos os serviços em modo de desenvolvimento:
+This command will start all services in development mode:
 
 - **Backend**: http://localhost:3000
 - **App**: http://localhost:3001
@@ -156,57 +156,57 @@ Este comando iniciará todos os serviços em modo de desenvolvimento:
 - **Backoffice**: http://localhost:3003
 - **Site**: http://localhost:3004
 
-## Estrutura do Projeto
+## Project Structure
 
-````
+```
 .
-├── apps/                 # Aplicações
-│   ├── app/              # Aplicação principal
-│   ├── auth/             # Serviço de autenticação
-│   ├── backend/          # API principal
-│   ├── backoffice/       # Interface administrativa
-│   └── site/             # Site institucional
-└── packages/             # Bibliotecas compartilhadas
-    ├── database/         # Configuração do banco de dados, modelos e migrações
-    └── ...               # Outras bibliotecas compartilhadas
-````
+├── apps/                 # Applications
+│   ├── app/              # Main application
+│   ├── auth/             # Authentication service
+│   ├── backend/          # Main API
+│   ├── backoffice/       # Administrative interface
+│   └── site/             # Institutional website
+└── packages/             # Shared libraries
+    ├── database/         # Database configuration, models, and migrations
+    └── ...               # Other shared libraries
+```
 
-## Testes
+## Tests
 
 ```bash
-# Executar todos os testes
+# Run all tests
 turbo test
 
-# Executar testes específicos de um pacote
+# Run specific tests for a package
 cd apps/backend
 pnpm test
-````
+```
 
-## Comandos Úteis
+## Useful Commands
 
 ```bash
-# Construir todos os pacotes
+# Build all packages
 turbo build
 
-# Verificar problemas de lint
+# Check for lint issues
 turbo lint
 
-# Corrigir problemas de lint
+# Fix lint issues
 turbo lint:fix
 
-# Formatar o código
+# Format the code
 turbo format
 
-# Limpar caches e node_modules
+# Clean caches and node_modules
 turbo clean
 ```
 
-## Sobre o funcionamento do sistema
+## About System Operation
 
-O cadastro do usuário na tela de registro adiciona o usuário no grupo `user` (Criado nas migrations, caso não exista não funcionará)
-O sistema de permissão macro funciona da seguinte forma:
+User registration on the registration screen adds the user to the `user` group (Created in migrations, if it doesn't exist it won't work).
+The macro permission system works as follows:
 
-- um usuário com a role `user` pode acessar o app
-- um usuário com a role `admin` pode acessar o backoffice
+- a user with the `user` role can access the app
+- a user with the `admin` role can access the backoffice
 
-Isto significa que para acessar o portal do usuário (app) é necessario estar no grupo `user`
+This means that to access the user portal (app) it is necessary to be in the `user` group.

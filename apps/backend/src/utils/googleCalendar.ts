@@ -4,7 +4,16 @@ import { User, Event, Reservation } from '@test-pod/database'
 const SCOPES = ['https://www.googleapis.com/auth/calendar']
 const calendar = google.calendar('v3')
 
+// OAuth2 client pool to prevent memory leaks
+const clientPool: { [key: string]: any } = {}
+
 function createOAuth2Client(accessToken: string, refreshToken?: string) {
+  const clientKey = `${accessToken.substring(0, 10)}-${refreshToken?.substring(0, 10) || 'no-refresh'}`
+  
+  if (clientPool[clientKey]) {
+    return clientPool[clientKey]
+  }
+  
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -16,6 +25,14 @@ function createOAuth2Client(accessToken: string, refreshToken?: string) {
     refresh_token: refreshToken,
     scope: SCOPES.join(' '),
   })
+
+  // Add to pool with TTL cleanup
+  clientPool[clientKey] = oauth2Client
+  
+  // Clean up after 1 hour
+  setTimeout(() => {
+    delete clientPool[clientKey]
+  }, 3600000)
 
   return oauth2Client
 }
@@ -53,10 +70,9 @@ export async function addEventToGoogleCalendar(
       return `${year}-${month}-${day}`
     }
 
-    const nextDay = new Date(eventDate)
-    nextDay.setDate(nextDay.getDate() + 1)
-    const nextNextDay = new Date(nextDay)
-    nextNextDay.setDate(nextNextDay.getDate() + 1)
+    // Fix date manipulation to avoid mutation and handle timezone issues
+    const nextDay = new Date(eventDate.getTime() + 24 * 60 * 60 * 1000)
+    const nextNextDay = new Date(eventDate.getTime() + 2 * 24 * 60 * 60 * 1000)
 
     const googleEvent = {
       summary: event.name,

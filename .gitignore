@@ -1,3 +1,5 @@
+pnpm-lock.yaml
+
 dist/
 build/
 api/*.js
@@ -16,3 +18,4 @@ node_modules/
 .turbo
 .vscode
 .next
+.vercel

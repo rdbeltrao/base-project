@@ -10,6 +10,42 @@ const router: express.Router = express.Router()
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d'
 
+const setCookieHeader = (res: express.Response, token: string) => {
+  const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
+  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
+  const isProduction = process.env.NODE_ENV === 'production'
+
+  let cookieOptions = `${cookieName}=${token}; Path=/; SameSite=Lax; HttpOnly=false`
+
+  if (isProduction) {
+    cookieOptions += '; Secure'
+  }
+
+  if (cookieDomain && cookieDomain !== 'localhost') {
+    cookieOptions += `; Domain=${cookieDomain}`
+  }
+
+  res.setHeader('Set-Cookie', cookieOptions)
+}
+
+const clearCookieHeader = (res: express.Response) => {
+  const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
+  const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
+  const isProduction = process.env.NODE_ENV === 'production'
+
+  let cookieOptions = `${cookieName}=; Path=/; SameSite=Lax; HttpOnly=false; Expires=Thu, 01 Jan 1970 00:00:00 GMT`
+
+  if (isProduction) {
+    cookieOptions += '; Secure'
+  }
+
+  if (cookieDomain && cookieDomain !== 'localhost') {
+    cookieOptions += `; Domain=${cookieDomain}`
+  }
+
+  res.setHeader('Set-Cookie', cookieOptions)
+}
+
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -43,6 +79,7 @@ router.post(
             expiresIn: JWT_EXPIRES_IN,
           } as SignOptions)
 
+          setCookieHeader(res, token)
           res.json({ user, token })
         } catch (error) {
           console.error('Error during login:', error)
@@ -91,6 +128,7 @@ router.post(
         expiresIn: JWT_EXPIRES_IN,
       } as SignOptions)
 
+      setCookieHeader(res, token)
       res.status(201).json({ user: sessionUser, token })
     } catch (_error) {
       res.status(500).json({ message: 'Error during registration' })
@@ -172,6 +210,7 @@ router.put(
         expiresIn: JWT_EXPIRES_IN,
       } as SignOptions)
 
+      setCookieHeader(res, token)
       res.json({ user: updatedUser, token })
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -199,8 +238,10 @@ router.get(
         expiresIn: JWT_EXPIRES_IN,
       } as SignOptions)
 
+      setCookieHeader(res, token)
+
       const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
-      const callbackUrl = `${authUrl}/auth/google/callback?token=${token}`
+      const callbackUrl = `${authUrl}/auth/google/callback`
       res.redirect(callbackUrl)
     } catch (error) {
       console.error('Error during Google authentication:', error)
@@ -231,5 +272,20 @@ router.get(
     }
   }
 )
+
+router.get('/google/config', (req: express.Request, res: express.Response) => {
+  const isGoogleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
+  res.json({ enabled: isGoogleConfigured })
+})
+
+router.post('/logout', (req: express.Request, res: express.Response) => {
+  try {
+    clearCookieHeader(res)
+    res.json({ message: 'Logout successful' })
+  } catch (error) {
+    console.error('Error during logout:', error)
+    res.status(500).json({ message: 'Error during logout' })
+  }
+})
 
 export default router

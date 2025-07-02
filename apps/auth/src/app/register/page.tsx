@@ -18,6 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useAuth } from '@test-pod/auth-shared'
 import GoogleLoginButton from '../components/GoogleLoginButton'
+import { useGoogleConfig } from '../hooks/useGoogleConfig'
 
 const registerSchema = z
   .object({
@@ -40,6 +41,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const { isGoogleEnabled, isLoading: isLoadingGoogleConfig } = useGoogleConfig()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(registerSchema),
@@ -59,7 +61,7 @@ export default function Register() {
 
     try {
       // Registrar o usuário com tipo 'user' por padrão
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,6 +72,7 @@ export default function Register() {
           password: values.password,
           type: 'user', // Definindo o tipo como 'user' por padrão
         }),
+        credentials: 'include', // Para incluir cookies na resposta
       })
 
       const data = await response.json()
@@ -181,16 +184,30 @@ export default function Register() {
           </form>
         </Form>
 
-        <div className='relative my-4'>
-          <div className='absolute inset-0 flex items-center'>
-            <div className='w-full border-t border-gray-300'></div>
+        {isLoadingGoogleConfig && (
+          <div className='relative my-4'>
+            <div className='absolute inset-0 flex items-center'>
+              <div className='w-full border-t border-gray-300'></div>
+            </div>
+            <div className='relative flex justify-center text-sm'>
+              <span className='bg-card px-2 text-muted-foreground'>Loading...</span>
+            </div>
           </div>
-          <div className='relative flex justify-center text-sm'>
-            <span className='bg-card px-2 text-muted-foreground'>Or continue with</span>
-          </div>
-        </div>
+        )}
 
-        <GoogleLoginButton className='w-full' />
+        {isGoogleEnabled && !isLoadingGoogleConfig && (
+          <>
+            <div className='relative my-4'>
+              <div className='absolute inset-0 flex items-center'>
+                <div className='w-full border-t border-gray-300'></div>
+              </div>
+              <div className='relative flex justify-center text-sm'>
+                <span className='bg-card px-2 text-muted-foreground'>Or continue with</span>
+              </div>
+            </div>
+            <GoogleLoginButton className='w-full' />
+          </>
+        )}
 
         <div className='mt-4 text-center text-sm'>
           <p>

@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Backend API server with Express",
   "main": "dist/index.js",
-
   "scripts": {
     "dev": "tsx --require dotenv/config --watch src/index.ts",
     "build": "tsup",
@@ -14,6 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
+  "packageManager": "yarn@1.22.22",
   "dependencies": {
     "@test-pod/database": "workspace:*",
     "@types/passport": "^1.0.17",
@@ -33,7 +33,9 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.11.3",
-    "redis": "^5.5.6"
+    "pg-hstore": "^2.3.4",
+    "redis": "^5.5.6",
+    "sequelize": "^6.35.1"
   },
   "devDependencies": {
     "@test-pod/eslint-config": "workspace:*",

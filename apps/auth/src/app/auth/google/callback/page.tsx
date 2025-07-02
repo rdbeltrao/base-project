@@ -2,10 +2,6 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { setCookie } from '@test-pod/auth-shared'
-
-const authToken = process.env.NEXT_PUBLIC_AUTH_TOKEN || 'authToken'
-const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || 'localhost'
 
 function GoogleCallbackContent() {
   const router = useRouter()
@@ -19,8 +15,6 @@ function GoogleCallbackContent() {
       setStatus('error')
       return
     }
-
-    setCookie(token, { cookieName: authToken, domain: cookieDomain })
 
     setTimeout(() => {
       window.location.href = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
