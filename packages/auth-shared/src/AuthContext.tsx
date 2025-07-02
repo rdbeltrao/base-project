@@ -61,15 +61,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   useEffect(() => {
     const checkAuth = async () => {
       const storedToken = getCookie({ cookieName })
-
       if (storedToken) {
         try {
           setIsLoading(true)
-
           const decodedToken = await decodeJWT(storedToken)
-
-          if (decodedToken && decodedToken.user) {
-            setUser(decodedToken.user as SessionUser)
+          if (decodedToken) {
+            setUser(decodedToken as unknown as SessionUser)
             setToken(storedToken)
           } else {
             const response = await fetch(`${apiUrl}/api/auth/profile`, {
