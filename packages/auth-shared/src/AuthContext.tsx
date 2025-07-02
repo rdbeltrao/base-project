@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { getCookie, removeCookie, setCookie } from './cookies'
+import { getCookie, removeCookie } from './cookies'
 import type { SessionUser } from '@test-pod/database'
 import * as jose from 'jose'
 import { userHasPermission } from './utils'
@@ -115,6 +115,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'include', // Para incluir cookies na resposta
       })
 
       if (!response.ok) {
@@ -125,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
       if (data?.token) {
         const authToken = data.token
-        setCookie(authToken, { cookieName, domain })
+        // Cookie já foi definido pelo backend via Set-Cookie header
         setToken(authToken)
 
         const decodedToken = await decodeJWT(authToken)
@@ -163,16 +164,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     console.log({ redirectUrl })
     setIsLoading(true)
 
-    if (token) {
+    try {
+      // Chamar a rota de logout do backend para limpar o cookie
+      await fetch(`${apiUrl}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch (error) {
+      console.error('Error during logout:', error)
+      // Fallback: remover cookie manualmente se a requisição falhar
       removeCookie({ cookieName, domain })
-      setToken(undefined)
-      setUser(null)
-      setIsLoading(false)
-      window.location.href = redirectUrl
-    } else {
-      setIsLoading(false)
-      window.location.href = redirectUrl
     }
+
+    setToken(undefined)
+    setUser(null)
+    setIsLoading(false)
+    window.location.href = redirectUrl
   }
 
   const getToken = () => {
@@ -192,6 +199,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ name: updatedUser.name }),
+      credentials: 'include', // Para incluir cookies na resposta
     })
 
     if (!response.ok) {
@@ -202,7 +210,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
     if (responseData?.user) {
       setUser(responseData.user)
-      setToken(token)
+      // Cookie já foi atualizado pelo backend via Set-Cookie header
+      if (responseData?.token) {
+        setToken(responseData.token)
+      }
     }
   }
 
