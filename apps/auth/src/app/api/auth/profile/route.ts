@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
-export async function GET(request: NextRequest) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
+
+export async function GET(_request: NextRequest) {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
-    const authHeader = request.headers.get('authorization')
 
-    const response = await fetch(`${apiUrl}/api/auth/profile`, {
+    const response = await fetch(`${apiUrl}/api/auth/check-auth`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        ...(authHeader && { Authorization: authHeader }),
       },
+      credentials: 'include',
     })
 
     const data = await response.json()
@@ -25,24 +28,33 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
-    const authHeader = request.headers.get('authorization')
+    const token = cookies().get(COOKIE_NAME)?.value
 
-    // Fazer requisição para o backend principal
-    const response = await fetch(`${apiUrl}/api/auth/profile`, {
+    const response = await fetch(`${API_URL}/api/auth/profile`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        ...(authHeader && { Authorization: authHeader }),
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(body),
     })
 
-    const data = await response.json()
-
     if (!response.ok) {
-      return NextResponse.json(data, { status: response.status })
+      const responseClone = response.clone()
+
+      try {
+        const errorData = await response.json()
+        return NextResponse.json(errorData, { status: response.status })
+      } catch (_error) {
+        const text = await responseClone.text()
+        return NextResponse.json(
+          { error: text || 'Erro ao atualizar perfil' },
+          { status: response.status }
+        )
+      }
     }
+
+    const data = await response.json()
 
     // Criar resposta com os dados do backend
     const nextResponse = NextResponse.json(data)

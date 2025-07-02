@@ -27,7 +27,7 @@ type ProfileFormValues = {
 }
 
 export default function Dashboard() {
-  const { user, updateProfile } = useAuth()
+  const { user, setUser } = useAuth()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
@@ -62,7 +62,29 @@ export default function Dashboard() {
     setSaveSuccess(false)
 
     try {
-      updateProfile(data)
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: data.name }),
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        const responseData = await response.json()
+        try {
+          const errorData = responseData
+          throw new Error(errorData.message || `Erro ${response.status}: ${response.statusText}`)
+        } catch (_) {
+          throw new Error(responseData.error || `Erro ${response.status}: ${response.statusText}`)
+        }
+      }
+
+      const responseJson = await response.json()
+
+      setUser(responseJson.user)
+
       setSaveSuccess(true)
       setIsDialogOpen(false)
     } catch (error: any) {
