@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-        credentials: 'include', // Para incluir cookies na resposta
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -123,7 +123,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
       if (data?.token) {
         const authToken = data.token
-        // Cookie já foi definido pelo backend via Set-Cookie header
         setToken(authToken)
 
         const decodedToken = await decodeJWT(authToken)
@@ -158,18 +157,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   }
 
   const logout = async (redirectUrl: string = '/login') => {
-    console.log({ redirectUrl })
     setIsLoading(true)
 
     try {
-      // Chamar a rota de logout local para limpar o cookie
-      await fetch('/api/auth/logout', {
+      await fetch(`${apiUrl}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       })
     } catch (error) {
       console.error('Error during logout:', error)
-      // Fallback: remover cookie manualmente se a requisição falhar
       removeCookie({ cookieName, domain })
     }
 
