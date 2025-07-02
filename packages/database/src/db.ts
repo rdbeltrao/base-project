@@ -8,6 +8,12 @@ const dbConfig = config[env]
 const sequelize = new Sequelize({
   ...dbConfig,
   dialectModule: pg,
+  dialectOptions: {
+    ssl: {
+      require: false,
+      rejectUnauthorized: false,
+    },
+  },
 })
 
 export default sequelize
