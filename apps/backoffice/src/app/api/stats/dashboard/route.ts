@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     console.log('API recebeu parâmetros de filtro:', { startDate, endDate })
 
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
     let url = `${backendUrl}/api/stats/dashboard`
 
     if (startDate && endDate) {

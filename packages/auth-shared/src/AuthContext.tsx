@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const checkAuth = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch(`${apiUrl}/api/auth/check-auth`, {
+        const response = await fetch(`/api/auth/check-auth`, {
           credentials: 'include',
         })
 
@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setIsLoading(true)
 
     try {
-      await fetch(`${apiUrl}/api/auth/logout`, {
+      await fetch(`/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       })
