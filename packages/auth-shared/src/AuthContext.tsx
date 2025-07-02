@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { getCookie, removeCookie } from './cookies'
+import { removeCookie } from './cookies'
 import type { SessionUser } from '@test-pod/database'
 import * as jose from 'jose'
 import { userHasPermission } from './utils'
@@ -28,13 +28,12 @@ interface AuthContextType {
   user: SessionUser | null
   isAuthenticated: boolean
   isLoading: boolean
+  setUser: (user: SessionUser | null) => void
   login: (
     email: string,
     password: string
   ) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>
   logout: (redirectUrl?: string) => Promise<void>
-  getToken: () => string | undefined
-  updateProfile: (updatedUser: { name: string }) => void
   hasPermissions: (permissions: string[]) => boolean
 }
 
@@ -55,52 +54,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 }) => {
   const [user, setUser] = useState<SessionUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [token, setToken] = useState<string | undefined>()
   const isAuthenticated = !!user
 
   useEffect(() => {
     const checkAuth = async () => {
-      const storedToken = getCookie({ cookieName })
-      if (storedToken) {
-        try {
-          setIsLoading(true)
-          const decodedToken = await decodeJWT(storedToken)
-          if (decodedToken) {
-            setUser(decodedToken as unknown as SessionUser)
-            setToken(storedToken)
-          } else {
-            const response = await fetch(`${apiUrl}/api/auth/profile`, {
-              headers: {
-                Authorization: `Bearer ${storedToken}`,
-              },
-            })
+      try {
+        setIsLoading(true)
+        const response = await fetch(`${apiUrl}/api/auth/check-auth`, {
+          credentials: 'include',
+        })
 
-            if (!response.ok) {
-              throw new Error(`Erro ${response.status}: ${response.statusText}`)
-            }
-
-            const data = await response.json()
-
-            if (data?.user) {
-              setUser(data.user as SessionUser)
-              setToken(storedToken)
-            } else {
-              removeCookie({ cookieName, domain })
-            }
+        if (!response.ok) {
+          if (response.status === 401) {
+            setUser(null)
+            return
           }
-        } catch (_error) {
-          console.error('Auth check error:', _error)
-          removeCookie({ cookieName, domain })
-        } finally {
-          setIsLoading(false)
+          throw new Error(`Erro ${response.status}: ${response.statusText}`)
         }
-      } else {
+
+        const data = await response.json()
+
+        if (data?.authenticated && data?.user) {
+          setUser(data.user as SessionUser)
+        } else {
+          setUser(null)
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        setUser(null)
+      } finally {
         setIsLoading(false)
       }
     }
 
     checkAuth()
-  }, [apiUrl, domain, cookieName])
+  }, [apiUrl])
 
   const login = async (email: string, password: string) => {
     try {
@@ -123,7 +111,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
       if (data?.token) {
         const authToken = data.token
-        setToken(authToken)
 
         const decodedToken = await decodeJWT(authToken)
         if (decodedToken && decodedToken.user) {
@@ -169,45 +156,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       removeCookie({ cookieName, domain })
     }
 
-    setToken(undefined)
     setUser(null)
     setIsLoading(false)
     window.location.href = redirectUrl
-  }
-
-  const getToken = () => {
-    return token || getCookie({ cookieName })
-  }
-
-  const updateProfile = async (updatedUser: { name: string }) => {
-    const token = getToken()
-
-    if (!token) {
-      return
-    }
-    const response = await fetch('/api/auth/profile', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ name: updatedUser.name }),
-      credentials: 'include', // Para incluir cookies na resposta
-    })
-
-    if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${response.statusText}`)
-    }
-
-    const responseData = await response.json()
-
-    if (responseData?.user) {
-      setUser(responseData.user)
-      // Cookie já foi atualizado pelo backend via Set-Cookie header
-      if (responseData?.token) {
-        setToken(responseData.token)
-      }
-    }
   }
 
   const hasPermissions = (requiredPermissions: string[]): boolean => {
@@ -216,12 +167,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
   const value = {
     user,
+    setUser,
     isAuthenticated,
     isLoading,
     login,
     logout,
-    getToken,
-    updateProfile,
     hasPermissions,
   }
 

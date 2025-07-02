@@ -15,7 +15,7 @@ const setCookieHeader = (res: express.Response, token: string) => {
   const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
   const isProduction = process.env.NODE_ENV === 'production'
 
-  let cookieOptions = `${cookieName}=${token}; Path=/; SameSite=Lax; HttpOnly=false`
+  let cookieOptions = `${cookieName}=${token}; Path=/; SameSite=Lax; HttpOnly=true`
 
   if (isProduction) {
     cookieOptions += '; Secure'
@@ -33,7 +33,7 @@ const clearCookieHeader = (res: express.Response) => {
   const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
   const isProduction = process.env.NODE_ENV === 'production'
 
-  let cookieOptions = `${cookieName}=; Path=/; SameSite=Lax; HttpOnly=false; Expires=Thu, 01 Jan 1970 00:00:00 GMT`
+  let cookieOptions = `${cookieName}=; Path=/; SameSite=Lax; HttpOnly=true; Expires=Thu, 01 Jan 1970 00:00:00 GMT`
 
   if (isProduction) {
     cookieOptions += '; Secure'
@@ -250,7 +250,6 @@ router.get(
   }
 )
 
-// Check if user has Google account connected
 router.get(
   '/google/status',
   passport.authenticate('jwt', { session: false }),
@@ -276,6 +275,66 @@ router.get(
 router.get('/google/config', (req: express.Request, res: express.Response) => {
   const isGoogleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
   res.json({ enabled: isGoogleConfigured })
+})
+
+const extractTokenFromCookies = (cookieHeader: string | undefined): string | null => {
+  if (!cookieHeader) {
+    return null
+  }
+
+  const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
+  const cookies = cookieHeader.split(';')
+
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=')
+    if (name === cookieName) {
+      return value
+    }
+  }
+
+  return null
+}
+
+router.get('/check-auth', async (req: express.Request, res: express.Response) => {
+  try {
+    let token: string | null = null
+
+    const authHeader = req.headers.authorization
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7)
+    }
+
+    if (!token) {
+      token = extractTokenFromCookies(req.headers.cookie as string)
+    }
+    if (!token && req.cookies) {
+      token = req.cookies[process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken']
+    }
+
+    if (!token) {
+      return res.status(401).json({ authenticated: false })
+    }
+
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as {
+        id: number
+        email: string
+      }
+
+      const sessionUser = await getUserForSession(decoded.id)
+
+      if (!sessionUser || !sessionUser.active) {
+        return res.status(401).json({ authenticated: false })
+      }
+
+      res.json({ authenticated: true, user: sessionUser })
+    } catch (_error) {
+      return res.status(401).json({ authenticated: false })
+    }
+  } catch (error) {
+    console.error('Error checking authentication:', error)
+    res.status(500).json({ message: 'Error checking authentication' })
+  }
 })
 
 router.post('/logout', (req: express.Request, res: express.Response) => {
