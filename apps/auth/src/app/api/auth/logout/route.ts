@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
-export async function POST(request: NextRequest) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
+
+export async function POST(_request: NextRequest) {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+    const token = cookies().get(COOKIE_NAME)?.value
 
-    const response = await fetch(`${apiUrl}/api/auth/logout`, {
+    const response = await fetch(`${API_URL}/api/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(request.cookies.get('authToken') && {
-          Cookie: `authToken=${request.cookies.get('authToken')?.value}`,
-        }),
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
+      credentials: 'include',
     })
 
     const nextResponse = NextResponse.json(
