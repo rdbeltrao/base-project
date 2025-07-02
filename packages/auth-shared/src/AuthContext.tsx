@@ -1,40 +1,19 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { getCookie, removeCookie } from './cookies'
 import type { SessionUser } from '@test-pod/database'
-import * as jose from 'jose'
 import { userHasPermission } from './utils'
-
-async function decodeJWT(token: string) {
-  try {
-    const { payload } = await jose
-      .jwtVerify(token, new TextEncoder().encode(''), {
-        requiredClaims: [],
-        clockTolerance: '1000y',
-      })
-      .catch(() => {
-        return { payload: jose.decodeJwt(token) }
-      })
-
-    return payload
-  } catch (error) {
-    console.error('Error decoding JWT token:', error)
-    return null
-  }
-}
 
 interface AuthContextType {
   user: SessionUser | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (
-    email: string,
-    password: string
-  ) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>
+  login: (email: string, password: string) => Promise<{ success: boolean; user?: SessionUser }>
   logout: (redirectUrl?: string) => Promise<void>
   getToken: () => string | undefined
-  updateProfile: (updatedUser: { name: string }) => void
+  updateProfile: (
+    profileData: Partial<SessionUser>
+  ) => Promise<{ success: boolean; user?: SessionUser }>
   hasPermissions: (permissions: string[]) => boolean
 }
 
@@ -42,17 +21,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
   children: ReactNode
-  cookieName?: string
-  domain?: string
-  apiUrl?: string
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({
-  children,
-  cookieName,
-  domain,
-  apiUrl,
-}) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<SessionUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [token, setToken] = useState<string | undefined>()
@@ -60,99 +31,67 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
   useEffect(() => {
     const checkAuth = async () => {
-      const storedToken = getCookie({ cookieName })
-      if (storedToken) {
-        try {
-          setIsLoading(true)
-          const decodedToken = await decodeJWT(storedToken)
-          if (decodedToken) {
-            setUser(decodedToken as unknown as SessionUser)
-            setToken(storedToken)
-          } else {
-            const response = await fetch(`${apiUrl}/api/auth/profile`, {
-              headers: {
-                Authorization: `Bearer ${storedToken}`,
-              },
-            })
+      try {
+        setIsLoading(true)
 
-            if (!response.ok) {
-              throw new Error(`Erro ${response.status}: ${response.statusText}`)
-            }
+        const response = await fetch('/api/session', {
+          method: 'GET',
+          credentials: 'include',
+        })
 
-            const data = await response.json()
-
-            if (data?.user) {
-              setUser(data.user as SessionUser)
-              setToken(storedToken)
-            } else {
-              removeCookie({ cookieName, domain })
-            }
-          }
-        } catch (_error) {
-          console.error('Auth check error:', _error)
-          removeCookie({ cookieName, domain })
-        } finally {
-          setIsLoading(false)
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}: ${response.statusText}`)
         }
-      } else {
+
+        const data = await response.json()
+
+        if (data?.isAuthenticated && data?.user) {
+          setUser(data.user as SessionUser)
+          setToken(data.token)
+        } else {
+          setUser(null)
+          setToken(undefined)
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        setUser(null)
+        setToken(undefined)
+      } finally {
         setIsLoading(false)
       }
     }
 
     checkAuth()
-  }, [apiUrl, domain, cookieName])
+  }, [])
 
   const login = async (email: string, password: string) => {
     try {
-      setIsLoading(true)
-
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
         credentials: 'include',
+        body: JSON.stringify({ email, password }),
       })
 
       if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`)
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Erro no login')
       }
 
       const data = await response.json()
 
-      if (data?.token) {
-        const authToken = data.token
-        setToken(authToken)
-
-        const decodedToken = await decodeJWT(authToken)
-        if (decodedToken && decodedToken.user) {
-          setUser(decodedToken.user as SessionUser)
-        } else if (data?.user) {
-          setUser(data.user as SessionUser)
-        }
-
-        const userData = decodedToken?.user || data?.user
-
-        const redirectUrl = (() => {
-          if (userData?.roles?.some((role: string) => role === 'admin')) {
-            return `${process.env.NEXT_PUBLIC_BACKOFFICE_URL}/dashboard`
-          }
-          return `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-        })()
-
-        return { success: true, redirectUrl }
+      if (data?.user && data?.token) {
+        setUser(data.user as SessionUser)
+        setToken(data.token)
+        return { success: true, user: data.user }
+      } else {
+        throw new Error('Dados de login inválidos')
       }
-
-      return { success: false, error: 'Credenciais inválidas' }
-    } catch (error: any) {
-      console.error('Erro durante o login:', error)
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Ocorreu um erro durante o login.',
-      }
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Login error:', error)
+      throw error
     }
   }
 
@@ -160,53 +99,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setIsLoading(true)
 
     try {
-      await fetch(`${apiUrl}/api/auth/logout`, {
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       })
     } catch (error) {
-      console.error('Error during logout:', error)
-      removeCookie({ cookieName, domain })
+      console.error('Logout error:', error)
+    } finally {
+      setUser(null)
+      setToken(undefined)
+      setIsLoading(false)
+      window.location.href = redirectUrl
     }
-
-    setToken(undefined)
-    setUser(null)
-    setIsLoading(false)
-    window.location.href = redirectUrl
   }
 
   const getToken = () => {
-    return token || getCookie({ cookieName })
+    return token
   }
 
-  const updateProfile = async (updatedUser: { name: string }) => {
-    const token = getToken()
+  const updateProfile = async (profileData: Partial<SessionUser>) => {
+    try {
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(profileData),
+      })
 
-    if (!token) {
-      return
-    }
-    const response = await fetch('/api/auth/profile', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ name: updatedUser.name }),
-      credentials: 'include', // Para incluir cookies na resposta
-    })
-
-    if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${response.statusText}`)
-    }
-
-    const responseData = await response.json()
-
-    if (responseData?.user) {
-      setUser(responseData.user)
-      // Cookie já foi atualizado pelo backend via Set-Cookie header
-      if (responseData?.token) {
-        setToken(responseData.token)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Erro ao atualizar perfil')
       }
+
+      const data = await response.json()
+
+      if (data?.user) {
+        setUser(data.user as SessionUser)
+        if (data.token) {
+          setToken(data.token)
+        }
+        return { success: true, user: data.user }
+      } else {
+        throw new Error('Dados de perfil inválidos')
+      }
+    } catch (error) {
+      console.error('Update profile error:', error)
+      throw error
     }
   }
 
