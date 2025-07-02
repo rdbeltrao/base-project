@@ -2,7 +2,6 @@
 node_modules/
 
 # Source code (not needed in production)
-src/
 
 # Test files
 __tests__/
@@ -25,7 +24,6 @@ prettier.config.mjs
 .npmrc
 
 # All TypeScript source files
-**/*.ts
 !api/**/*.js
 
 # Build artifacts (except dist)

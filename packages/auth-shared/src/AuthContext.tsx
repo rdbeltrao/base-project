@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       setIsLoading(true)
 
-      const response = await fetch(`${apiUrl}/api/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,8 +165,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setIsLoading(true)
 
     try {
-      // Chamar a rota de logout do backend para limpar o cookie
-      await fetch(`${apiUrl}/api/auth/logout`, {
+      // Chamar a rota de logout local para limpar o cookie
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       })
@@ -192,7 +192,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     if (!token) {
       return
     }
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, {
+    const response = await fetch('/api/auth/profile', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
