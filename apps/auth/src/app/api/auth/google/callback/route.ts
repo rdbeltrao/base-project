@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
 
     const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
     const callbackUrl = `${authUrl}/auth/google/callback?token=${token}`
+    const redirectResponse = NextResponse.redirect(callbackUrl)
 
     const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
     const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
@@ -47,7 +48,6 @@ export async function GET(request: NextRequest) {
       cookieOptions += `; Domain=${cookieDomain}`
     }
 
-    const redirectResponse = NextResponse.redirect(callbackUrl)
     redirectResponse.headers.set('Set-Cookie', cookieOptions)
 
     return redirectResponse
