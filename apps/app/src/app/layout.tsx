@@ -2,6 +2,15 @@ import '@/styles/globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@test-pod/auth-shared'
+import { initFeatureFlags } from '@test-pod/feature-flags'
+import path from 'path'
+
+// Initialize feature flags on server start.
+// `process.cwd()` in a Next.js app (e.g., within `layout.tsx` which is a Server Component)
+// typically refers to the root of the Next.js project, e.g., `[monorepo_root]/apps/app`.
+// From this location, the config file is at `../../config/feature-toggles.json`.
+const configFilePath = path.resolve(process.cwd(), '../../config/feature-toggles.json');
+initFeatureFlags({ configPath: configFilePath });
 
 const inter = Inter({ subsets: ['latin'] })
 

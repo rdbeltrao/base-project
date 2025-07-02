@@ -10,11 +10,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
+    "@test-pod/feature-flags": "workspace:*",
     "@test-pod/utils": "workspace:*",
     "@hookform/resolvers": "^5.1.1",
     "@test-pod/auth-shared": "workspace:*",
