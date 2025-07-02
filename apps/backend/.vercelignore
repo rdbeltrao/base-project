@@ -1,61 +1,63 @@
 # Dependencies
-node_modules/
+/node_modules/
 
-# Source code (not needed in production)
+# Backend source code (not needed in production since we're building it)
+/src/
 
-# Test files
-__tests__/
-*.test.ts
-*.test.js
-*.spec.ts
-*.spec.js
-test/
-tests/
+# Backend test files
+/__tests__/
+/test/
+/tests/
+/*.test.ts
+/*.test.js
+/*.spec.ts
+/*.spec.js
 
-# Configuration files
-.env*
-# tsconfig.json
-# tsup.config.ts
-jest.config.ts
-jest.setup.ts
-eslint.config.js
-prettier.config.mjs
-.prettierignore
-.npmrc
+# Backend configuration files
+/.env*
+/tsconfig.json
+/tsup.config.ts
+/jest.config.ts
+/jest.setup.ts
+/eslint.config.js
+/prettier.config.mjs
+/.prettierignore
+/.npmrc
 
-# All TypeScript source files
+# Backend TypeScript source files (but not from packages)
+/*.ts
 !api/**/*.js
 
 # Build artifacts (except dist)
-build/
-out/
-.next/
-.turbo/
+/build/
+/out/
+/.next/
+/.turbo/
 
 # Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+/logs/
+/*.log
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+/pnpm-debug.log*
 
 # Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
+/pids/
+/*.pid
+/*.seed
+/*.pid.lock
 
 # Coverage directory used by tools like istanbul
-coverage/
-.nyc_output/
+/coverage/
+/.nyc_output/
 
 # IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+/.vscode/
+/.idea/
+/*.swp
+/*.swo
+/*~
 
 # OS generated files
 .DS_Store
@@ -65,8 +67,3 @@ coverage/
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Workspace files that can cause conflicts
-../../package.json
-../../pnpm-lock.yaml
-../../turbo.json

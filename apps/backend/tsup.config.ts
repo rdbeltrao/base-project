@@ -2,9 +2,9 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: {
-    index: './src/vercel.ts',
+    'api/index': './src/vercel.ts',
   },
-  outDir: './api',
+  outDir: './',
   target: 'node20',
   format: ['cjs'],
   bundle: true,
