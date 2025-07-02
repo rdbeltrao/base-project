@@ -1,8 +1,8 @@
 import Cookies from 'js-cookie'
 
-export const COOKIE_NAME = process.env.COOKIE_NAME || 'authToken'
+export const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
 
-const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || 'localhost'
+const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || 'localhost'
 
 const getCookieOptions = ({ domain = COOKIE_DOMAIN }: { domain?: string }) => {
   const options: Cookies.CookieAttributes = {
