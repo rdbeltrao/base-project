@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { getCookie, removeCookie, setCookie } from './cookies'
+import { getCookie, removeCookie } from './cookies'
 import type { SessionUser } from '@test-pod/database'
 import * as jose from 'jose'
 import { userHasPermission } from './utils'
@@ -61,15 +61,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   useEffect(() => {
     const checkAuth = async () => {
       const storedToken = getCookie({ cookieName })
-
       if (storedToken) {
         try {
           setIsLoading(true)
-
           const decodedToken = await decodeJWT(storedToken)
-
-          if (decodedToken && decodedToken.user) {
-            setUser(decodedToken.user as SessionUser)
+          if (decodedToken) {
+            setUser(decodedToken as unknown as SessionUser)
             setToken(storedToken)
           } else {
             const response = await fetch(`${apiUrl}/api/auth/profile`, {
@@ -109,12 +106,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       setIsLoading(true)
 
-      const response = await fetch(`${apiUrl}/api/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -125,7 +123,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
       if (data?.token) {
         const authToken = data.token
-        setCookie(authToken, { cookieName, domain })
         setToken(authToken)
 
         const decodedToken = await decodeJWT(authToken)
@@ -160,19 +157,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   }
 
   const logout = async (redirectUrl: string = '/login') => {
-    console.log({ redirectUrl })
     setIsLoading(true)
 
-    if (token) {
+    try {
+      await fetch(`${apiUrl}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch (error) {
+      console.error('Error during logout:', error)
       removeCookie({ cookieName, domain })
-      setToken(undefined)
-      setUser(null)
-      setIsLoading(false)
-      window.location.href = redirectUrl
-    } else {
-      setIsLoading(false)
-      window.location.href = redirectUrl
     }
+
+    setToken(undefined)
+    setUser(null)
+    setIsLoading(false)
+    window.location.href = redirectUrl
   }
 
   const getToken = () => {
@@ -185,13 +185,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     if (!token) {
       return
     }
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, {
+    const response = await fetch('/api/auth/profile', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ name: updatedUser.name }),
+      credentials: 'include', // Para incluir cookies na resposta
     })
 
     if (!response.ok) {
@@ -202,7 +203,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
     if (responseData?.user) {
       setUser(responseData.user)
-      setToken(token)
+      // Cookie já foi atualizado pelo backend via Set-Cookie header
+      if (responseData?.token) {
+        setToken(responseData.token)
+      }
     }
   }
 

@@ -115,7 +115,7 @@ A integração com o Google é necessária para adicionar eventos ao calendário
    - Selecione "Aplicativo da Web" como tipo
    - Dê um nome à sua aplicação
    - Adicione URIs de redirecionamento autorizados:
-     - `http://localhost:3000/api/auth/google/callback` (para desenvolvimento)
+     - `http://localhost:3001/api/auth/google/callback` (para desenvolvimento)
 9. Anote o "ID do Cliente" e a "Chave Secreta do Cliente"
 
 #### Configuração no .env
@@ -125,7 +125,7 @@ Adicione as seguintes variáveis ao arquivo `.env` do backend:
 ```
 GOOGLE_CLIENT_ID=seu_client_id_aqui
 GOOGLE_CLIENT_SECRET=sua_client_secret_aqui
-GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
+GOOGLE_CALLBACK_URL=http://localhost:3001/api/auth/google/callback
 ```
 
 **IMPORTANTE**: A integração com o Google Calendar não funcionará sem estas credenciais configuradas corretamente, porém o sistema irá funcionar sem elas.
