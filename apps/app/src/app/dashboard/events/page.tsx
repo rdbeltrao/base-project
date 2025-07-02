@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { formatDate } from '@test-pod/utils'
-import { isFeatureEnabled } from '../../../lib/feature-toggles'
+import { isFeatureEnabled } from '@test-pod/feature-flags'
 
 interface Event {
   id: number

@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs", // Jest typically runs in a Node environment that prefers CommonJS
+    "jsx": "react-jsx" // Ensure JSX is handled if tests involve components, though unlikely for this lib
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx", // If you ever add React components/hooks
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "jest.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

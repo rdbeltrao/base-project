@@ -15,31 +15,64 @@ Example `config/feature-toggles.json`:
 }
 ```
 
-### Usage in Code (Next.js App - `apps/app`)
+### Usage in Code
 
-The `apps/app` Next.js application uses a utility module to access feature toggle states.
+The feature toggle functionality is provided by the shared package `@test-pod/feature-flags`.
+Any application within the monorepo (e.g., `apps/app`, `apps/backoffice`) can use this package.
 
-**Location:** `apps/app/src/lib/feature-toggles.ts`
+**Package Name:** `@test-pod/feature-flags`
 
-**Functions:**
+**Initialization (Server-Side):**
+
+The package must be initialized once, typically when the application server starts. This is done by calling `initFeatureFlags`. This function reads the `config/feature-toggles.json` file.
+
+*   `initFeatureFlags(options?: FeatureFlagOptions): void`:
+    *   `options.configPath` (string, optional): Absolute path to the `feature-toggles.json` file. If not provided, it defaults to `path.resolve(process.cwd(), 'config/feature-toggles.json')`. For applications within the `apps` directory (like `apps/app`), you should construct the path relative to their CWD, e.g., `path.resolve(process.cwd(), '../../config/feature-toggles.json')`.
+    *   `options.logger` (object, optional): An object with `warn` and `error` methods for logging. Defaults to `console`.
+
+**Example (Next.js App - `apps/app/src/app/layout.tsx` - Server Component):**
+```tsx
+// apps/app/src/app/layout.tsx
+import { initFeatureFlags } from '@test-pod/feature-flags';
+import path from 'path';
+
+// Assuming process.cwd() is [monorepo_root]/apps/app
+const configFilePath = path.resolve(process.cwd(), '../../config/feature-toggles.json');
+initFeatureFlags({ configPath: configFilePath });
+
+export default function RootLayout({ children }) {
+  // ...
+}
+```
+
+**Accessing Toggles (Server or Client Side):**
+
+Once initialized, the following functions can be used in both server-side and client-side code:
 
 *   `isFeatureEnabled(featureName: string): boolean`:
-    *   Accepts the name of the feature (string) as defined in `config/feature-toggles.json`.
+    *   Accepts the feature name (string).
     *   Returns `true` if the feature is enabled, `false` otherwise.
-    *   If the feature name is not found in the configuration file, or if the file itself is missing or invalid, the feature is considered disabled (returns `false`). Console warnings/errors will indicate such issues.
+    *   If called before `initFeatureFlags`, it will attempt a default initialization (see `configPath` default behavior above).
 
 *   `getFeatureToggles(): { [key: string]: boolean }`:
-    *   Returns an object containing all feature toggles and their current states as read from the configuration file.
-    *   Returns an empty object (`{}`) if the configuration file is missing or invalid.
+    *   Returns an object containing all loaded feature toggles.
+    *   If called before `initFeatureFlags`, it will attempt a default initialization.
 
-**Example (React Component):**
+**Example (React Component - Client or Server):**
 
 ```tsx
-import { useEffect, useState } from 'react';
-import { isFeatureEnabled } from '../../../lib/feature-toggles'; // Adjust path as needed
+import { useEffect, useState } from 'react'; // useEffect only needed for client-side specific logic
+import { isFeatureEnabled } from '@test-pod/feature-flags';
 
 function MyComponent() {
-  const [showNewUI, setShowNewUI] = useState(false);
+  // For Client Components, it's common to check the feature flag in useEffect or directly if it influences initial render.
+  // For Server Components, you can call it directly.
+  const showNewUI = isFeatureEnabled('newUIV2');
+  // const [showNewUI, setShowNewUI] = useState(false); // Only if you need to derive state client-side
+
+  // useEffect(() => { // Only if needed for client-side updates based on flag
+  //   setShowNewUI(isFeatureEnabled('newUIV2'));
+  // }, []);
 
   useEffect(() => {
     if (isFeatureEnabled('newUIV2')) {
@@ -60,32 +93,53 @@ export default MyComponent;
 
 ### How it Works
 
-The `feature-toggles.ts` module reads the `config/feature-toggles.json` file when the application initializes (or when the module is first loaded). It caches these values.
-The path to the configuration file is resolved relative to the `apps/app` working directory, assuming the service runs from there, pointing to `../../config/feature-toggles.json`.
+The `@test-pod/feature-flags` package, when `initFeatureFlags` is called (server-side), reads the specified JSON configuration file and caches the toggle states in memory.
+Subsequent calls to `isFeatureEnabled` or `getFeatureToggles` (from server or client) access these cached values.
 
 ### Adding a New Feature Toggle
 
 1.  **Define the toggle:** Add a new entry (e.g., `"myAwesomeFeature": true`) to the `config/feature-toggles.json` file.
-2.  **Use in code:** In your application code (e.g., `apps/app`), use `isFeatureEnabled("myAwesomeFeature")` to check its state and conditionally render UI or execute logic.
-3.  **Test:** Ensure your feature behaves correctly with the toggle on and off. Consider adding unit/integration tests for the toggled behavior if appropriate.
+2.  **Initialize (if new app):** Ensure the application consuming the toggle calls `initFeatureFlags` correctly at startup (see example above).
+3.  **Use in code:** Import `isFeatureEnabled` from `@test-pod/feature-flags` and use it to check the toggle's state.
+4.  **Test:** Ensure your feature behaves correctly with the toggle on and off.
 
 ### Important Considerations
 
-*   **Server-Side vs. Client-Side:** The current implementation of `feature-toggles.ts` reads the JSON file on the server-side (or at build time if used in getStaticProps/getServerSideProps without dynamic reading). If `isFeatureEnabled` is called only on the client-side (e.g., in a `useEffect` hook as shown), the toggles are effectively determined when the client-side code runs.
-    *   If you need toggles that can change without a rebuild/redeploy and affect server-rendered content immediately, a more dynamic configuration loading mechanism (e.g., from a database or a feature flag service) would be required. The current system is file-based.
-*   **Caching:** The toggles are read once when the `feature-toggles.ts` module is loaded. If the JSON file changes, the application server (if running) would typically need a restart for the changes to be reflected, unless the module is re-evaluated.
-*   **Error Handling:** If `config/feature-toggles.json` is missing or malformed, all features will be treated as disabled, and a warning/error will be logged to the console.
-*   **Scope:** This documentation primarily covers usage within the `apps/app` Next.js application. Other applications in the monorepo would need their own mechanism or a shared package to read these toggles if they also need to be feature-flagged by the same configuration.
+*   **Initialization is Key:** `initFeatureFlags` **must** be called on the server-side before any feature flags are reliably checked. While there's a fallback to default initialization, relying on it is not recommended for production.
+*   **Server-Side Operation:** Reading the JSON configuration file is a server-side operation. The values are then available to client-side code via the imported functions because the toggle states are stored in a module-level variable initialized on the server.
+*   **Caching & Updates:** The toggles are read once when `initFeatureFlags` successfully executes. If the `config/feature-toggles.json` file changes on the server, the application process must be restarted for the changes to take effect. This system is not for dynamic, real-time feature flag updates without a restart/redeploy. For such scenarios, a dedicated feature flag service would be more appropriate.
+*   **Error Handling:** If `config/feature-toggles.json` is missing or malformed during `initFeatureFlags`, all features will be treated as disabled, and an error/warning will be logged via the configured logger (console by default).
+*   **Monorepo Scope:** The `@test-pod/feature-flags` package can be used by any application within the monorepo. Each application will need to call `initFeatureFlags` appropriately.
 
 ### Testing Toggles
 
-Unit tests for the `feature-toggles.ts` utility itself are located in `apps/app/src/lib/feature-toggles.test.ts`. These tests mock the `fs` module to simulate different states of the JSON configuration file (e.g., file missing, feature enabled/disabled, invalid JSON).
-When testing components that *use* feature toggles, you can mock the `isFeatureEnabled` function:
+**Testing the `@test-pod/feature-flags` package itself:**
+Unit tests are located in `packages/feature-flags/src/index.test.ts`. These mock `fs-extra` to simulate different states of the JSON configuration.
+
+**Testing components that *use* feature toggles:**
+You can mock the `isFeatureEnabled` function from the `@test-pod/feature-flags` package.
 
 ```tsx
-// Example in a component test:
-// import * as FeatureToggles from '../path/to/feature-toggles';
+// Example in a component test (e.g., apps/app/src/components/MyComponent.test.tsx)
+import { isFeatureEnabled } from '@test-pod/feature-flags';
 
-// jest.spyOn(FeatureToggles, 'isFeatureEnabled').mockReturnValue(true); // or false
+jest.mock('@test-pod/feature-flags', () => ({
+  ...jest.requireActual('@test-pod/feature-flags'), // Import and retain other exports
+  isFeatureEnabled: jest.fn(),
+}));
+
+describe('MyComponent', () => {
+  it('shows new UI when feature is enabled', () => {
+    (isFeatureEnabled as jest.Mock).mockReturnValue(true);
+    // ... render component and assert ...
+  });
+
+  it('shows old UI when feature is disabled', () => {
+    (isFeatureEnabled as jest.Mock).mockReturnValue(false);
+    // ... render component and assert ...
+  });
+});
 ```
-This allows you to test both branches of your component's logic.
+This allows testing both branches of your component's logic based on the mocked toggle state.
+Remember to also include `resetFeatureFlagsForTesting` from `@test-pod/feature-flags` in your Jest `setupFilesAfterEnv` or relevant test `beforeEach/afterEach` if your tests involve multiple `initFeatureFlags` calls or rely on a clean state.
+Alternatively, for components, directly mocking `isFeatureEnabled` as shown above is often simpler.
