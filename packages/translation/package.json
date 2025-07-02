@@ -1,0 +1,27 @@
+{
+  "name": "@test-pod/translation",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./settings": "./settings.js",
+    "./components/LanguageSwitcher": "./components/LanguageSwitcher.tsx"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "i18next": "^23.0.0", // Use appropriate version matching root
+    "react-i18next": "^14.0.0", // Use appropriate version matching root
+    "i18next-resources-to-backend": "^1.0.0", // Use appropriate version matching root
+    "accept-language": "^3.0.0", // Use appropriate version matching root
+    "cookies-next": "^4.0.0" // Use appropriate version matching root
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "next": ">=13"
+  }
+}

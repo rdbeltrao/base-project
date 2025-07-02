@@ -22,6 +22,11 @@
     "turbo": "latest"
   },
   "dependencies": {
-    "@radix-ui/react-dropdown-menu": "^2.1.15"
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "accept-language": "^3.0.20",
+    "cookies-next": "^6.0.0",
+    "i18next": "^25.3.0",
+    "i18next-resources-to-backend": "^1.2.1",
+    "react-i18next": "^15.5.3"
   }
 }

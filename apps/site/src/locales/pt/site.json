@@ -1,0 +1,33 @@
+{
+  "home": {
+    "meta": {
+      "title": "Eventos - Plataforma de Eventos",
+      "description": "A melhor plataforma para gerenciamento e reserva de eventos",
+      "og": {
+        "title": "Eventos - Plataforma de Eventos | OpenGraph",
+        "description": "Descubra e reserve eventos incríveis conosco."
+      }
+    },
+    "featured_events": {
+      "title": "Eventos em Destaque",
+      "subtitle": "Confira os eventos mais populares em nossa plataforma e não perca a oportunidade de participar."
+    },
+    "header": {
+      "home": "Início",
+      "events": "Eventos",
+      "contact": "Contato"
+    },
+    "footer": {
+      "about_us": "Sobre Nós",
+      "careers": "Carreiras",
+      "support": "Suporte",
+      "privacy_policy": "Política de Privacidade",
+      "terms_of_service": "Termos de Serviço",
+      "copy_right": "© 2024 Plataforma de Eventos. Todos os direitos reservados."
+    }
+  },
+  "buttons": {
+    "learn_more": "Saiba Mais",
+    "book_now": "Reserve Agora"
+  }
+}
