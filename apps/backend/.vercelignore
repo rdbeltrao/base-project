@@ -14,8 +14,8 @@ tests/
 
 # Configuration files
 .env*
-tsconfig.json
-tsup.config.ts
+# tsconfig.json
+# tsup.config.ts
 jest.config.ts
 jest.setup.ts
 eslint.config.js
