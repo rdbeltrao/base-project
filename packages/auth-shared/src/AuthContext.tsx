@@ -28,6 +28,7 @@ interface AuthContextType {
   user: SessionUser | null
   isAuthenticated: boolean
   isLoading: boolean
+  setUser: (user: SessionUser | null) => void
   login: (
     email: string,
     password: string
