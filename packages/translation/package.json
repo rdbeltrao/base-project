@@ -14,11 +14,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "i18next": "^23.0.0", // Use appropriate version matching root
-    "react-i18next": "^14.0.0", // Use appropriate version matching root
-    "i18next-resources-to-backend": "^1.0.0", // Use appropriate version matching root
-    "accept-language": "^3.0.0", // Use appropriate version matching root
-    "cookies-next": "^4.0.0" // Use appropriate version matching root
+    "i18next": "^25.3.0",
+    "react-i18next": "^15.5.3",
+    "i18next-resources-to-backend": "^1.2.1",
+    "accept-language": "^3.0.20",
+    "cookies-next": "^6.0.0"
   },
   "peerDependencies": {
     "react": ">=18",
