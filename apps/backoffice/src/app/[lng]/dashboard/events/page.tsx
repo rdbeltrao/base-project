@@ -69,8 +69,10 @@ export default function EventsPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null)
   const [isToggleFeatureLoading, setIsToggleFeatureLoading] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false)
 
   useEffect(() => {
+    setHasMounted(true)
     fetchEvents(1)
   }, [])
 
@@ -210,7 +212,7 @@ export default function EventsPage() {
     fetchEvents()
   }
 
-  if (loading) {
+  if (!hasMounted || loading) {
     return <div className='flex justify-center items-center h-96'>Loading events...</div>
   }
 

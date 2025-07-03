@@ -49,7 +49,7 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
     defaultValues: {
       name: event?.name || '',
       description: event?.description || '',
-      eventDate: event?.eventDate ? new Date(`${event.eventDate} GMT-0300`) : new Date(),
+      eventDate: event?.eventDate ? new Date(event.eventDate) : new Date(),
       location: event?.location || '',
       onlineLink: event?.onlineLink || '',
       maxCapacity: event?.maxCapacity || 10,
