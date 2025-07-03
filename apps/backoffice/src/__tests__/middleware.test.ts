@@ -12,7 +12,7 @@ jest.mock('@test-pod/auth-shared/utils', () => ({
 }))
 
 // Mock do navItems
-jest.mock('../app/dashboard/menu-items', () => ({
+jest.mock('@/lib/menu-items', () => ({
   navItems: [
     {
       title: 'Dashboard',

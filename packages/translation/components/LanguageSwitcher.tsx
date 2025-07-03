@@ -1,16 +1,15 @@
 'use client';
 
+import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useTranslation } from '../client'; // Using client hook from the same package
 import { languages, fallbackLng } from '../settings';
 
-// The loader for common translations, as this component is part of the translation package
-const commonLocaleLoader = (language, namespace) => {
-  return import(`../locales/${language}/${namespace}.json`);
-};
+interface LanguageSwitcherTranslations {
+  change_language: string;
+  [key: string]: string;
+}
 
-export function LanguageSwitcher({ lng }: { lng: string }) {
-  const { t } = useTranslation(lng, 'common', undefined, commonLocaleLoader);
+export function LanguageSwitcher({ lng, translations }: { lng: string, translations: LanguageSwitcherTranslations }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -38,7 +37,7 @@ export function LanguageSwitcher({ lng }: { lng: string }) {
 
   return (
     <div className="language-switcher">
-      <span className="mr-2">{t('change_language', { defaultValue: 'Change Language:' })}</span>
+      <span className="mr-2">{translations.change_language}</span>
       {languages.map((langCode) => (
         <button
           key={langCode}
@@ -49,10 +48,10 @@ export function LanguageSwitcher({ lng }: { lng: string }) {
               ? 'bg-primary text-primary-foreground cursor-not-allowed'
               : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
             }
-            ${languages.indexOf(langCode) < languages.length -1 ? 'mr-1' : ''}
+            ${languages.indexOf(langCode) < languages.length - 1 ? 'mr-1' : ''}
           `}
         >
-          {t(langCode, { ns: 'common', defaultValue: langCode.toUpperCase() })}
+          {translations[langCode] || langCode.toUpperCase()}
         </button>
       ))}
     </div>

@@ -1,6 +1,5 @@
 import { jwtVerify } from 'jose'
-import { navItems } from './app/dashboard/menu-items'
-import type { NavItem } from './app/dashboard/menu-items'
+import { navItems, NavItem } from '@/lib/menu-items'
 import { userHasPermission } from '@test-pod/auth-shared/utils'
 import type { SessionUser } from '@test-pod/database'
 
