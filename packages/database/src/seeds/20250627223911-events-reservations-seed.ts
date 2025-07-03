@@ -1,11 +1,18 @@
 import type { QueryInterface } from 'sequelize'
 
 const getImageUrl = async () => {
-  const imageUrl = await fetch('https://picsum.photos/800/500')
-  return imageUrl.url
+  // const imageUrl = await fetch('https://picsum.photos/800/500')
+  // return imageUrl.url
+  return 'https://via.placeholder.com/800x500.png?text=Event+Image'
 }
 
 export async function up(queryInterface: QueryInterface): Promise<void> {
+  // Clean up existing data to make the seed idempotent
+  await queryInterface.bulkDelete('reservations', {})
+  await queryInterface.bulkDelete('events', {})
+  // Note: We are not deleting permissions or role_permissions here
+  // because they are additive and we don't want to remove the ones from the initial seed.
+
   const now = new Date()
 
   const [adminUsers] = (await queryInterface.sequelize.query(
