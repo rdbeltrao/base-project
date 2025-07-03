@@ -15,7 +15,7 @@ const setCookieHeader = (res: express.Response, token: string) => {
   const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
   const isProduction = process.env.NODE_ENV === 'production'
 
-  let cookieOptions = `${cookieName}=${token}; Path=/; SameSite=Lax; HttpOnly=true`
+  let cookieOptions = `${cookieName}=${token}; Path=/; SameSite=Lax; HttpOnly=false; Max-Age=604800`
 
   if (isProduction) {
     cookieOptions += '; Secure'
@@ -231,7 +231,8 @@ router.get(
       const sessionUser = await getUserForSession(user.id)
 
       if (!sessionUser) {
-        return res.status(500).json({ message: 'Error creating session user' })
+        const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
+        return res.redirect(`${authUrl}/login?error=session_error`)
       }
 
       const token = jwt.sign(sessionUser, JWT_SECRET, {
@@ -240,12 +241,13 @@ router.get(
 
       setCookieHeader(res, token)
 
+      // Redirecionar diretamente para o dashboard/home
       const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
-      const callbackUrl = `${authUrl}/auth/google/callback`
-      res.redirect(callbackUrl)
+      res.redirect(`${authUrl}/dashboard`)
     } catch (error) {
       console.error('Error during Google authentication:', error)
-      res.status(500).json({ message: 'Error during Google authentication' })
+      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
+      res.redirect(`${authUrl}/login?error=auth_failed`)
     }
   }
 )

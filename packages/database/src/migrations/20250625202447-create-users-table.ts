@@ -22,7 +22,7 @@ export async function up(
     },
     password: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     active: {
       type: Sequelize.BOOLEAN,

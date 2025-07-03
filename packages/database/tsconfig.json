@@ -1,12 +1,14 @@
 {
-  "extends": "@test-pod/ts-config/tsconfig.json",
+  "extends": "../ts-config/tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./",
     "esModuleInterop": true,
-    "noEmit": false
+    "noEmit": false,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "types": ["node", "jest"]
   },
   "include": ["./src/**/*", "jest.setup.ts"],
-  "exclude": ["node_modules/**/*", "dist/**/*"],
-  "types": ["node", "sequelize", "jest"]
+  "exclude": ["node_modules/**/*", "dist/**/*"]
 }

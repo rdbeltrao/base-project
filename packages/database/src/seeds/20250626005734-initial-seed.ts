@@ -2,6 +2,13 @@ import type { QueryInterface } from 'sequelize'
 import bcrypt from 'bcryptjs'
 
 export async function up(queryInterface: QueryInterface): Promise<void> {
+  // Clean up existing data to make the seed idempotent
+  await queryInterface.bulkDelete('user_roles', {}, {})
+  await queryInterface.bulkDelete('users', {}, {})
+  await queryInterface.bulkDelete('role_permissions', {}, {})
+  await queryInterface.bulkDelete('roles', {}, {})
+  await queryInterface.bulkDelete('permissions', {}, {})
+
   await queryInterface.bulkInsert('permissions', [
     {
       id: 1001,

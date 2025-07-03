@@ -14,11 +14,22 @@
     "lint:fix": "turbo lint:fix",
     "format": "turbo format",
     "clean": "turbo clean && rm -rf node_modules",
-    "turbo:prune": "turbo prune"
+    "turbo:prune": "turbo prune",
+    "env:ensure": "node scripts/ensure-env.js",
+    "wait:db": "node scripts/wait-for-db.js",
+    "clean:all": "node scripts/clean-all.js",
+    "clean:manual": "node scripts/manual-cleanup.js",
+    "clean:simple": "node scripts/simple-clean.js",
+    "clean:force": "node scripts/force-clean.js",
+    "install:retry": "node scripts/install-with-retry.js",
+    "fix:esbuild": "node scripts/fix-esbuild-permissions.js",
+    "check:docker": "node scripts/check-docker.js",
+    "setup:db": "node scripts/setup-db.js"
   },
   "packageManager": "pnpm@10.11.0",
   "devDependencies": {
     "cypress": "^14.5.0",
+    "tsconfig-paths": "^4.2.0",
     "turbo": "latest"
   },
   "dependencies": {
