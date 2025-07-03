@@ -24,7 +24,7 @@ This package provides internationalization (i18n) utilities for Next.js applicat
 
 ### Setup in an App
 
-1.  **Middleware**: Each app (`apps/your-app`) needs a `src/middleware.js` to handle language detection and routing. See examples in `apps/backoffice` or `apps/site`.
+1.  **Middleware**: Each app (`apps/your-app`) needs a `src/middleware.js` to handle language detection and routing. See examples in `apps/backoffice`.
 2.  **Layout**: Each app needs a dynamic segment layout `src/app/[lng]/layout.tsx` that uses `generateStaticParams` from this package's settings and sets `lang` and `dir` on the `<html>` tag.
 3.  **Root Layout**: A minimal `src/app/layout.tsx` is also required by Next.js.
 

@@ -7,8 +7,7 @@ const appPaths = [
   'apps/backend',
   'apps/app', 
   'apps/auth',
-  'apps/backoffice',
-  'apps/site'
+  'apps/backoffice'
 ];
 
 console.log('🔧 Ensuring .env files exist...');

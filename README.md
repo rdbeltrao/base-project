@@ -8,7 +8,6 @@ This is a monorepo project managed with PNPM and Turborepo, containing the follo
 - **Auth**: Authentication service (functions as an SSO, all applications use a shared cookie on the domain)
 - **App**: Main application (user portal)
 - **Backoffice**: Administrative interface (administration panel)
-- **Site**: Institutional website (landing page with featured events and login)
 
 ## Prerequisites
 
@@ -49,9 +48,6 @@ cp apps/auth/.env.example apps/auth/.env
 
 # For the backoffice
 cp apps/backoffice/.env.example apps/backoffice/.env
-
-# For the site
-cp apps/site/.env.example apps/site/.env
 ```
 
 Adjust the environment variables as needed.
@@ -154,7 +150,6 @@ This command will start all services in development mode:
 - **App**: http://localhost:3001
 - **Auth**: http://localhost:3002
 - **Backoffice**: http://localhost:3003
-- **Site**: http://localhost:3004
 
 ## Project Structure
 
@@ -165,7 +160,6 @@ This command will start all services in development mode:
 │   ├── auth/             # Authentication service
 │   ├── backend/          # Main API
 │   ├── backoffice/       # Administrative interface
-│   └── site/             # Institutional website
 └── packages/             # Shared libraries
     ├── database/         # Database configuration, models, and migrations
     └── ...               # Other shared libraries
