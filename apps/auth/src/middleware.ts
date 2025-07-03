@@ -27,11 +27,41 @@ export async function redirectMiddleware(
 ): Promise<{ redirect: boolean; destination: URL | undefined }> {
   const secretBuffer = new TextEncoder().encode(secret)
 
-  if (path.startsWith('/login')) {
+  if (path === '/') {
     if (token) {
-      return {
-        redirect: true,
-        destination: new URL('/dashboard', url),
+      try {
+        await jwtVerify(token, secretBuffer)
+        return {
+          redirect: true,
+          destination: new URL('/dashboard', url),
+        }
+      } catch (_error) {
+        return {
+          redirect: true,
+          destination: new URL('/login', url),
+        }
+      }
+    }
+    return {
+      redirect: true,
+      destination: new URL('/login', url),
+    }
+  }
+
+  if (path.startsWith('/login') || path.startsWith('/register')) {
+    if (token) {
+      try {
+        await jwtVerify(token, secretBuffer)
+        return {
+          redirect: true,
+          destination: new URL('/dashboard', url),
+        }
+      } catch (_error) {
+        // Token is invalid, allow access to login/register
+        return {
+          redirect: false,
+          destination: undefined,
+        }
       }
     }
     return {
@@ -60,12 +90,40 @@ export async function redirectMiddleware(
       }
     }
   }
+
+  // For other protected routes, check authentication
+  if (token) {
+    try {
+      await jwtVerify(token, secretBuffer)
+      return {
+        redirect: false,
+        destination: undefined,
+      }
+    } catch (_error) {
+      return {
+        redirect: true,
+        destination: new URL('/login', url),
+      }
+    }
+  }
+
+  // No token for protected routes
   return {
-    redirect: false,
-    destination: undefined,
+    redirect: true,
+    destination: new URL('/login', url),
   }
 }
 
 export const config = {
-  exclude: ['/access-denied'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - access-denied (access denied page)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|access-denied).*)',
+  ],
 }
