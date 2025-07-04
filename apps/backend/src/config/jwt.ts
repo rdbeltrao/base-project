@@ -37,7 +37,7 @@ export const clearCookieHeader = (res: any): void => {
   const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
   const isProduction = process.env.NODE_ENV === 'production'
 
-  let cookieOptions = `${cookieName}=; Path=/; SameSite=Lax; HttpOnly=true; Expires=Thu, 01 Jan 1970 00:00:00 GMT`
+  let cookieOptions = `${cookieName}=; Path=/; SameSite=Lax; HttpOnly=false; Expires=Thu, 01 Jan 1970 00:00:00 GMT`
 
   if (isProduction) {
     cookieOptions += '; Secure'
