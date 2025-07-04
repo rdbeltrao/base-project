@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
-import passport from '../config/passport'
-import { userHasPermission } from '../utils/permissions'
+import passport from '../../config/passport'
+import { userHasPermission } from '../../utils/permissions'
 import type { SessionUser } from '@test-pod/database'
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
