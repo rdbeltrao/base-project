@@ -3,7 +3,7 @@
 import { Button, LoadingPage } from '@test-pod/ui'
 import { useAuth } from '@test-pod/auth-shared'
 import Link from 'next/link'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { LogOut, Home, Calendar, Ticket, User } from 'lucide-react'
 import { navItems } from './nav-items'
@@ -14,14 +14,17 @@ interface AppLayoutProps {
 
 export default function DashboardLayout({ children }: AppLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const { user, isLoading, isAuthenticated, logout } = useAuth()
 
-  if (isLoading) {
-    return <LoadingPage />
-  }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/login')
+    }
+  }, [isLoading, isAuthenticated, router])
 
-  if (!isAuthenticated || !user) {
-    return null
+  if (isLoading || !isAuthenticated || !user) {
+    return <LoadingPage /> // Show loading page while checking auth or if not authenticated yet
   }
 
   return (

@@ -12,7 +12,7 @@ import {
 } from '@test-pod/ui'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -31,7 +31,14 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const { isGoogleEnabled, isLoading: isLoadingGoogleConfig } = useGoogleConfig()
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      router.replace('/dashboard')
+    }
+  }, [isAuthLoading, isAuthenticated, router])
 
   const form = useForm<FormValues>({
     resolver: zodResolver(loginSchema),

@@ -1,5 +1,7 @@
 'use client'
 
+'use client'
+
 import {
   Button,
   Input,
@@ -10,7 +12,7 @@ import {
   FormControl,
   FormMessage,
 } from '@test-pod/ui'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -41,7 +43,14 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const { isGoogleEnabled, isLoading: isLoadingGoogleConfig } = useGoogleConfig()
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      router.replace('/dashboard')
+    }
+  }, [isAuthLoading, isAuthenticated, router])
 
   const form = useForm<FormValues>({
     resolver: zodResolver(registerSchema),
