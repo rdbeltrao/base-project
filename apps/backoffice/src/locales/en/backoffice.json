@@ -1,0 +1,11 @@
+{
+  "title": "Backoffice Panel",
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to the Backoffice Dashboard!"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language"
+  }
+}

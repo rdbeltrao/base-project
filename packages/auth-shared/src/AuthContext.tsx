@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           if (userData?.roles?.some((role: string) => role === 'admin')) {
             return `${process.env.NEXT_PUBLIC_BACKOFFICE_URL}/dashboard`
           }
-          return `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+          return '/dashboard'
         })()
 
         return { success: true, redirectUrl }

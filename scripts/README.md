@@ -7,7 +7,7 @@ This directory contains cross-platform Node.js scripts that automate common deve
 ### `ensure-env.js`
 **Purpose**: Ensures `.env` files exist in all app directories
 **What it does**:
-- Checks if `.env` files exist in `apps/backend`, `apps/app`, `apps/auth`, `apps/backoffice`, `apps/site`
+- Checks if `.env` files exist in `apps/backend`, `apps/app`, `apps/auth`, `apps/backoffice`
 - If `.env.example` exists, copies it to `.env`
 - If no `.env.example` exists, creates a basic `.env` template with common variables
 - Provides user feedback for each action

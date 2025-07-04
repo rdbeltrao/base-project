@@ -5,10 +5,8 @@ const path = require('path');
 
 const appPaths = [
   'apps/backend',
-  'apps/app', 
   'apps/auth',
-  'apps/backoffice',
-  'apps/site'
+  'apps/backoffice'
 ];
 
 console.log('🔧 Ensuring .env files exist...');
@@ -40,7 +38,6 @@ GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # App URLs
-NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_API_URL=http://localhost:3001
 `;
       

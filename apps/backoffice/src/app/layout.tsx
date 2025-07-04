@@ -1,23 +1,30 @@
-import { AuthProvider } from '@test-pod/auth-shared'
-import '@/styles/globals.css'
+// This is a minimal root layout.
+// The actual layout content is in app/[lng]/layout.tsx.
+// This file is needed to satisfy Next.js's requirement for a root layout.
+
+import { cookies } from 'next/headers';
+import { dir } from 'i18next';
+import { fallbackLng, languages, cookieName } from '@test-pod/translation/settings';
 
 export const metadata = {
-  title: 'Backoffice',
-  description: 'Painel administrativo',
-}
+  title: 'Backoffice', // Generic title, will be overridden by [lng] layout
+  description: 'Painel administrativo', // Generic description
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'localhost'
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
-  const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken'
+  const cookieStore = cookies();
+  let lng = cookieStore.get(cookieName)?.value || fallbackLng;
+
+  // Validate lng or use fallback
+  if (!languages.includes(lng)) {
+    lng = fallbackLng;
+  }
 
   return (
-    <html lang='pt-BR'>
+    <html lang={lng} dir={dir(lng)}>
       <body suppressHydrationWarning>
-        <AuthProvider domain={domain} apiUrl={apiUrl} cookieName={cookieName}>
-          {children}
-        </AuthProvider>
+        {children}
       </body>
     </html>
-  )
+  );
 }

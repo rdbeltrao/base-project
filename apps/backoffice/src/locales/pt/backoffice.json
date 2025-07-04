@@ -1,0 +1,11 @@
+{
+  "title": "Painel do Backoffice",
+  "dashboard": {
+    "title": "Painel de Controle",
+    "welcome": "Bem-vindo ao Painel de Controle do Backoffice!"
+  },
+  "settings": {
+    "title": "Configurações",
+    "language": "Idioma"
+  }
+}

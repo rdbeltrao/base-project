@@ -23,7 +23,6 @@ try {
     'apps/app',
     'apps/auth', 
     'apps/backoffice',
-    'apps/site',
     'packages/auth-shared',
     'packages/database',
     'packages/eslint-config',
