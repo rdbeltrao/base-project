@@ -95,9 +95,17 @@ router.get(
 router.get('/google/config', authController.getGoogleConfig.bind(authController))
 
 // Auth check route
-router.get('/check-auth', authController.checkAuth.bind(authController))
+router.get(
+  '/check-auth',
+  passport.authenticate('jwt', { session: false }),
+  authController.checkAuth.bind(authController)
+)
 
 // Logout route
-router.post('/logout', authController.logout.bind(authController))
+router.post(
+  '/logout',
+  passport.authenticate('jwt', { session: false }),
+  authController.logout.bind(authController)
+)
 
 export default router

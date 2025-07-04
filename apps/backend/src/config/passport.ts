@@ -1,6 +1,7 @@
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
+import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from 'passport-jwt'
+import { Request } from 'express';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20'
 import bcrypt from 'bcryptjs'
 import { User, Role } from '@test-pod/database'
@@ -57,13 +58,28 @@ passport.use(
   )
 )
 
+
+const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken';
+
+// Cookie extractor function
+const cookieExtractor = (req: Request): string | null => {
+  let token = null;
+  if (req && req.cookies) {
+    token = req.cookies[cookieName];
+  }
+  return token;
+};
+
+const jwtOptions: StrategyOptions = {
+  jwtFromRequest: ExtractJwt.fromExtractors([
+    cookieExtractor, // Try to get token from cookie first
+    ExtractJwt.fromAuthHeaderAsBearerToken(), // Fallback to Bearer token
+  ]),
+  secretOrKey: JWT_SECRET,
+};
+
 passport.use(
-  new JwtStrategy(
-    {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: JWT_SECRET,
-    },
-    async (jwtPayload, done) => {
+  new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
       try {
         const user = await User.findOne({
           where: {

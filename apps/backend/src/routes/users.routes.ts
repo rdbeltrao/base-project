@@ -1,14 +1,23 @@
 import { Router } from 'express'
 import { User, Role, SessionUser, Sequelize } from '@test-pod/database'
-import { authenticate, hasPermission } from '../middleware/auth.middleware'
+// Import protectBackofficeApi instead of authenticate for general backoffice protection
+import { protectBackofficeApi } from '../middleware/backofficeApiAuth'
+// hasPermission can still be used for more granular checks after protectBackofficeApi
+import { hasPermission } from '../middleware/auth.middleware'
 import { userHasPermission } from '../utils/permissions'
 
 const { Op } = Sequelize
 
 const router: Router = Router()
 
-router.get('/', authenticate, hasPermission('user.manage'), async (req, res) => {
+// Example: Replace authenticate with protectBackofficeApi
+// The hasPermission('user.manage') can remain if 'user.manage' is a more specific permission
+// than just being an admin (which protectBackofficeApi already checks).
+// If 'user.manage' implies admin, then hasPermission here might be redundant with protectBackofficeApi's admin check.
+// Assuming 'user.manage' is a specific permission an admin might have/not have.
+router.get('/', protectBackofficeApi(), hasPermission('user.manage'), async (req, res) => {
   try {
+    // req.user is populated by protectBackofficeApi
     const showInactive = await userHasPermission((req.user as SessionUser).id, 'user.delete')
 
     const users = await User.findAll({

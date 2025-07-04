@@ -1,3 +1,5 @@
+'use client';
+
 import { AuthProvider } from '@test-pod/auth-shared'
 import './globals.css'
 

@@ -109,36 +109,15 @@ export class AuthController {
   }
 
   async checkAuth(req: Request, res: Response) {
-    try {
-      let token: string | null = null
-
-      // Try Authorization header first
-      const authHeader = req.headers.authorization
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        token = authHeader.substring(7)
-      }
-
-      // Try cookies
-      if (!token) {
-        token = extractTokenFromCookies(req.headers.cookie as string)
-      }
-      if (!token && req.cookies) {
-        token = req.cookies[process.env.NEXT_PUBLIC_COOKIE_NAME || 'authToken']
-      }
-
-      if (!token) {
-        return res.status(401).json({ authenticated: false })
-      }
-
-      const sessionUser = await this.authService.verifyUserToken(token)
-      if (!sessionUser) {
-        return res.status(401).json({ authenticated: false })
-      }
-
-      res.json({ authenticated: true, user: sessionUser })
-    } catch (error) {
-      console.error('Error checking authentication:', error)
-      res.status(500).json({ message: 'Error checking authentication' })
+    // If this controller method is reached, passport.authenticate('jwt') was successful.
+    // req.user should be populated by Passport.
+    const user = req.user as SessionUser;
+    if (user) {
+      res.json({ authenticated: true, user });
+    } else {
+      // This case should ideally not be reached if passport.authenticate fails,
+      // as it would send a 401 response itself.
+      res.status(401).json({ authenticated: false, message: "Authentication failed or user not found in session." });
     }
   }
 

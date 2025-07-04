@@ -4,6 +4,9 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import passport from './config/passport'
 import { corsConfig } from './config/cors'
+import cookieParser from 'cookie-parser';
+// authMiddleware is no longer imported here for global use.
+// protectApi from './middleware/authMiddleware' will be imported in route files.
 
 // Import new organized routes
 import { authRoutes, usersRoutes } from './api/routes'
@@ -22,6 +25,10 @@ app.use(morgan('dev'))
 // Body parsing middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser());
+
+// The global authMiddleware has been removed.
+// Specific API routes will be protected using the 'protectApi' middleware where needed.
 
 // Authentication middleware
 app.use(passport.initialize())
