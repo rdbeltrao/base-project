@@ -1,0 +1,42 @@
+---
+title: Directory Structure
+description: An overview of the monorepo structure.
+tags: documentation, monorepo, structure
+---
+
+This is a monorepo using pnpm workspaces and Turborepo.
+
+## Root Directory
+
+- `pnpm-workspace.yaml`: Defines the pnpm workspace, listing the packages and applications.
+- `turbo.json`: Configuration file for Turborepo, which manages the build system for the monorepo.
+- `vercel.json`: Configuration for deploying the applications to Vercel.
+- `/apps`: Contains the individual applications of the project.
+- `/packages`: Contains shared code, components, and configurations used by the applications.
+- `/scripts`: Contains various utility and maintenance scripts for the repository.
+
+## Applications (`/apps`)
+
+This directory contains the main applications of the project. Each application is a standalone project, but they share dependencies from the `/packages` directory.
+
+- `/apps/auth`: A Next.js application responsible for user authentication, including login, registration, and session management.
+- `/apps/backend`: An Express.js application that serves as the main API backend. It handles business logic, database interactions, and communicates with the frontend applications.
+- `/apps/backoffice`: A Next.js application for internal administrative tasks. It provides a user interface for managing users, content, and other aspects of the platform.
+
+## Shared Packages (`/packages`)
+
+This directory contains packages that are shared across multiple applications. This promotes code reuse and consistency.
+
+- `/packages/auth-shared`: Contains shared authentication logic and utilities used by both the `auth` and `backoffice` applications.
+- `/packages/database`: A critical package that manages the project's database. It includes:
+  - Sequelize models for all database tables.
+  - Migrations for schema changes.
+  - Seed files for populating the database with initial data.
+- `/packages/eslint-config`: Shared ESLint configuration to enforce consistent coding standards.
+- `/packages/feature-flags`: Manages feature flags for enabling or disabling features at runtime.
+- `/packages/prettier-config`: Shared Prettier configuration for consistent code formatting.
+- `/packages/tailwind-config`: Shared Tailwind CSS configuration for a consistent design system.
+- `/packages/translation`: Handles internationalization (i18n), providing translations for different languages.
+- `/packages/ts-config`: Shared TypeScript configurations (`tsconfig.json`) for the projects.
+- `/packages/ui`: A library of shared React components used across the frontend applications to ensure a consistent look and feel.
+- `/packages/utils`: A collection of shared utility functions that can be used in any of the applications or packages.

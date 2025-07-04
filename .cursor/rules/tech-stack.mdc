@@ -1,0 +1,83 @@
+# Application Technology Stack
+
+This document outlines the core technologies, libraries, and frameworks used in this project. It serves as a guide for development, ensuring consistency and adherence to established patterns.
+
+## Monorepo & Tooling
+
+The project is structured as a monorepo managed by PNPM and optimized with Turborepo.
+
+- **Package Manager:** PNPM (`v10.11.0`)
+- **Build System:** Turborepo (`latest`)
+- **Best Practices:**
+    - Use `pnpm -w install <package>` to add dependencies to the root.
+    - Use `pnpm --filter <workspace> add <package>` to add dependencies to a specific app or package.
+    - Leverage Turborepo's caching by ensuring tasks are defined correctly in `turbo.json`.
+
+## Core Framework & UI
+
+The frontend applications are built using Next.js and a modern UI stack.
+
+- **Framework:** Next.js (`v14.2.0`)
+- **UI Library:** React (`v18.2.0`)
+- **Styling:** Tailwind CSS (`v3.4.1`)
+- **Best Practices:**
+    - **App Router:** Prioritize the use of the App Router over the legacy Pages Router.
+    - **Server Components:** Use Server Components by default for better performance. Only use Client Components (`"use client"`) when interactivity is required.
+    - **Data Fetching:** Fetch data in Server Components, preferably using Server Actions for mutations.
+
+## Authentication
+
+Authentication is handled by `next-auth`.
+
+- **Library:** `next-auth` (`v4.24.7`)
+- **Remarks & Recommendations:**
+    - You are currently on **v4**, which is a stable but legacy version.
+    - The latest version is **v5 (Auth.js)**, which is highly recommended for new projects using the Next.js App Router as it's designed to work seamlessly with React Server Components and Middleware.
+    - **Recommendation:** For now, be mindful of the complexities of using `next-auth` v4 with Server Components, especially around session management. Plan a future migration to Auth.js (v5) for a more robust and modern authentication setup.
+
+## UI Components & Design System
+
+The project uses a composable and type-safe approach to building the UI.
+
+- **Core Components:** Radix UI
+- **Styling Utilities:** `class-variance-authority` (CVA), `clsx`, and `tailwind-merge`.
+- **Icons:** Lucide React (`v0.523.0`)
+- **Internal Library:** `@test-pod/ui` is the shared component library.
+- **Best Practices:**
+    - When creating new components, build them in `@test-pod/ui` if they can be reused.
+    - Use CVA to create variants for components, ensuring flexibility and consistency.
+    - Always use `tailwind-merge` to prevent conflicting style classes.
+
+## Forms & Validation
+
+Forms are managed with `react-hook-form` and validated with `zod`.
+
+- **Form Management:** React Hook Form (`v7.58.1`)
+- **Schema & Validation:** Zod (`v3.25.67`)
+- **Best Practices:**
+    - Define a `zod` schema for every form to ensure type safety.
+    - Use the `@hookform/resolvers` package to connect Zod schemas with React Hook Form.
+
+## Testing
+
+The project employs a multi-layered testing strategy.
+
+- **Unit & Integration:** Jest (`v29.7.0`)
+- **End-to-End (E2E):** Cypress (`v14.5.0`)
+- **Best Practices:**
+    - Place Jest tests (`.test.ts` or `.spec.ts`) alongside the code they are testing.
+    - Write E2E tests in the `cypress` directory for critical user flows.
+
+## Internationalization (i18n)
+
+The application supports multiple languages using the `i18next` ecosystem.
+
+- **Framework:** `i18next` (`v25.3.0`) with `react-i18next`.
+- **Best Practices:**
+  - Store translation files in the appropriate i18n-related directories.
+  - Use the `useTranslation` hook to access translations in components.
+
+description:
+globs: []
+alwaysApply: false
+---
