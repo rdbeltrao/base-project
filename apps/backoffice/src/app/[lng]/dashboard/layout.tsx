@@ -3,8 +3,8 @@
 import { Button, LoadingPage } from '@test-pod/ui'
 import { useAuth } from '@test-pod/auth-shared'
 import Link from 'next/link'
-import { ReactNode, useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { ReactNode, useState, useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { LogOut, Briefcase, ChevronLeft, ChevronRight, User } from 'lucide-react'
 import { navItems, NavItem } from '../../../lib/menu-items'
 import { IconRenderer } from '@test-pod/ui'
@@ -16,15 +16,30 @@ interface AdminLayoutProps {
 
 export default function DashboardLayout({ children, params }: AdminLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const { user, isLoading, isAuthenticated, logout, hasPermissions } = useAuth()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
-  if (isLoading) {
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:3001'
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      // Redirect to the login page of the auth app
+      window.location.href = `${authUrl}/login?redirect=${encodeURIComponent(window.location.href)}`;
+    }
+  }, [isLoading, isAuthenticated, router, authUrl])
+
+  if (isLoading || !isAuthenticated || !user) {
+    // Show loading page while checking auth or if not authenticated yet (before redirect effect runs)
     return <LoadingPage />
   }
 
-  if (!isAuthenticated || !user) {
-    return null
+  // Further check for admin role, specific to backoffice access
+  if (!user.roles?.includes('admin')) {
+    // If not admin, redirect to an access denied page in the auth app, or show a message
+    // Using window.location.href for cross-origin redirect.
+    window.location.href = `${authUrl}/access-denied`;
+    return <LoadingPage />; // Show loading while redirecting
   }
 
   return (
