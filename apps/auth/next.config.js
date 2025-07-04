@@ -5,8 +5,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    ssr: false,
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
   },
 }
 
