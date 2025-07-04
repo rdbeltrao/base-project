@@ -5,6 +5,8 @@ import jwt, { SignOptions } from 'jsonwebtoken'
 import passport from '../config/passport'
 import type { SessionUser } from '@test-pod/database'
 import { getUserForSession } from '../utils/user'
+import { authenticate } from '../middleware/auth.middleware'
+import { userHasPermission } from '../utils/permissions'
 
 const router: express.Router = express.Router()
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
@@ -346,6 +348,51 @@ router.post('/logout', (req: express.Request, res: express.Response) => {
   } catch (error) {
     console.error('Error during logout:', error)
     res.status(500).json({ message: 'Error during logout' })
+  }
+})
+
+// Add new endpoints for frontend auth verification
+router.post('/verify-token', authenticate, (req: express.Request, res: express.Response) => {
+  // If we get here, authentication was successful
+  const user = req.user as SessionUser
+  res.json({
+    valid: true,
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      roles: user.roles,
+      permissions: user.permissions
+    }
+  })
+})
+
+router.post('/check-permission', authenticate, async (req: express.Request, res: express.Response) => {
+  try {
+    const { permission } = req.body
+    const user = req.user as SessionUser
+    
+    if (!permission) {
+      return res.status(400).json({ message: 'Permission parameter is required' })
+    }
+
+    const hasPermission = await userHasPermission(user.id, permission)
+    
+    res.json({
+      hasPermission,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles,
+        permissions: user.permissions
+      }
+    })
+  } catch (error) {
+    console.error('Error checking permission:', error)
+    res.status(500).json({ message: 'Error checking permission' })
   }
 })
 

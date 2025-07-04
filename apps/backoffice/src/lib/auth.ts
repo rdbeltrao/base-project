@@ -18,6 +18,125 @@ interface SessionUser {
   [key: string]: any
 }
 
+const cookieName = (typeof window !== 'undefined' && (window as any).process?.env?.NEXT_PUBLIC_COOKIE_NAME) || 'authToken'
+const authUrl = (typeof window !== 'undefined' && (window as any).process?.env?.NEXT_PUBLIC_AUTH_URL) || 'http://localhost:3001'
+const backendUrl = (typeof window !== 'undefined' && (window as any).process?.env?.NEXT_PUBLIC_BACKEND_URL) || 'http://localhost:3000'
+
+/**
+ * Get auth token from cookies
+ */
+export function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null
+  
+  const cookies = document.cookie.split(';')
+  let authCookie: string | undefined
+  for (let i = 0; i < cookies.length; i++) {
+    if (cookies[i].trim().indexOf(`${cookieName}=`) === 0) {
+      authCookie = cookies[i]
+      break
+    }
+  }
+  
+  return authCookie ? authCookie.split('=')[1] : null
+}
+
+/**
+ * Verify if the current token is valid
+ */
+export async function verifyToken(): Promise<{ valid: boolean; user?: SessionUser }> {
+  const token = getAuthToken()
+  
+  if (!token) {
+    return { valid: false }
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}/api/auth/verify-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return { valid: true, user: data.user }
+    }
+    
+    return { valid: false }
+  } catch (error) {
+    console.error('Token verification error:', error)
+    return { valid: false }
+  }
+}
+
+/**
+ * Check if user has specific permission via API
+ */
+export async function checkPermissionAPI(permission: string): Promise<boolean> {
+  const token = getAuthToken()
+  
+  if (!token) {
+    return false
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}/api/auth/check-permission`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ permission })
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return data.hasPermission
+    }
+    
+    return false
+  } catch (error) {
+    console.error('Permission check error:', error)
+    return false
+  }
+}
+
+/**
+ * Client-side route protection
+ */
+export function redirectToAuth(currentPath: string) {
+  if (typeof window !== 'undefined') {
+    window.location.href = `${authUrl}/login?redirect=${encodeURIComponent(currentPath)}`
+  }
+}
+
+/**
+ * Check if user is authenticated and redirect if not
+ */
+export async function requireAuth(currentPath: string): Promise<SessionUser | null> {
+  const { valid, user } = await verifyToken()
+  
+  if (!valid) {
+    redirectToAuth(currentPath)
+    return null
+  }
+  
+  return user || null
+}
+
+/**
+ * Check if user has admin role
+ */
+export function isAdmin(user: SessionUser): boolean {
+  if (!user || !user.roles) return false
+  
+  return user.roles.some(role => 
+    typeof role === 'string' ? role === 'admin' : role.name === 'admin'
+  )
+}
+
 /**
  * Verifica se o usuário tem uma permissão específica
  * @param user Usuário da sessão
