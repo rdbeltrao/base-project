@@ -7,10 +7,9 @@ import { dir } from 'i18next';
 import { fallbackLng, languages, cookieName } from '@test-pod/translation/settings';
 import { useEffect, useState } from 'react'; // Import useEffect and useState
 
-export const metadata = {
-  title: 'Backoffice', // Generic title, will be overridden by [lng] layout
-  description: 'Painel administrativo', // Generic description
-};
+// Removed metadata export as this is a 'use client' component.
+// Metadata for the backoffice app is primarily handled by the `generateMetadata`
+// function in `apps/backoffice/src/app/[lng]/layout.tsx`.
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [lng, setLng] = useState(fallbackLng); // Use state for language
