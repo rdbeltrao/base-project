@@ -23,20 +23,6 @@ const appLocaleLoader = (language: string, namespace: string) => {
   return import(`../../locales/${language}/${namespace}.json`);
 };
 
-// generateStaticParams and generateMetadata are fine, they are server-side Next.js features
-export async function generateStaticParams() {
-  return languages.map((lngParam: string) => ({ lng: lngParam }));
-}
-
-export async function generateMetadata({ params }: { params: { lng: string } }) {
-  // This is server-side, so using the async useTranslation is fine here if needed
-  // For simplicity, keeping titles static as before.
-  return {
-    title: params.lng === 'pt' ? 'Backoffice PT (Client)' : 'Backoffice EN (Client)',
-    description: params.lng === 'pt' ? 'Painel administrativo' : 'Admin panel',
-  };
-}
-
 export default function LngLayout({
   children,
 }: {
